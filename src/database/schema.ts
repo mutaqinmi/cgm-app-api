@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { boolean, date, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, index, integer, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const user_tokens = pgTable('user_tokens', {
     user_id: serial('user_id').references(() => users.user_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
@@ -56,6 +56,6 @@ export const notifications = pgTable('notifications', {
 
 export const fees = pgTable('fees', {
     fee_id: serial('fee_id').primaryKey(),
-    fee_amount: varchar('fee_amount', { length: 50 }),
-    fee_date: date('fee_date'),
+    fee_amount: integer('fee_amount'),
+    fee_date: varchar('fee_date'),
 })

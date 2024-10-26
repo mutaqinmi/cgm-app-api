@@ -1,6 +1,6 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 export const getAdministrator = async (phone_number: string) => {
     return await db.select().from(table.administrators).where(eq(table.administrators.phone, phone_number));
@@ -19,4 +19,15 @@ export const getAdminToken = async (token: string) => {
 
 export const removeAdminToken = async (admin_id: number) => {
     return await db.delete(table.admin_tokens).where(eq(table.admin_tokens.admin_id, admin_id));
+}
+
+export const getIuran = async (date: string) => {
+    return await db.select().from(table.fees).where(eq(table.fees.fee_date, date));
+}
+
+export const setIuran = async (date: string, amount: number) => {
+    return await db.insert(table.fees).values({
+        fee_date: date,
+        fee_amount: amount,
+    });
 }
