@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import IconButton from "@/components/icon-button";
 
 export default function Test(){
@@ -19,4 +20,11 @@ export default function Test(){
     // Simpan component disini
     return <PassworInputField/>
 >>>>>>> 365dfc8 (tes)
+=======
+import RegularInputField from "@/components/regular-input-field";
+
+export default function Test(){
+    // Simpan component disini
+    return <RegularInputField/>
+>>>>>>> 42af0ca (field)
 }
