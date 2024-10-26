@@ -28,6 +28,7 @@ export const administrators = pgTable('administrators', {
 
 export const payments = pgTable('payments', {
     payment_id: serial('payment_id').primaryKey(),
+    fee_id: serial('fee_id').references(() => fees.fee_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     user_id: serial('user_id').references(() => users.user_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     admin_id: serial('admin_id').references(() => administrators.admin_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     payment_date: date('payment_date').default(sql`NOW()`),
@@ -36,11 +37,25 @@ export const payments = pgTable('payments', {
     last_update: timestamp('last_update').default(sql`NOW()`),
 })
 
-export const posts = pgTable('posts', {
-    post_id: serial('post_id').primaryKey(),
-    admin_id: serial('admin_id').references(() => administrators.admin_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
-    post_title: varchar('post_title', { length: 50 }),
-    post_content: varchar('post_content'),
-    post_date: timestamp('post_date').default(sql`NOW()`),
-    post_image: varchar('post_image', { length: 255 }).default('announcement-default-image.png'),
+// export const posts = pgTable('posts', {
+//     post_id: serial('post_id').primaryKey(),
+//     admin_id: serial('admin_id').references(() => administrators.admin_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
+//     post_title: varchar('post_title', { length: 50 }),
+//     post_content: varchar('post_content'),
+//     post_date: timestamp('post_date').default(sql`NOW()`),
+//     post_image: varchar('post_image', { length: 255 }).default('announcement-default-image.png'),
+// })
+
+export const notifications = pgTable('notifications', {
+    notification_id: serial('notification_id').primaryKey(),
+    user_id: serial('user_id').references(() => users.user_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
+    notification_title: varchar('notification_title', { length: 50 }),
+    notification_content: varchar('notification_content'),
+    notification_date: timestamp('notification_date').default(sql`NOW()`),
+})
+
+export const fees = pgTable('fees', {
+    fee_id: serial('fee_id').primaryKey(),
+    fee_amount: varchar('fee_amount', { length: 50 }),
+    fee_date: date('fee_date'),
 })
