@@ -1,4 +1,3 @@
-import { desc } from 'drizzle-orm';
 import './globals.css';
 import { Poppins } from 'next/font/google';
 
