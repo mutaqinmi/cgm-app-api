@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -28,6 +29,8 @@ export default function Test(){
 >>>>>>> 5fe86dd (feat: adding some component)
 =======
 >>>>>>> 562e032 (non editable field)
+=======
+>>>>>>> 3af7f53 (tes)
 import IconButton from "@/components/icon-button";
 
 export default function Test(){
@@ -65,5 +68,15 @@ export default function Test(){
 >>>>>>> 5fe86dd (feat: adding some component)
 =======
 >>>>>>> 37ab2d3 (non editable field)
+<<<<<<< HEAD
 >>>>>>> 562e032 (non editable field)
+=======
+=======
+import PassworInputField from "@/components/password-Input-field";
+
+export default function Test(){
+    // Simpan component disini
+    return <PassworInputField/>
+>>>>>>> 365dfc8 (tes)
+>>>>>>> 3af7f53 (tes)
 }
