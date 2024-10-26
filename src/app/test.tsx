@@ -1,6 +1,6 @@
-import AlertPopup from "@/components/alert-popup";
+import NonEditedField from "@/components/non-edited-field";
 
 export default function Test(){
     // Simpan component disini
-    return <AlertPopup/>
+    return <NonEditedField/>
 }
