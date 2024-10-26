@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22,11 +23,14 @@ export default function Test(){
 >>>>>>> 12e86a5 (fix: merging branch)
 =======
 >>>>>>> be82304 (feat: drawer & drawer menu item)
+=======
+>>>>>>> 5fe86dd (feat: adding some component)
 import IconButton from "@/components/icon-button";
 
 export default function Test(){
     // Simpan component disini
     return <IconButton/>
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> ff87fa0 (feat: adding some component)
@@ -50,4 +54,6 @@ export default function Test(){
     return <Drawer/>
 >>>>>>> 8cd154d (feat: drawer and drawer menu item)
 >>>>>>> 91b03af (feat: drawer and drawer menu item)
+=======
+>>>>>>> 5fe86dd (feat: adding some component)
 }
