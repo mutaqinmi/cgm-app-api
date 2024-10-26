@@ -1,6 +1,6 @@
-import AlertPopup from "@/components/alert-popup";
+import DrawerMenuItem from "@/components/drawer-menu-item";
 
 export default function Test(){
     // Simpan component disini
-    return <AlertPopup/>
+    return <DrawerMenuItem/>
 }
