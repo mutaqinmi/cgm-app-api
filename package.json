@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.7",
+    "@types/jsonwebtoken": "^9.0.7",
     "argon2": "^0.41.1",
     "drizzle-orm": "^0.35.3",
+    "jsonwebtoken": "^9.0.2",
     "next": "15.0.1",
     "pg": "^8.13.1",
     "react": "19.0.0-rc-69d4b800-20241021",
