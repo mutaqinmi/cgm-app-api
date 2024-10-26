@@ -4,8 +4,12 @@ export default function FilledButton() {
           <span className="text-white font-medium">Masuk</span>
         </button>
 <<<<<<< HEAD
+<<<<<<< HEAD
     );
 =======
     );
 >>>>>>> e580922 (feat: add filled button)
+=======
+    );
+>>>>>>> 7496238 (feat: filled button)
   }
