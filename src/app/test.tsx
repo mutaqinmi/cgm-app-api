@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -31,6 +32,8 @@ export default function Test(){
 >>>>>>> 562e032 (non editable field)
 =======
 >>>>>>> 3af7f53 (tes)
+=======
+>>>>>>> 99901b4 (field)
 import IconButton from "@/components/icon-button";
 
 export default function Test(){
@@ -78,5 +81,15 @@ export default function Test(){
     // Simpan component disini
     return <PassworInputField/>
 >>>>>>> 365dfc8 (tes)
+<<<<<<< HEAD
 >>>>>>> 3af7f53 (tes)
+=======
+=======
+import RegularInputField from "@/components/regular-input-field";
+
+export default function Test(){
+    // Simpan component disini
+    return <RegularInputField/>
+>>>>>>> 42af0ca (field)
+>>>>>>> 99901b4 (field)
 }
