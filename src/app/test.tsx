@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> a0a5b28 (feat: drawer & drawer menu item)
 import DrawerMenuItem from "@/components/drawer-menu-item";
@@ -38,5 +39,15 @@ export default function Test(){
 >>>>>>> 7bb80af (non editable field)
 =======
 >>>>>>> a0a5b28 (feat: drawer & drawer menu item)
+<<<<<<< HEAD
 >>>>>>> be82304 (feat: drawer & drawer menu item)
+=======
+=======
+import Drawer from "@/components/drawer";
+
+export default function Test(){
+    // Simpan component disini
+    return <Drawer/>
+>>>>>>> 8cd154d (feat: drawer and drawer menu item)
+>>>>>>> 91b03af (feat: drawer and drawer menu item)
 }
