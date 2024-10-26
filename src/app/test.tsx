@@ -1,6 +1,6 @@
-import AlertPopup from "@/components/alert-popup";
+import Drawer from "@/components/drawer";
 
 export default function Test(){
     // Simpan component disini
-    return <AlertPopup/>
+    return <Drawer/>
 }
