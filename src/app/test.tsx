@@ -1,6 +1,6 @@
-import NonEditedField from "@/components/non-edited-field";
+import PassworInputField from "@/components/password-Input-field";
 
 export default function Test(){
     // Simpan component disini
-    return <NonEditedField/>
+    return <PassworInputField/>
 }
