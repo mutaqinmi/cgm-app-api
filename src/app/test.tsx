@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25,6 +26,8 @@ export default function Test(){
 >>>>>>> be82304 (feat: drawer & drawer menu item)
 =======
 >>>>>>> 5fe86dd (feat: adding some component)
+=======
+>>>>>>> 562e032 (non editable field)
 import IconButton from "@/components/icon-button";
 
 export default function Test(){
@@ -32,14 +35,18 @@ export default function Test(){
     return <IconButton/>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ff87fa0 (feat: adding some component)
+=======
+>>>>>>> 562e032 (non editable field)
 =======
 import NonEditedField from "@/components/non-edited-field";
 
 export default function Test(){
     // Simpan component disini
     return <NonEditedField/>
+<<<<<<< HEAD
 >>>>>>> 7bb80af (non editable field)
 =======
 >>>>>>> a0a5b28 (feat: drawer & drawer menu item)
@@ -56,4 +63,7 @@ export default function Test(){
 >>>>>>> 91b03af (feat: drawer and drawer menu item)
 =======
 >>>>>>> 5fe86dd (feat: adding some component)
+=======
+>>>>>>> 37ab2d3 (non editable field)
+>>>>>>> 562e032 (non editable field)
 }
