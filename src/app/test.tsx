@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -34,6 +35,8 @@ export default function Test(){
 >>>>>>> 3af7f53 (tes)
 =======
 >>>>>>> 99901b4 (field)
+=======
+>>>>>>> 50a7509 (p)
 import IconButton from "@/components/icon-button";
 
 export default function Test(){
@@ -91,5 +94,15 @@ export default function Test(){
     // Simpan component disini
     return <RegularInputField/>
 >>>>>>> 42af0ca (field)
+<<<<<<< HEAD
 >>>>>>> 99901b4 (field)
+=======
+=======
+import TextButton from "@/components/text-button";
+
+export default function Test(){
+    // Simpan component disini
+    return <TextButton/>
+>>>>>>> 9af73a2 (p)
+>>>>>>> 50a7509 (p)
 }
