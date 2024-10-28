@@ -1,11 +1,14 @@
 export default function Drawer() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> 8cd154d (feat: drawer and drawer menu item)
 >>>>>>> 91b03af (feat: drawer and drawer menu item)
+=======
+>>>>>>> a3166ca (fix: merging)
     return <div className="w-80 h-screen shadow-md px-8 py-8">
             <div className="w-full h-full">
               <div className="flex items-center w-full mb-12 ml-[-6px]">
@@ -21,8 +24,8 @@ export default function Drawer() {
               </div>
             </div>
           </div>
-<<<<<<< HEAD
         }
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
@@ -48,3 +51,5 @@ export default function Drawer() {
         }
 >>>>>>> 8cd154d (feat: drawer and drawer menu item)
 >>>>>>> 91b03af (feat: drawer and drawer menu item)
+=======
+>>>>>>> a3166ca (fix: merging)
