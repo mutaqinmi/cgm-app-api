@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import IconButton from "@/components/icon-button";
 
 export default function Test(){
@@ -29,10 +30,22 @@ export default function Test(){
     return <RegularInputField/>
 >>>>>>> 42af0ca (field)
 =======
+=======
+>>>>>>> cf8ed2b (fix: merging)
 import TextButton from "@/components/text-button";
 
 export default function Test(){
     // Simpan component disini
     return <TextButton/>
+<<<<<<< HEAD
 >>>>>>> 9af73a2 (p)
+=======
+=======
+import RegularInputField from "@/components/regular-input-field";
+
+export default function Test(){
+    // Simpan component disini
+    return <RegularInputField/>
+>>>>>>> 42af0ca (field)
+>>>>>>> cf8ed2b (fix: merging)
 }
