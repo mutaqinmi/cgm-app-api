@@ -8,7 +8,6 @@ export default function InputFileField() {
             <UploadSimple size={40} weight="bold" color="white"/>
               <span className="block text-white text-sm font-medium mt-3">Unggah Gambar Sampul</span>
             </div>
-
             <input
               name=""
               className="h-full w-full opacity-0 cursor-pointer"

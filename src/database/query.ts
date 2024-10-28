@@ -1,6 +1,14 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
+<<<<<<< HEAD
+<<<<<<< HEAD
 import { eq, sql } from 'drizzle-orm';
+=======
+import { eq } from 'drizzle-orm';
+>>>>>>> 5135e49 (feat: auth API administrator)
+=======
+import { eq, sql } from 'drizzle-orm';
+>>>>>>> b1db8b0 (feat: iuran on table fees)
 
 export const getAdministrator = async (phone_number: string) => {
     return await db.select().from(table.administrators).where(eq(table.administrators.phone, phone_number));
@@ -19,6 +27,10 @@ export const getAdminToken = async (token: string) => {
 
 export const removeAdminToken = async (admin_id: number) => {
     return await db.delete(table.admin_tokens).where(eq(table.admin_tokens.admin_id, admin_id));
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b1db8b0 (feat: iuran on table fees)
 }
 
 export const getIuran = async (date: string) => {
@@ -30,4 +42,9 @@ export const setIuran = async (date: string, amount: number) => {
         fee_date: date,
         fee_amount: amount,
     });
+<<<<<<< HEAD
+=======
+>>>>>>> 5135e49 (feat: auth API administrator)
+=======
+>>>>>>> b1db8b0 (feat: iuran on table fees)
 }
