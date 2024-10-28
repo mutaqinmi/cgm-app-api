@@ -1,14 +1,6 @@
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { generateToken } from "@/lib/token";
-=======
-import { generateToken } from "@/utils/token";
->>>>>>> 5135e49 (feat: auth API administrator)
-=======
-import { generateToken } from "@/lib/token";
->>>>>>> 26bdf24 (feat: auth method for admin token)
 
 export async function POST(req: req){
     try {
@@ -26,7 +18,7 @@ export async function POST(req: req){
         // check if administrator exists
         if(administrator.length === 0){
             return res.json({
-                message: "Administrator not found",
+                message: "Administrator tidak ditemukan",
             }, {
                 status: 404
             })
@@ -35,7 +27,7 @@ export async function POST(req: req){
         // check if password is correct
         if(administrator[0].password !== admin_password){
             return res.json({
-                message: "Invalid password",
+                message: "password salah",
             }, {
                 status: 401
             })
