@@ -40,6 +40,9 @@ export async function POST(req: req){
         const body = await req.json();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3793794 (feat: add check to existed iuran)
         // check if iuran data already exists
         const iuran = await query.getIuran(`${month}-${year}`);
         if(iuran){
@@ -50,8 +53,11 @@ export async function POST(req: req){
             })
         }
 
+<<<<<<< HEAD
 =======
 >>>>>>> b1db8b0 (feat: iuran on table fees)
+=======
+>>>>>>> 3793794 (feat: add check to existed iuran)
         // set iuran data to database
         await query.setIuran(`${month}-${year}`, body.amount);
 
