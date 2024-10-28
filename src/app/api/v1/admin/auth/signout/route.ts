@@ -1,25 +1,25 @@
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
+import { verifyToken } from "@/lib/auth";
 
 export async function GET(req: req){
     try {
         // get token from request
         const token: string = req.headers.get('authorization')!;
-
-        // get token data from database
-        const list_token = await query.getAdminToken(token.split(' ')[1]);
-
+        
         // check if token exists
-        if(list_token.length === 0){
+        const verified_token = await verifyToken(token);
+
+        if(!verified_token){
             return res.json({
-                message: "Token not found",
+                message: 'token not found',
             }, {
-                status: 404
+                status: 400
             })
         }
 
         // remove token in database
-        await query.removeAdminToken(list_token[0].admin_id);
+        await query.removeAdminToken(verified_token);
 
         // return response
         return res.json({
