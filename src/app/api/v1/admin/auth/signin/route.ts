@@ -1,10 +1,14 @@
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { generateToken } from "@/lib/token";
 =======
 import { generateToken } from "@/utils/token";
 >>>>>>> 5135e49 (feat: auth API administrator)
+=======
+import { generateToken } from "@/lib/token";
+>>>>>>> 26bdf24 (feat: auth method for admin token)
 
 export async function POST(req: req){
     try {
