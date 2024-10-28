@@ -1,3 +1,5 @@
+import FilledButton from "@/components/filled-button";
+import PasswordInputField from "@/components/password-Input-field";
 import PhoneNumberInput from "@/components/phone-number-input";
 import Form from "next/form";
 
@@ -10,6 +12,8 @@ export default function Page(){
             </div>
             <Form action={""} formMethod="POST">
                 <PhoneNumberInput className="mt-12"/>
+                <PasswordInputField/>
+                <FilledButton type="submit" className="mt-12"/>
             </Form>
         </div>
     </div>
