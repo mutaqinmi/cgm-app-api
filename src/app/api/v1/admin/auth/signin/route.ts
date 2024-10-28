@@ -1,6 +1,6 @@
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
-import { generateToken } from "@/utils/token";
+import { generateToken } from "@/lib/token";
 
 export async function POST(req: req){
     try {
