@@ -1,6 +1,6 @@
-import Drawer from "@/components/drawer";
+import IconButton from "@/components/icon-button";
 
 export default function Test(){
     // Simpan component disini
-    return <Drawer/>
+    return <IconButton/>
 }
