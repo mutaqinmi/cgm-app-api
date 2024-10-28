@@ -12,9 +12,9 @@ export async function GET(req: req){
 
         if(!verified_token){
             return res.json({
-                message: 'token not found',
+                message: 'invalid token',
             }, {
-                status: 400
+                status: 401
             })
         }
 
