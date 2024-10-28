@@ -1,6 +1,6 @@
-import RegularInputField from "@/components/regular-input-field";
+import TextButton from "@/components/text-button";
 
 export default function Test(){
     // Simpan component disini
-    return <RegularInputField/>
+    return <TextButton/>
 }
