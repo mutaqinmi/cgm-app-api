@@ -1,5 +1,7 @@
-export default function FilledButton() {
-  return <button className="w-80 h-14 rounded-xl bg-[#3D8FED]">
-        <span className="text-white font-medium">Masuk</span>
-     </button>
+export default function FilledButton(props: {className?: string; type: "submit" | "button"}) {
+  return (
+      <button type={props.type} className={`w-full h-12 rounded-md bg-[#3D8FED] ${props.className}`}>
+        <span className="text-white font-semibold text-sm">Masuk</span>
+      </button>
+  );
 }

@@ -12,7 +12,7 @@ export async function GET(req: req){
 
         if(!verified_token){
             return res.json({
-                message: 'invalid token',
+                message: 'token tidak valid',
             }, {
                 status: 401
             })
