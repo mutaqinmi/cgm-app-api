@@ -1,7 +1,7 @@
 import './globals.css';
-import { Poppins } from 'next/font/google';
+import { Inter } from 'next/font/google';
 
-const poppins = Poppins({
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   weight: '400',
@@ -14,7 +14,7 @@ export const metadata = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html className={poppins.className}>
+    <html className={inter.className}>
       <body>
         {children}
       </body>

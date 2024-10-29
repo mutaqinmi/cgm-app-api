@@ -30,7 +30,7 @@ export default function Page(){
     const route = useRouter();
     const {phone, password} = useInput.getState();
     const {setPhone, setPassword} = useInput();
-    const [error, setError] = useState("");
+    const [error, setError] = useState<string>("");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -54,12 +54,13 @@ export default function Page(){
         event.preventDefault();
         signin_api(phone, password).then((response) => {
             setError("");
-            const {token} = response.data.data as {token: string};
-            localStorage.setItem("token", token);
+            const data = response.data.data as {token: string; user: string};
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", data.user);
             route.push("/cgm-admin/dashboard");
         }).catch((error: AxiosError) => {
-            const error_message = error.response?.data as {message: string};
-            setError(error_message.message);
+            const {message} = error.response?.data as {message: string};
+            setError(message);
         })
     }
 

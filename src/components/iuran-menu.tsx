@@ -1,6 +1,15 @@
-export default function IuranMenu(){
-    return <div className="flex flex-col">
-        <p className="font-medium text-xs text-[#848484]">Oktober 2024</p>
-        <p className="font-medium">Repat Dwi Gunanda</p>
+import { CaretRight, HandCoins } from "@phosphor-icons/react";
+import Icon from "./icon";
+
+export default function IuranMenu(props: {month: string, title: string}){
+    return <div className="flex justify-between items-center">
+        <div className="flex gap-4 justify-center items-center">
+            <Icon icon={<HandCoins size={24}/>}/>
+            <div className="flex flex-col">
+                <span className="text-sm text-gray-500">{props.month}</span>
+                <span className="text-lg font-semibold">{props.title}</span>
+            </div>
+        </div>
+        <CaretRight size={14}/>
     </div>
 }
