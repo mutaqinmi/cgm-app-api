@@ -1,6 +1,15 @@
 'use client'
 import { X } from "@phosphor-icons/react";
 
+/**
+ * This component is used for creating a drawer component.
+ * 
+ * Usage:
+ * @param className string (optional)
+ * @param children React.ReactNode
+ * @param setShowDrawer (showDrawer: boolean) => void
+ */
+
 export default function Drawer(props: {className?: string; children: React.ReactNode; setShowDrawer: (showDrawer: boolean) => void}) {
   return <div>
     <div className="w-screen h-screen bg-black z-50 fixed top-0 bg-opacity-50" onClick={() => props.setShowDrawer(false)}></div>
