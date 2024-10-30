@@ -27,7 +27,7 @@ export async function POST(req: req){
         // check if password is correct
         if(administrator[0].password !== admin_password){
             return res.json({
-                message: "password salah",
+                message: "Password salah",
             }, {
                 status: 401
             })

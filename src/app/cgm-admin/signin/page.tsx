@@ -4,11 +4,12 @@ import FilledButton from "@/components/filled-button";
 import Logo from "@/components/logo";
 import PasswordInputField from "@/components/password-Input-field";
 import PhoneNumberInput from "@/components/phone-number-input";
-import axios, { AxiosError } from "axios";
 import Form from "next/form";
 import { useRouter } from "next/navigation";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { create } from "zustand";
+import * as controller from "@/app/controllers";
+import { AxiosError } from "axios";
 
 interface InputState {
     phone: string;
@@ -39,20 +40,9 @@ export default function Page(){
         }
     }, [])
 
-    const signin_api = useCallback(async (phone: string, password: string) => {
-        return await axios.post(`${process.env.API_URL}/admin/auth/signin`, {
-            phone,
-            password
-        }, {
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-    }, [])
-
     const signin = (event: FormEvent<HTMLFormElement>) : void => {
         event.preventDefault();
-        signin_api(phone, password).then((response) => {
+        controller.signin(phone, password).then((response) => {
             setError("");
             const data = response.data.data as {token: string; user: string};
             localStorage.setItem("token", data.token);
