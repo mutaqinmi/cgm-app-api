@@ -7,8 +7,8 @@ export default function AlertPopup() {
       <span className="text-sm">Anda akan dialihkan ke WhatsApp untuk menghubungi Ketua RW</span>
     </div>
     <div className="flex gap-4 w-full">
-      <button className="w-full h-9 rounded-md font-medium border-2 border-[#3D8FED] text-[#3D8FED]"><span>Batal</span></button>
-      <button className="w-full h-9 rounded-md font-medium bg-[#3D8FED] text-white"><span>Lanjutkan</span></button>
+      <button className="w-full h-9 rounded-md font-medium border-2 border-blue-500 text-blue-500"><span>Batal</span></button>
+      <button className="w-full h-9 rounded-md font-medium bg-blue-500 text-white"><span>Lanjutkan</span></button>
     </div>
   </div>
 }

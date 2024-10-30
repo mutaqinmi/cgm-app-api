@@ -11,14 +11,14 @@ export default function Summary(){
         </div>
         </div>
         <div className="flex w-full h-1/2">
-            <div className="w-1/2 h-full content-center justify-center text-center text-[#3D8FED]">
+            <div className="w-1/2 h-full content-center justify-center text-center text-blue-500">
                     <span className="text-[10px] w-full">Jumlah Seluruh Iuran</span>
                 <div className="text-sm w-full">
                     <span>Rp. </span>
                     <span>555.000</span>
                 </div>
             </div>
-            <div className="w-1/2 h-full content-center justify-center text-center text-[#D80E0E]">
+            <div className="w-1/2 h-full content-center justify-center text-center text-red-600">
                     <span className="text-[10px] w-full">Jumlah Seluruh Iuran</span>
                 <div className="text-sm w-full">
                     <span>Rp. </span>

@@ -1,6 +1,6 @@
-import ProfileMenuItem from "@/components/profile-menu-item";
+import Summary from "@/components/summary";
 
 export default function Test(){
     // Simpan component disini
-    return <ProfileMenuItem/>
+    return <Summary/>
 }

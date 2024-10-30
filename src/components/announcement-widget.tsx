@@ -3,9 +3,9 @@ import { User } from "@phosphor-icons/react";
 
 export default function AnnouncementWidget() {
   return <div className=" relative flex w-full">
-      <div className="fixed w-28 h-28 shadow-sm bg-[#D9D9D9] rounded-md"></div>
+      <div className="fixed w-28 h-28 shadow-sm bg-gray-500 rounded-md"></div>
       <div className="ml-32 h-28 flex flex-col justify-between">
-        <div className="text-xs text-[#B9B9B9]">
+        <div className="text-xs text-gray-400">
           <span className="mr-1">17 Oktober 2024</span>-
           <span className="mx-1">08.30</span>
           <span>WIB</span>
@@ -14,7 +14,7 @@ export default function AnnouncementWidget() {
           Pengumuman Kegiatan Kerja Bakti Warga Perum Cipta Graha Mandiri
           Mandiri Mandiri Mandiri Mandiri Mandiri Mandiri Mandiri Mandiri
         </span>
-        <div className="flex w-full text-xs text-[#B9B9B9] gap-1 items-center">
+        <div className="flex w-full text-xs text-gray-400 gap-1 items-center">
           <div>
             <User />
           </div>

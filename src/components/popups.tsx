@@ -10,7 +10,7 @@ export default function Popups() {
             </div>
         </div>
         <div>
-            <div className="text-xs text-[#A0A0A0]">
+            <div className="text-xs text-gray-400">
                 <span>Iuran Bulan</span>
                 <span>Oktober 2024</span>
             </div>
@@ -20,7 +20,7 @@ export default function Popups() {
             </div>
         </div>
         <div>
-            <div className="text-xs text-[#A0A0A0]">
+            <div className="text-xs text-gray-400">
                 <span>Warga</span>
             </div>
             <div className="font-medium">
@@ -28,7 +28,7 @@ export default function Popups() {
             </div>
         </div>
         <div>
-            <div className="text-xs text-[#A0A0A0]">
+            <div className="text-xs text-gray-400">
                 <span>Alamat</span>
             </div>
             <div className="font-medium">
