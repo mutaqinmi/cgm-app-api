@@ -6,10 +6,9 @@ import PasswordInputField from "@/components/password-Input-field";
 import PhoneNumberInput from "@/components/phone-number-input";
 import Form from "next/form";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { create } from "zustand";
-import * as controller from "@/app/controllers";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 interface InputState {
     phone: string;
@@ -40,9 +39,21 @@ export default function Page(){
         }
     }, [])
 
+    const signin_api = useCallback(async (phone: string, password: string) => {
+        const host = window.location.protocol + "//" + window.location.host + "/api/v1";
+        return await axios.post(`${host}/admin/auth/signin`, {
+            phone,
+            password
+        }, {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+    }, [])
+
     const signin = (event: FormEvent<HTMLFormElement>) : void => {
         event.preventDefault();
-        controller.signin(phone, password).then((response) => {
+        signin_api(phone, password).then((response) => {
             setError("");
             const data = response.data.data as {token: string; user: string};
             localStorage.setItem("token", data.token);

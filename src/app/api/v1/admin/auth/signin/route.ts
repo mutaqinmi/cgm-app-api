@@ -48,7 +48,10 @@ export async function POST(req: req){
                 token: token,
             }
         }, {
-            status: 200
+            status: 200,
+            headers: {
+                "Set-Cookie": `token=${token}; path=/; HttpOnly; SameSite=Strict;`
+            }
         })
     } catch (error) {
         // log error
