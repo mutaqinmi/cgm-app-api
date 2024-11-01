@@ -7,13 +7,13 @@ import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 export async function verifyToken(token: string, cookieToken: RequestCookie) : Promise<number> {
     // check if token same with cookie token
-    if(token.split(' ')[1] !== cookieToken.value){
+    if(token.replace('Bearer ', '') !== cookieToken.value){
         return 0;
     }
-
+    
     // get token data from database
-    const list_token = await query.getAdminToken(token.split(' ')[1]);
-
+    const list_token = await query.getAdminToken(token.replace('Bearer ', ''));
+    
     // check if token exists
     if(list_token.length === 0){
         return 0;

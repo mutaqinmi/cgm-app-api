@@ -1,10 +1,10 @@
 "use client";
-import { CaretRight } from "@phosphor-icons/react";
+import { CaretRight, User } from "@phosphor-icons/react";
 import Sign from "./sign";
 
 export default function UserListItem(props: {address: string; name: string; phone: string; state: string}) {
   return <div className="relative flex w-full gap-4 items-center">
-    <div className="w-14 h-14 aspect-square bg-gray-500 rounded-full"></div>
+    <div className="w-14 h-14 aspect-square bg-blue-200 rounded-full flex justify-center items-center"><User size={24} className="text-blue-500"/></div>
     <div className="w-full flex flex-col gap-1">
       <div className="text-xs flex gap-2 items-center text-gray-400">
         <span>{props.address}</span>

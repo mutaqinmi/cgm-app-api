@@ -5,6 +5,9 @@ import Drawer from "@/components/drawer";
 import DrawerMenuDropdownItem from "@/components/drawer-menu-dropdown-item";
 import DrawerMenuItem from "@/components/drawer-menu-item";
 import HorzDivider from "@/components/horz-divider";
+import { useCallback } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 interface DrawerState {
     showDrawer: boolean;
@@ -17,19 +20,40 @@ const useDrawer = create<DrawerState>((set) => ({
 }));
 
 export default function Navbar(){
+    const route = useRouter();
     const showDrawer = useDrawer.getState().showDrawer;
     const { setShowDrawer } = useDrawer();
 
+    const signout_api = useCallback(async () => {
+        const host = window.location.protocol + "//" + window.location.host + "/api/v1";
+        return await axios.get(`${host}/admin/auth/signout`, {
+            headers: {
+                Authorization: localStorage.getItem("token"),
+            }
+        })
+    }, []);
+
+    const signout = () => {
+        const confirm_signout: boolean = confirm("Apakah Anda yakin akan keluar? Anda harus masuk kembali untuk melanjutkan.");
+        if(!confirm_signout) return;
+        signout_api().then((res) => {
+            localStorage.clear();
+            route.push("/cgm-admin/signin");
+        }).catch((err) => {
+            console.log(err);
+        })
+    }
+
     return <>
-        <TopNavbar showDrawer={showDrawer} setShowDrawer={setShowDrawer} className="z-40"/>
-        {showDrawer ? <Drawer setShowDrawer={setShowDrawer} className="z-50">
+        <TopNavbar showDrawer={showDrawer} setShowDrawer={setShowDrawer} className="z-30"/>
+        {showDrawer ? <Drawer setShowDrawer={setShowDrawer} className="z-40">
             <DrawerMenuItem icon={<User size={24}/>} title="Tentang Saya"/>
             <DrawerMenuDropdownItem icon={<Wrench size={24}/>} title="Layanan">
                 <DrawerMenuItem icon={<HandCoins size={24}/>} title="Iuran"/>
                 <DrawerMenuItem icon={<Users size={24}/>} title="Warga"/>
             </DrawerMenuDropdownItem>
             <HorzDivider/>
-            <DrawerMenuItem icon={<SignOut size={24}/>} title="Keluar" className="text-red-500"/>
+            <DrawerMenuItem icon={<SignOut size={24}/>} title="Keluar" className="text-red-500" onClick={() => signout()}/>
         </Drawer> : null}
     </>
 }

@@ -8,7 +8,7 @@ export async function GET(req: req){
         const token: string = req.headers.get('authorization')!;
         const cookieToken = req.cookies.get("token")!;
         const verified_token = await verifyToken(token, cookieToken);
-        if(!verified_token){
+        if(verified_token === 0){
             return res.json({
                 message: 'token tidak valid',
             }, {
@@ -59,7 +59,7 @@ export async function POST(req: req){
         const token: string = req.headers.get('authorization')!;
         const cookieToken = req.cookies.get("token")!;
         const verified_token = await verifyToken(token, cookieToken);
-        if(!verified_token){
+        if(verified_token === 0){
             return res.json({
                 message: 'token tidak valid',
             }, {

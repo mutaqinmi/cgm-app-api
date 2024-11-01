@@ -10,7 +10,7 @@ export async function GET(req: req){
         
         // check if token exists
         const verified_token = await verifyToken(token, cookieToken);
-        if(!verified_token){
+        if(verified_token === 0){
             return res.json({
                 message: 'token tidak valid',
             }, {
@@ -21,11 +21,16 @@ export async function GET(req: req){
         // remove token in database
         await query.removeAdminToken(verified_token);
 
+        // clear cookie
+
         // return response
         return res.json({
             message: 'success',
         }, {
-            status: 200
+            status: 200,
+            headers: {
+                "Set-Cookie": `token=; path=/; HttpOnly; SameSite=Strict;`
+            }
         })
     } catch (error) {
         // log error

@@ -14,6 +14,7 @@ import ModalBottomSheet from "@/components/modal-bottom-sheet";
 import RegularInputField from "@/components/regular-input-field";
 import FilledButton from "@/components/filled-button";
 import Form from "next/form";
+import LoadingAnimation from "@/components/loading-animation";
 
 interface ThisMonthIuran {
     thisMonthData: [schema.feesType],
@@ -170,6 +171,7 @@ export default function Page(){
     }
 
     return <>
+        {thisMonthData[0].fee_id === 0 && allIuranData.length < 1 && paymentHistory.length < 1 ? <LoadingAnimation/> : null}
         <Navbar/>
         <div className="mt-24 px-6">
             <h2 className="font-semibold mb-4">Iuran Bulan Ini</h2>
