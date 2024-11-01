@@ -1,6 +1,6 @@
-import Summary from "@/components/summary";
+import LoadingAnimation from "@/components/loading-animation";
 
 export default function Test(){
     // Simpan component disini
-    return <Summary/>
+    return <LoadingAnimation/>
 }

@@ -27,7 +27,7 @@ export async function POST(req: req){
         // check if password is correct
         if(administrator[0].password !== admin_password){
             return res.json({
-                message: "password salah",
+                message: "Password salah",
             }, {
                 status: 401
             })
@@ -48,7 +48,10 @@ export async function POST(req: req){
                 token: token,
             }
         }, {
-            status: 200
+            status: 200,
+            headers: {
+                "Set-Cookie": `token=${token}; path=/; HttpOnly; SameSite=Strict;`
+            }
         })
     } catch (error) {
         // log error

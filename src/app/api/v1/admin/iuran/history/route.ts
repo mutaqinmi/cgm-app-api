@@ -1,14 +1,12 @@
+import { verifyToken } from "@/lib/auth";
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
-import { verifyToken } from "@/lib/auth";
 
 export async function GET(req: req){
     try {
-        // get token from request
+        // check if token exists
         const token: string = req.headers.get('authorization')!;
         const cookieToken = req.cookies.get("token")!;
-        
-        // check if token exists
         const verified_token = await verifyToken(token, cookieToken);
         if(!verified_token){
             return res.json({
@@ -18,12 +16,13 @@ export async function GET(req: req){
             })
         }
 
-        // remove token in database
-        await query.removeAdminToken(verified_token);
+        // get histroy data from database
+        const history = await query.getPaymentHistory();
 
         // return response
         return res.json({
             message: 'success',
+            data: history,
         }, {
             status: 200
         })

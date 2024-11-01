@@ -2,7 +2,7 @@ import Image from "next/image"
 
 export default function Logo(props: {className?: string}) {
   return <Image
-    src="/logo.png"
+    src="/assets/logo.png"
     width={500}
     height={500}
     alt="Logo"

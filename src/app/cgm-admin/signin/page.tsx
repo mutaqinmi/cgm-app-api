@@ -4,11 +4,11 @@ import FilledButton from "@/components/filled-button";
 import Logo from "@/components/logo";
 import PasswordInputField from "@/components/password-Input-field";
 import PhoneNumberInput from "@/components/phone-number-input";
-import axios, { AxiosError } from "axios";
 import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { create } from "zustand";
+import axios, { AxiosError } from "axios";
 
 interface InputState {
     phone: string;
@@ -40,7 +40,8 @@ export default function Page(){
     }, [])
 
     const signin_api = useCallback(async (phone: string, password: string) => {
-        return await axios.post(`${process.env.API_URL}/admin/auth/signin`, {
+        const host = window.location.protocol + "//" + window.location.host + "/api/v1";
+        return await axios.post(`${host}/admin/auth/signin`, {
             phone,
             password
         }, {
@@ -74,7 +75,7 @@ export default function Page(){
             <Form action={""} formMethod="POST" onSubmit={signin}>
                 <PhoneNumberInput phone={phone} setPhone={setPhone} className="mt-12"/>
                 <PasswordInputField password={password} setPassword={setPassword}/>
-                <FilledButton type="submit" className="mt-12"/>
+                <FilledButton type="submit" className="mt-12" title="Masuk"/>
             </Form>
         </div>
         <Logo className="mt-24"/>

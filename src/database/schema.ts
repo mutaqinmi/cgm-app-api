@@ -1,16 +1,19 @@
-import { sql } from "drizzle-orm";
+import { InferSelectModel, sql } from "drizzle-orm";
 import { boolean, date, index, integer, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
 
+export type user_tokensType = typeof user_tokens.$inferSelect;
 export const user_tokens = pgTable('user_tokens', {
     user_id: serial('user_id').references(() => users.user_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     token: varchar('token'),
 })
 
+export type admin_tokensType = typeof admin_tokens.$inferSelect;
 export const admin_tokens = pgTable('admin_tokens', {
     admin_id: serial('admin_id').references(() => administrators.admin_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     token: varchar('token'),
 })
 
+export type usersType = typeof users.$inferSelect;
 export const users = pgTable('users', {
     user_id: serial('user_id').primaryKey(),
     name: varchar('name', { length: 50 }),
@@ -19,6 +22,7 @@ export const users = pgTable('users', {
     phone: varchar('phone', { length: 20 }),
 })
 
+export type administratorsType = typeof administrators.$inferSelect;
 export const administrators = pgTable('administrators', {
     admin_id: serial('admin_id').primaryKey(),
     name: varchar('name', { length: 50 }),
@@ -26,6 +30,7 @@ export const administrators = pgTable('administrators', {
     phone: varchar('phone', { length: 20 }),
 })
 
+export type paymentsType = typeof payments.$inferSelect;
 export const payments = pgTable('payments', {
     payment_id: serial('payment_id').primaryKey(),
     fee_id: serial('fee_id').references(() => fees.fee_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
@@ -46,6 +51,7 @@ export const payments = pgTable('payments', {
 //     post_image: varchar('post_image', { length: 255 }).default('announcement-default-image.png'),
 // })
 
+export type notificationsType = typeof notifications.$inferSelect;
 export const notifications = pgTable('notifications', {
     notification_id: serial('notification_id').primaryKey(),
     user_id: serial('user_id').references(() => users.user_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
@@ -54,6 +60,7 @@ export const notifications = pgTable('notifications', {
     notification_date: timestamp('notification_date').default(sql`NOW()`),
 })
 
+export type feesType = typeof fees.$inferSelect;
 export const fees = pgTable('fees', {
     fee_id: serial('fee_id').primaryKey(),
     fee_amount: integer('fee_amount'),
