@@ -76,7 +76,7 @@ export async function POST(req: req){
 
         // check if iuran data already exists
         const iuran = await query.getIuran(`${month}-${year}`);
-        if(iuran){
+        if(iuran.length > 0){
             return res.json({
                 message: 'iuran data already exists',
             }, {

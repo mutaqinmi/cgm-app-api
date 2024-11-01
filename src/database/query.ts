@@ -35,3 +35,7 @@ export const setIuran = async (date: string, amount: number) => {
         fee_amount: amount,
     });
 }
+
+export const getPaymentHistory = async () => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update));
+}
