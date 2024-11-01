@@ -1,6 +1,6 @@
+import { verifyToken } from "@/lib/auth";
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
-import { verifyToken } from "@/lib/auth";
 
 export async function GET(req: req){
     try {
@@ -8,7 +8,7 @@ export async function GET(req: req){
         const token: string = req.headers.get('authorization')!;
         const cookieToken = req.cookies.get("token")!;
         const verified_token = await verifyToken(token, cookieToken);
-        if(verified_token === 0){
+        if(!verified_token){
             return res.json({
                 message: 'token tidak valid',
             }, {
@@ -16,27 +16,16 @@ export async function GET(req: req){
             })
         }
 
-        // get query from request
-        const month = req.nextUrl.searchParams.get('month');
-        const year = req.nextUrl.searchParams.get('year');
+        // get id from query
+        const payment_id = req.nextUrl.searchParams.get('payment_id');
 
-        if(!month || !year){
-            const all_iuran = await query.getAllIuran();
-            return res.json({
-                message: 'success',
-                data: all_iuran,
-            }, {
-                status: 200
-            })
-        }
-        
-        // get iuran data from database
-        const iuran = await query.getIuran(`${month}-${year}`);
+        // get payment data from database
+        const payment = await query.getPaymentById(parseInt(payment_id!));
 
         // return response
         return res.json({
             message: 'success',
-            data: iuran,
+            data: payment,
         }, {
             status: 200
         })
@@ -53,13 +42,13 @@ export async function GET(req: req){
     }
 }
 
-export async function POST(req: req){
+export async function PATCH(req: req){
     try {
         // check if token exists
         const token: string = req.headers.get('authorization')!;
         const cookieToken = req.cookies.get("token")!;
         const verified_token = await verifyToken(token, cookieToken);
-        if(verified_token === 0){
+        if(!verified_token){
             return res.json({
                 message: 'token tidak valid',
             }, {
@@ -67,27 +56,12 @@ export async function POST(req: req){
             })
         }
 
-        // get current month and year
-        const month = new Date().getMonth() + 1;
-        const year = new Date().getFullYear();
-        
-        // get query from request
+        // get id from query
+        const payment_id = req.nextUrl.searchParams.get('payment_id');
         const body = await req.json();
 
-        // check if iuran data already exists
-        const iuran = await query.getIuran(`${month}-${year}`);
-        if(iuran.length > 0){
-            return res.json({
-                message: 'iuran data already exists',
-            }, {
-                status: 400
-            })
-        }
-
-        // set iuran data to database
-        const this_month_iuran = await query.setIuran(`${month}-${year}`, body.amount);
-        const users = await query.getAllUsers();
-        await query.setPayment(this_month_iuran[0].fee_id, users, verified_token);
+        // update payment data from database
+        await query.updatePayment(parseInt(payment_id!), body.payment_status, body.payment_description);
 
         // return response
         return res.json({

@@ -5,7 +5,7 @@ import SingleIuran from "@/components/single-iuran";
 import TextButton from "@/components/text-button";
 import UserListItem from "@/components/user-list-item";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { FormEvent, useCallback, useEffect } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { create } from "zustand";
 import * as schema from "@/database/schema";
 import * as date from "@/lib/date";
@@ -15,6 +15,7 @@ import RegularInputField from "@/components/regular-input-field";
 import FilledButton from "@/components/filled-button";
 import Form from "next/form";
 import LoadingAnimation from "@/components/loading-animation";
+import Popups from "@/components/popups";
 
 interface ThisMonthIuran {
     thisMonthData: [schema.feesType],
@@ -39,6 +40,11 @@ interface ModalBottomSheet {
 interface IuranField {
     value: string,
     setValue: (value: string) => void;
+}
+
+interface ShowPopups {
+    showPopup: boolean,
+    setShowPopup: (showPopup: boolean) => void;
 }
 
 const useThisMonthDataIuran = create<ThisMonthIuran>((set) => {
@@ -76,12 +82,21 @@ const useIuranField = create<IuranField>((set) => {
     }
 })
 
+const useShowPopup = create<ShowPopups>((set) => {
+    return {
+        showPopup: false,
+        setShowPopup: (showPopup) => set({showPopup})
+    }
+})
+
 export default function Page(){
     const {thisMonthData, setThisMonthData} = useThisMonthDataIuran();
     const {allIuranData, setAllIuranData} = useAllIuranData();
     const {paymentHistory, setPaymentHistory} = usePaymentHistory();
     const {showModal, setShowModal} = useModalBottomSheet();
     const {value, setValue} = useIuranField();
+    const {showPopup, setShowPopup} = useShowPopup();
+    const [userPaymentID, setUserPaymentID] = useState<number>(0);
 
     const iuran_this_month_api = useCallback(async () => {
         const month = new Date().getMonth() + 1;
@@ -171,7 +186,7 @@ export default function Page(){
     }
 
     return <>
-        {thisMonthData[0].fee_id === 0 && allIuranData.length < 1 && paymentHistory.length < 1 ? <LoadingAnimation/> : null}
+        {allIuranData.length < 1 && paymentHistory.length < 1 ? <LoadingAnimation/> : null}
         <Navbar/>
         <div className="mt-24 px-6">
             <h2 className="font-semibold mb-4">Iuran Bulan Ini</h2>
@@ -191,7 +206,7 @@ export default function Page(){
             </div>
             <div className="flex flex-col gap-4">
                 {paymentHistory.map((data: {payments: schema.paymentsType, users: schema.usersType}) => {
-                    return <UserListItem key={data.payments.payment_id} address={data.users.address!} name={data.users.name!} phone={data.users.phone!} state={data.payments.payment_description!}/>
+                    return <UserListItem key={data.payments.payment_id} address={data.users.address!} name={data.users.name!} phone={data.users.phone!} state={data.payments.payment_description!} onClick={() => {setUserPaymentID(data.payments.payment_id); setShowPopup(true)}}/>
                 })}
             </div>
             {showModal ? <ModalBottomSheet setShowModal={setShowModal} title={`Atur Iuran ${date.toString((new Date().getMonth() + 1).toString() + '-' + (new Date().getFullYear()).toString())}`}>
@@ -200,6 +215,7 @@ export default function Page(){
                     <FilledButton type="submit" title="Atur Iuran"/>
                 </Form>
             </ModalBottomSheet> : null}
+            {showPopup ? <Popups payment_id={userPaymentID} showPopup={showPopup} setShowPopup={setShowPopup} setPaymentHistory={setPaymentHistory}/> : null}
         </div>
     </>
 }

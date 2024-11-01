@@ -33,9 +33,31 @@ export const setIuran = async (date: string, amount: number) => {
     return await db.insert(table.fees).values({
         fee_date: date,
         fee_amount: amount,
-    });
+    }).returning();
 }
 
 export const getPaymentHistory = async () => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update));
+}
+
+export const getPaymentById = async (payment_id: number) => {
+    return await db.select().from(table.fees).leftJoin(table.payments, eq(table.fees.fee_id, table.payments.fee_id)).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).where(eq(table.payments.payment_id, payment_id));
+}
+
+export const updatePayment = async (payment_id: number, payment_status: boolean, payment_description: string) => {
+    return await db.update(table.payments).set({payment_status, payment_description, last_update: sql`NOW()`}).where(eq(table.payments.payment_id, payment_id));
+}
+
+export const getAllUsers = async () => {
+    return await db.select().from(table.users);
+}
+
+export const setPayment = async (fee_id: number, users: table.usersType[], admin_id: number) => {
+    users.map(async (user: table.usersType) => {
+        return await db.insert(table.payments).values({
+            fee_id,
+            user_id: user.user_id,
+            admin_id,
+        });
+    })
 }

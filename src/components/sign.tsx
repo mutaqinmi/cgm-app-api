@@ -10,7 +10,7 @@ export default function Sign(props: {state: string}) {
             </button>
         } else if (state === "waiting"){
             return <button className="rounded-full py-1 px-2 bg-[#FFCBCB]">
-                <span className="text-[#D60303] text-xs text-ellipsis">Menunggu Konfirmasi</span>
+                <span className="text-[#D60303] text-xs text-ellipsis">Menunggu</span>
             </button>
         } else {
             return <button className="rounded-full py-1 px-2 bg-[#FFCBCB]">

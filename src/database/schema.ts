@@ -38,7 +38,7 @@ export const payments = pgTable('payments', {
     admin_id: serial('admin_id').references(() => administrators.admin_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     payment_date: date('payment_date').default(sql`NOW()`),
     payment_status: boolean('payment_status').default(false),
-    payment_description: varchar('payment_description', { length: 255 }).default('Belum Lunas'),
+    payment_description: varchar('payment_description', { length: 255 }).default('undone'),
     last_update: timestamp('last_update').default(sql`NOW()`),
 })
 
