@@ -19,6 +19,28 @@ export async function GET(req: req){
         // get query from request
         const month = req.nextUrl.searchParams.get('month');
         const year = req.nextUrl.searchParams.get('year');
+        const fee_id = req.nextUrl.searchParams.get('fee_id');
+        const filter = req.nextUrl.searchParams.get('filter');
+
+        if(fee_id && filter){
+            const iuran = await query.getIuranByStatus(parseInt(fee_id), filter);
+            return res.json({
+                message: 'success',
+                data: iuran,
+            }, {
+                status: 200
+            })
+        }
+        
+        if(fee_id){
+            const iuran = await query.getIuranById(parseInt(fee_id));
+            return res.json({
+                message: 'success',
+                data: iuran,
+            }, {
+                status: 200
+            })
+        }
 
         if(!month || !year){
             const all_iuran = await query.getAllIuran();

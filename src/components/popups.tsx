@@ -22,11 +22,21 @@ const usePayment = create<PaymentData>((set) => {
     }
 })
 
-export default function Popups(props: {payment_id: number; showPopup: boolean; setShowPopup: (showPopup: boolean) => void; setPaymentHistory: (paymentHistory: []) => void}) {
+export default function Popups(props: {isDashboard?: boolean; fee_id?: string; payment_id: number; showPopup: boolean; setShowPopup: (showPopup: boolean) => void; setData: (paymentHistory: []) => void}) {
     const {setDataPayment} = usePayment();
     const dataPayment = usePayment((state) => {
         return state.dataPayment as {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[];
     });
+
+    const iuran_api = useCallback(async (fee_id: string) => {
+        const host = window.location.protocol + "//" + window.location.host + "/api/v1";;
+        return await axios.get(`${host}/admin/iuran?fee_id=${fee_id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+    }, [])
 
     const get_payment_api = useCallback(async (payment_id: number) => {
         const host = window.location.protocol + "//" + window.location.host + "/api/v1";
@@ -75,16 +85,26 @@ export default function Popups(props: {payment_id: number; showPopup: boolean; s
         }
     }, [])
 
-    const update_payment = (payment_id: number, payment_status: boolean, payment_description: string) => {
+    const update_payment = (payment_id: number, payment_status: boolean, payment_description: string, fee_id: string | undefined) => {
         update_payment_api(payment_id, payment_status, payment_description).then(() => {
-            props.setPaymentHistory([]);
-            payment_history_api().then((response: AxiosResponse) => {
-                const { data } = response.data as {data: []};
-                props.setPaymentHistory(data);
-            }).catch((error: AxiosError) => {
-                const {message} = error.response?.data as {message: string};
-                console.log(message);
-            })
+            props.setData([]);
+            if(props.isDashboard){
+                payment_history_api().then((response: AxiosResponse) => {
+                    const { data } = response.data as {data: []};
+                    props.setData(data);
+                }).catch((error: AxiosError) => {
+                    const {message} = error.response?.data as {message: string};
+                    console.log(message);
+                })
+            } else {
+                iuran_api(fee_id!).then((response: AxiosResponse) => {
+                    const { data } = response.data as {data: []};
+                    props.setData(data);
+                }).catch((error: AxiosError) => {
+                    const {message} = error.response?.data as {message: string};
+                    console.log(message);
+                })
+            }
             props.setShowPopup(false);
         }).catch((error: AxiosError) => {
             const {message} = error.response?.data as {message: string};
@@ -128,7 +148,7 @@ export default function Popups(props: {payment_id: number; showPopup: boolean; s
                     </div>
                 </div>
                 {dataPayment[0].payments.payment_status ? null : <div className="flex flex-col justify-center items-center gap-2 mt-6">
-                    <FilledButton type="button" title="Tandai Lunas" onClick={() => update_payment(props.payment_id, true, 'done')}/>
+                    <FilledButton type="button" title="Tandai Lunas" onClick={() => update_payment(props.payment_id, true, 'done', props.fee_id)}/>
                     <OutlinedButton type="button" title="Tutup" onClick={() => props.setShowPopup(false)}/>
                 </div>}
             </div>}

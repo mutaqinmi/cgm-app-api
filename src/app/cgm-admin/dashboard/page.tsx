@@ -16,6 +16,7 @@ import FilledButton from "@/components/filled-button";
 import Form from "next/form";
 import LoadingAnimation from "@/components/loading-animation";
 import Popups from "@/components/popups";
+import { useRouter } from "next/navigation";
 
 interface ThisMonthIuran {
     thisMonthData: [schema.feesType],
@@ -90,6 +91,7 @@ const useShowPopup = create<ShowPopups>((set) => {
 })
 
 export default function Page(){
+    const route = useRouter();
     const {thisMonthData, setThisMonthData} = useThisMonthDataIuran();
     const {allIuranData, setAllIuranData} = useAllIuranData();
     const {paymentHistory, setPaymentHistory} = usePaymentHistory();
@@ -166,7 +168,7 @@ export default function Page(){
             const {message} = error.response?.data as {message: string};
             console.log(message);
         })
-    }, [])
+    }, [iuran_this_month_api, all_iuran_api, payment_history_api])
 
     const set_iuran = (event: FormEvent<HTMLFormElement>) : void => {
         event.preventDefault();
@@ -185,19 +187,18 @@ export default function Page(){
         })
     }
 
-    return <>
-        {allIuranData.length < 1 && paymentHistory.length < 1 ? <LoadingAnimation/> : null}
+    return !allIuranData.length && !paymentHistory.length ? <LoadingAnimation/> : <>
         <Navbar/>
         <div className="mt-24 px-6">
             <h2 className="font-semibold mb-4">Iuran Bulan Ini</h2>
-            {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getMonth() + 1}-${new Date().getFullYear()}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number}/>}
+            {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getMonth() + 1}-${new Date().getFullYear()}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number} onClick={() => route.push(`/cgm-admin/dashboard/iuran?fee_id=${thisMonthData[0].fee_id}`)}/>}
             <div className="flex justify-between items-center mb-4 mt-8">
                 <h2 className="font-semibold">Rekapan Iuran Bulanan</h2>
                 <TextButton title="Lainnya"/>
             </div>
             <div className="flex flex-col gap-4">
                 {allIuranData.map((data: {payments: schema.paymentsType, fees: schema.feesType}) => {
-                    return <IuranMenu key={data.fees.fee_id} month={date.toString(data.fees.fee_date as string)} title={`Iuran Bulanan ${date.toString(data.fees.fee_date as string).split(' ')[0]}`}/>
+                    return <IuranMenu key={data.fees.fee_id} month={date.toString(data.fees.fee_date as string)} title={`Iuran Bulanan ${date.toString(data.fees.fee_date as string).split(' ')[0]}`} onClick={() => route.push(`/cgm-admin/dashboard/iuran?fee_id=${data.fees.fee_id}`)}/>
                 })}
             </div>
             <div className="flex justify-between items-center mb-4 mt-8">
@@ -215,7 +216,7 @@ export default function Page(){
                     <FilledButton type="submit" title="Atur Iuran"/>
                 </Form>
             </ModalBottomSheet> : null}
-            {showPopup ? <Popups payment_id={userPaymentID} showPopup={showPopup} setShowPopup={setShowPopup} setPaymentHistory={setPaymentHistory}/> : null}
+            {showPopup ? <Popups payment_id={userPaymentID} showPopup={showPopup} setShowPopup={setShowPopup} setData={setPaymentHistory} isDashboard/> : null}
         </div>
     </>
 }

@@ -6,6 +6,11 @@ import { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
  */
 
 export async function verifyToken(token: string, cookieToken: RequestCookie) : Promise<number> {
+    // check if token exists
+    if(!token || !cookieToken.value){
+        return 0;
+    }
+
     // check if token same with cookie token
     if(token.replace('Bearer ', '') !== cookieToken.value){
         return 0;
