@@ -14,9 +14,9 @@ export default function UserListItem(props: {onClick?: () => void; address: stri
       <span className="font-semibold text-ellipsis line-clamp-1">
         {props.name}
       </span>
-      <div className="text-xs text-gray-400">
+      {/* <div className="text-xs text-gray-400">
         <span>{props.phone}</span>
-      </div>
+      </div> */}
     </div>
     <div className="flex justify-end items-center">
       <CaretRight size={10}/>

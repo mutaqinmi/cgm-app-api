@@ -48,8 +48,12 @@ export const setIuran = async (date: string, amount: number) => {
     }).returning();
 }
 
-export const getPaymentHistory = async () => {
+export const getLimitedPaymentHistory = async () => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update)).limit(5);
+}
+
+export const getPaymentHistory = async () => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update));
 }
 
 export const getAllPaymentHistory = async () => {

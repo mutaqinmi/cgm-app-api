@@ -107,7 +107,7 @@ export default function Page(){
         setIsLoading(true);
 
         const host = window.location.protocol + "//" + window.location.host + "/api/v1";
-        return await axios.get(`${host}/admin/iuran/history`, {
+        return await axios.get(`${host}/admin/iuran/history?limit=true`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem('token')}`
@@ -156,19 +156,19 @@ export default function Page(){
         <Navbar/>
         <div className="mt-24 px-6">
             <h2 className="font-semibold mb-4">Iuran Bulan Ini</h2>
-            {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getMonth() + 1}-${new Date().getFullYear()}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number} onClick={() => route.push(`/cgm-admin/dashboard/iuran?fee_id=${thisMonthData[0].fee_id}`)}/>}
+            {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getMonth() + 1}-${new Date().getFullYear()}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${thisMonthData[0].fee_id}`)}/>}
             <div className="flex justify-between items-center mb-4 mt-8">
                 <h2 className="font-semibold">Rekapan Iuran Bulanan</h2>
                 <TextButton title="Lainnya"/>
             </div>
             <div className="flex flex-col gap-4">
                 {allIuranData.map((data: schema.feesType) => {
-                    return <IuranMenu key={data.fee_id} month={date.toString(data.fee_date!)} title={`Iuran Bulanan ${date.toString(data.fee_date!).split(' ')[0]}`} onClick={() => route.push(`/cgm-admin/dashboard/iuran?fee_id=${data.fee_id}`)}/>
+                    return <IuranMenu key={data.fee_id} month={date.toString(data.fee_date!)} title={`Iuran Bulanan ${date.toString(data.fee_date!).split(' ')[0]}`} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${data.fee_id}`)}/>
                 })}
             </div>
             <div className="flex justify-between items-center mb-4 mt-8">
                 <h2 className="font-semibold">Aktivitas Terbaru</h2>
-                <TextButton title="Lainnya"/>
+                <TextButton title="Lainnya" onClick={() => route.push("/cgm-admin/dashboard/recent")}/>
             </div>
             <div className="flex flex-col gap-2 mb-12">
                 {paymentHistory.map((data: {payments: schema.paymentsType, users: schema.usersType}) => {

@@ -16,6 +16,18 @@ export async function GET(req: req){
             })
         }
 
+        const limit = req.nextUrl.searchParams.get('limit');
+
+        if(limit && limit === "true"){
+            const history = await query.getLimitedPaymentHistory();
+            return res.json({
+                message: 'success',
+                data: history,
+            }, {
+                status: 200
+            })
+        }
+
         // get histroy data from database
         const history = await query.getPaymentHistory();
 

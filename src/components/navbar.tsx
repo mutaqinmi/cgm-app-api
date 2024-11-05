@@ -49,13 +49,13 @@ export default function Navbar(){
     return <>
         <TopNavbar showDrawer={showDrawer} setShowDrawer={setShowDrawer} className="z-30"/>
         {showDrawer ? <Drawer setShowDrawer={setShowDrawer} className="z-40">
-            <DrawerMenuItem icon={<User size={24}/>} title="Tentang Saya"/>
+            <DrawerMenuItem icon={<User size={24}/>} title="Tentang Saya" onClick={() => {route.push("/cgm-admin/account"); setShowDrawer(false)}}/>
             <DrawerMenuDropdownItem icon={<Wrench size={24}/>} title="Layanan">
-                <DrawerMenuItem icon={<HandCoins size={24}/>} title="Iuran"/>
-                <DrawerMenuItem icon={<Users size={24}/>} title="Warga"/>
+                <DrawerMenuItem icon={<HandCoins size={24}/>} title="Iuran" onClick={() => {route.push("/cgm-admin/dashboard"); setShowDrawer(false)}}/>
+                <DrawerMenuItem icon={<Users size={24}/>} title="Warga" onClick={() => {route.push("/cgm-admin/users"); setShowDrawer(false)}}/>
             </DrawerMenuDropdownItem>
             <HorzDivider/>
-            <DrawerMenuItem icon={<SignOut size={24}/>} title="Keluar" className="text-red-500" onClick={() => signout()}/>
+            <DrawerMenuItem icon={<SignOut size={24}/>} title="Keluar" className="text-red-500" onClick={() => {signout(); setShowDrawer(false)}}/>
         </Drawer> : null}
     </>
 }

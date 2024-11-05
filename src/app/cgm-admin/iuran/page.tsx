@@ -151,7 +151,7 @@ export default function Page(){
                 <Chip label="Lunas" active={chipIndex === 1 ? true : false} onClick={() => {setChipIndex(1); filter(parseInt(searchParams.get('fee_id')!), "done")}}/>
                 <Chip label="Belum Lunas" active={chipIndex === 2 ? true : false} onClick={() => {setChipIndex(2); filter(parseInt(searchParams.get('fee_id')!), "undone")}}/>
             </div>
-            <div className="flex flex-col my-8 gap-2">
+            <div className="flex flex-col my-4 gap-4">
                 {!filteredData.length ? <span className="w-full my-16 text-center text-gray-500 italic flex justify-center">Data Tidak Ditemukan.</span> : filteredData.map((data: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}) => {
                     return <UserListItem key={data.payments.payment_id} address={data.users.address!} name={data.users.name!} phone={data.users.phone!} state={data.payments.payment_description!} onClick={() => {setUserPaymentID(data.payments.payment_id); setShowPopup(true)}}/>
                 })}
