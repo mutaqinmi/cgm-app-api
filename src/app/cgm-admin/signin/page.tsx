@@ -8,7 +8,8 @@ import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { create } from "zustand";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import LoadingAnimation from "@/components/loading-animation";
 
 interface InputState {
     phone: string;
@@ -30,7 +31,8 @@ export default function Page(){
     const route = useRouter();
     const {phone, password} = useInput.getState();
     const {setPhone, setPassword} = useInput();
-    const [error, setError] = useState<string>("");
+    const [error, setError] = useState<string | undefined>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -40,6 +42,8 @@ export default function Page(){
     }, [])
 
     const signin_api = useCallback(async (phone: string, password: string) => {
+        setIsLoading(true);
+        setError(undefined);
         const host = window.location.protocol + "//" + window.location.host + "/api/v1";
         return await axios.post(`${host}/admin/auth/signin`, {
             phone,
@@ -48,30 +52,29 @@ export default function Page(){
             headers: {
                 "Content-Type": "application/json",
             }
-        })
-    }, [])
-
-    const signin = (event: FormEvent<HTMLFormElement>) : void => {
-        event.preventDefault();
-        signin_api(phone, password).then((response) => {
-            setError("");
-            const data = response.data.data as {token: string; user: string};
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", data.user);
+        }).then((response: AxiosResponse) => {
+            const {token, user} = response.data?.data as {token: string; user: string};
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", user);
             route.push("/cgm-admin/dashboard");
         }).catch((error: AxiosError) => {
             const {message} = error.response?.data as {message: string};
             setError(message);
-        })
+        }).finally(() => setIsLoading(false));
+    }, [])
+
+    const signin = (event: FormEvent<HTMLFormElement>) : void => {
+        event.preventDefault();
+        signin_api(phone, password);
     }
 
-    return <div className="h-screen w-screen flex flex-col justify-center items-center">
+    return isLoading ? <LoadingAnimation/> : <div className="h-screen w-screen flex flex-col justify-center items-center">
         <div className="md:p-4 w-4/5 md:w-80 md:shadow-md md:rounded-md">
             <div>
                 <h1 className="text-3xl font-semibold">Masuk</h1>
                 <span className="text-sm">Masuk untuk melanjutkan.</span>
             </div>
-            {error === "" ? null : <ErrorSigninPopup message={error}/>}
+            {!error ? null : <ErrorSigninPopup message={error}/>}
             <Form action={""} formMethod="POST" onSubmit={signin}>
                 <PhoneNumberInput phone={phone} setPhone={setPhone} className="mt-12"/>
                 <PasswordInputField password={password} setPassword={setPassword}/>

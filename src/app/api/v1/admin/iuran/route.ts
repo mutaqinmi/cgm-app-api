@@ -21,6 +21,18 @@ export async function GET(req: req){
         const year = req.nextUrl.searchParams.get('year');
         const fee_id = req.nextUrl.searchParams.get('fee_id');
         const filter = req.nextUrl.searchParams.get('filter');
+        const search = req.nextUrl.searchParams.get('search');
+        
+        if(fee_id && search){
+            const iuran = await query.searchIuran(parseInt(fee_id), search);
+            console.log(iuran)
+            return res.json({
+                message: 'success',
+                data: iuran,
+            }, {
+                status: 200
+            })
+        }
 
         if(fee_id && filter){
             const iuran = await query.getIuranByStatus(parseInt(fee_id), filter);

@@ -18,89 +18,56 @@ import LoadingAnimation from "@/components/loading-animation";
 import Popups from "@/components/popups";
 import { useRouter } from "next/navigation";
 
-interface ThisMonthIuran {
-    thisMonthData: [schema.feesType],
-    setThisMonthData: (data: [schema.feesType]) => void;
-}
-
-interface AllIuran {
+interface Iuran {
     allIuranData: [],
-    setAllIuranData: (data: []) => void;
-}
-
-interface PaymentHistory {
+    thisMonthData: [schema.feesType],
     paymentHistory: [],
+    iuranField: string,
+    setAllIuranData: (data: []) => void;
+    setThisMonthData: (data: [schema.feesType]) => void;
     setPaymentHistory: (data: []) => void;
+    setIuranField: (data: string) => void;
 }
 
-interface ModalBottomSheet {
+interface ShowComponent {
     showModal: boolean,
-    setShowModal: (showModal: boolean) => void;
-}
-
-interface IuranField {
-    value: string,
-    setValue: (value: string) => void;
-}
-
-interface ShowPopups {
     showPopup: boolean,
+    setShowModal: (showModal: boolean) => void;
     setShowPopup: (showPopup: boolean) => void;
 }
 
-const useThisMonthDataIuran = create<ThisMonthIuran>((set) => {
-    return {
-        thisMonthData: [{fee_id: 0, fee_amount: 0, fee_date: ""}],
-        setThisMonthData: (thisMonthData) => set({thisMonthData})
-    }
-})
-
-const useAllIuranData = create<AllIuran>((set) => {
+const useIuran = create<Iuran>((set) => {
     return {
         allIuranData: [],
-        setAllIuranData: (allIuranData) => set({allIuranData})
-    }
-})
-
-const usePaymentHistory = create<PaymentHistory>((set) => {
-    return {
+        thisMonthData: [{fee_id: 0, fee_amount: 0, fee_date: ""}],
         paymentHistory: [],
-        setPaymentHistory: (paymentHistory) => set({paymentHistory})
+        iuranField: "",
+        setThisMonthData: (thisMonthData) => set({thisMonthData}),
+        setAllIuranData: (allIuranData) => set({allIuranData}),
+        setPaymentHistory: (paymentHistory) => set({paymentHistory}),
+        setIuranField: (iuranField) => set({iuranField})
     }
 })
 
-const useModalBottomSheet = create<ModalBottomSheet>((set) => {
+const useShow = create<ShowComponent>((set) => {
     return {
         showModal: false,
-        setShowModal: (showModal) => set({showModal})
-    }
-})
-
-const useIuranField = create<IuranField>((set) => {
-    return {
-        value: "",
-        setValue: (value) => set({value})
-    }
-})
-
-const useShowPopup = create<ShowPopups>((set) => {
-    return {
         showPopup: false,
-        setShowPopup: (showPopup) => set({showPopup})
+        setShowModal: (showModal) => set({showModal}),
+        setShowPopup: (showPopup) => set({showPopup}),
     }
 })
 
 export default function Page(){
     const route = useRouter();
-    const {thisMonthData, setThisMonthData} = useThisMonthDataIuran();
-    const {allIuranData, setAllIuranData} = useAllIuranData();
-    const {paymentHistory, setPaymentHistory} = usePaymentHistory();
-    const {showModal, setShowModal} = useModalBottomSheet();
-    const {value, setValue} = useIuranField();
-    const {showPopup, setShowPopup} = useShowPopup();
+    const {thisMonthData, allIuranData, paymentHistory, iuranField, setThisMonthData, setAllIuranData, setPaymentHistory, setIuranField} = useIuran();
+    const {showModal, showPopup, setShowModal, setShowPopup} = useShow();
     const [userPaymentID, setUserPaymentID] = useState<number>(0);
-
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+ 
     const iuran_this_month_api = useCallback(async () => {
+        setIsLoading(true);
+
         const month = new Date().getMonth() + 1;
         const year = new Date().getFullYear();
         const host = window.location.protocol + "//" + window.location.host + "/api/v1";
@@ -109,30 +76,54 @@ export default function Page(){
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem('token')}`
             }
-        })
+        }).then((response: AxiosResponse) => {
+            const { data } = response.data as {data: [schema.feesType]};
+            setThisMonthData(data);
+        }).catch((error: AxiosError) => {
+            const {message} = error.response?.data as {message: string};
+            console.log(message);
+        }).finally(() => setIsLoading(false));
     }, [])
 
     const all_iuran_api = useCallback(async () => {
+        setIsLoading(true);
+
         const host = window.location.protocol + "//" + window.location.host + "/api/v1";
         return await axios.get(`${host}/admin/iuran`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem('token')}`
             }
-        })
+        }).then((response: AxiosResponse) => {
+            const { data } = response.data as {data: []};
+            setAllIuranData(data);
+        }).catch((error: AxiosError) => {
+            const {message} = error.response?.data as {message: string};
+            console.log(message);
+        }).finally(() => setIsLoading(false));
     }, [])
 
     const payment_history_api = useCallback(async () => {
+        setIsLoading(true);
+
         const host = window.location.protocol + "//" + window.location.host + "/api/v1";
         return await axios.get(`${host}/admin/iuran/history`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem('token')}`
             }
-        })
+        }).then((response: AxiosResponse) => {
+            const { data } = response.data as {data: []};
+            setPaymentHistory(data);
+        }).catch((error: AxiosError) => {
+            const {message} = error.response?.data as {message: string};
+            console.log(message);
+        }).finally(() => setIsLoading(false));
     }, [])
 
     const set_iuran_api = useCallback(async (amount: string) => {
+        setIsLoading(true);
+        
         const host = window.location.protocol + "//" + window.location.host + "/api/v1";
         return await axios.post(`${host}/admin/iuran`, {
             amount
@@ -141,53 +132,27 @@ export default function Page(){
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem('token')}`
             }
-        })
+        }).then((response: AxiosResponse) => {
+            setShowModal(false);
+            iuran_this_month_api();
+        }).catch((error: AxiosError) => {
+            const {message} = error.response?.data as {message: string};
+            console.log(message);
+        }).finally(() => setIsLoading(false));
     }, [])
-
-    useEffect(() => {
-        iuran_this_month_api().then((response: AxiosResponse) => {
-            const { data } = response.data as {data: [schema.feesType]};
-            setThisMonthData(data);
-        }).catch((error: AxiosError) => {
-            const {message} = error.response?.data as {message: string};
-            console.log(message);
-        })
-
-        all_iuran_api().then((response: AxiosResponse) => {
-            const { data } = response.data as {data: []};
-            setAllIuranData(data);
-        }).catch((error: AxiosError) => {
-            const {message} = error.response?.data as {message: string};
-            console.log(message);
-        })
-
-        payment_history_api().then((response: AxiosResponse) => {
-            const { data } = response.data as {data: []};
-            setPaymentHistory(data);
-        }).catch((error: AxiosError) => {
-            const {message} = error.response?.data as {message: string};
-            console.log(message);
-        })
-    }, [iuran_this_month_api, all_iuran_api, payment_history_api])
 
     const set_iuran = (event: FormEvent<HTMLFormElement>) : void => {
         event.preventDefault();
-        set_iuran_api(value).then((response) => {
-            setShowModal(false);
-            iuran_this_month_api().then((response: AxiosResponse) => {
-                const { data } = response.data as {data: [schema.feesType]};
-                setThisMonthData(data);
-            }).catch((error: AxiosError) => {
-                const {message} = error.response?.data as {message: string};
-                console.log(message);
-            })
-        }).catch((error: AxiosError) => {
-            const {message} = error.response?.data as {message: string};
-            console.log(message);
-        })
+        set_iuran_api(iuranField)
     }
+    
+    useEffect(() => {
+        iuran_this_month_api()
+        all_iuran_api()
+        payment_history_api()
+    }, [iuran_this_month_api, all_iuran_api, payment_history_api])
 
-    return !allIuranData.length && !paymentHistory.length ? <LoadingAnimation/> : <>
+    return isLoading ? <LoadingAnimation/> : <>
         <Navbar/>
         <div className="mt-24 px-6">
             <h2 className="font-semibold mb-4">Iuran Bulan Ini</h2>
@@ -197,22 +162,22 @@ export default function Page(){
                 <TextButton title="Lainnya"/>
             </div>
             <div className="flex flex-col gap-4">
-                {allIuranData.map((data: {payments: schema.paymentsType, fees: schema.feesType}) => {
-                    return <IuranMenu key={data.fees.fee_id} month={date.toString(data.fees.fee_date as string)} title={`Iuran Bulanan ${date.toString(data.fees.fee_date as string).split(' ')[0]}`} onClick={() => route.push(`/cgm-admin/dashboard/iuran?fee_id=${data.fees.fee_id}`)}/>
+                {allIuranData.map((data: schema.feesType) => {
+                    return <IuranMenu key={data.fee_id} month={date.toString(data.fee_date!)} title={`Iuran Bulanan ${date.toString(data.fee_date!).split(' ')[0]}`} onClick={() => route.push(`/cgm-admin/dashboard/iuran?fee_id=${data.fee_id}`)}/>
                 })}
             </div>
             <div className="flex justify-between items-center mb-4 mt-8">
                 <h2 className="font-semibold">Aktivitas Terbaru</h2>
                 <TextButton title="Lainnya"/>
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 mb-12">
                 {paymentHistory.map((data: {payments: schema.paymentsType, users: schema.usersType}) => {
                     return <UserListItem key={data.payments.payment_id} address={data.users.address!} name={data.users.name!} phone={data.users.phone!} state={data.payments.payment_description!} onClick={() => {setUserPaymentID(data.payments.payment_id); setShowPopup(true)}}/>
                 })}
             </div>
             {showModal ? <ModalBottomSheet setShowModal={setShowModal} title={`Atur Iuran ${date.toString((new Date().getMonth() + 1).toString() + '-' + (new Date().getFullYear()).toString())}`}>
                 <Form action={""} formMethod="POST" onSubmit={set_iuran}>
-                    <RegularInputField title="Nominal Iuran" value={value} setValue={setValue} className="my-6"/>
+                    <RegularInputField title="Nominal Iuran" value={iuranField} setValue={setIuranField} className="my-6"/>
                     <FilledButton type="submit" title="Atur Iuran"/>
                 </Form>
             </ModalBottomSheet> : null}

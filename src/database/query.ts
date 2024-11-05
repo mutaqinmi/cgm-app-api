@@ -1,6 +1,6 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
 
 export const getAdministrator = async (phone_number: string) => {
     return await db.select().from(table.administrators).where(eq(table.administrators.phone, phone_number));
@@ -26,15 +26,19 @@ export const getIuran = async (date: string) => {
 }
 
 export const getAllIuran = async () => {
-    return await db.select().from(table.payments).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).orderBy(desc(table.payments.payment_date));
+    return await db.select().from(table.fees).orderBy(desc(table.fees.fee_date));
 }
 
 export const getIuranById = async (fee_id: number) => {
-    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(eq(table.fees.fee_id, fee_id));
+    return await db.select().from(table.fees).leftJoin(table.payments, eq(table.fees.fee_id, table.payments.fee_id)).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).where(eq(table.fees.fee_id, fee_id));
 }
 
 export const getIuranByStatus = async (fee_id: number, filter: string) => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.payments.payment_description, filter)));
+}
+
+export const searchIuran = async (fee_id: number, keyword: string) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), or(ilike(table.users.name, `%${keyword}%`), ilike(table.users.address, `%${keyword}%`))));
 }
 
 export const setIuran = async (date: string, amount: number) => {
@@ -45,6 +49,10 @@ export const setIuran = async (date: string, amount: number) => {
 }
 
 export const getPaymentHistory = async () => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update)).limit(5);
+}
+
+export const getAllPaymentHistory = async () => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update));
 }
 

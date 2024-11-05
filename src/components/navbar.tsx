@@ -6,7 +6,7 @@ import DrawerMenuDropdownItem from "@/components/drawer-menu-dropdown-item";
 import DrawerMenuItem from "@/components/drawer-menu-item";
 import HorzDivider from "@/components/horz-divider";
 import { useCallback } from "react";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 
 interface DrawerState {
@@ -30,18 +30,20 @@ export default function Navbar(){
             headers: {
                 Authorization: localStorage.getItem("token"),
             }
+        }).then((res: AxiosResponse) => {
+            if(res.status !== 200) return;
+            localStorage.clear();
+            route.push("/cgm-admin/signin");
+        }).catch((err: AxiosError) => {
+            const { message } = err.response?.data as { message: string };
+            console.log(message);
         })
     }, []);
 
     const signout = () => {
         const confirm_signout: boolean = confirm("Apakah Anda yakin akan keluar? Anda harus masuk kembali untuk melanjutkan.");
         if(!confirm_signout) return;
-        signout_api().then((res) => {
-            localStorage.clear();
-            route.push("/cgm-admin/signin");
-        }).catch((err) => {
-            console.log(err);
-        })
+        signout_api();
     }
 
     return <>
