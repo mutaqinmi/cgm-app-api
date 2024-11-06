@@ -1,6 +1,6 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
-import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, or, sql } from 'drizzle-orm';
 
 export const getAdministrator = async (phone_number: string) => {
     return await db.select().from(table.administrators).where(eq(table.administrators.phone, phone_number));
@@ -27,6 +27,10 @@ export const getIuran = async (date: string) => {
 
 export const getAllIuran = async () => {
     return await db.select().from(table.fees).orderBy(desc(table.fees.fee_date));
+}
+
+export const getAllIuranLimited = async () => {
+    return await db.select().from(table.fees).orderBy(desc(table.fees.fee_date)).limit(3);
 }
 
 export const getIuranById = async (fee_id: number) => {

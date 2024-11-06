@@ -22,6 +22,7 @@ export async function GET(req: req){
         const fee_id = req.nextUrl.searchParams.get('fee_id');
         const filter = req.nextUrl.searchParams.get('filter');
         const search = req.nextUrl.searchParams.get('search');
+        const limit = req.nextUrl.searchParams.get('limit');
         
         if(fee_id && search){
             const iuran = await query.searchIuran(parseInt(fee_id), search);
@@ -55,6 +56,16 @@ export async function GET(req: req){
         }
 
         if(!month || !year){
+            if(limit === "true"){
+                const iuran = await query.getAllIuranLimited();
+                return res.json({
+                    message: 'success',
+                    data: iuran,
+                }, {
+                    status: 200
+                })
+            }
+
             const all_iuran = await query.getAllIuran();
             return res.json({
                 message: 'success',
@@ -65,7 +76,7 @@ export async function GET(req: req){
         }
         
         // get iuran data from database
-        const iuran = await query.getIuran(`${month}-${year}`);
+        const iuran = await query.getIuran(`${year}-${month}`);
 
         // return response
         return res.json({

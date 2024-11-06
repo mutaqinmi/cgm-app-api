@@ -89,7 +89,7 @@ export default function Page(){
         setIsLoading(true);
 
         const host = window.location.protocol + "//" + window.location.host + "/api/v1";
-        return await axios.get(`${host}/admin/iuran`, {
+        return await axios.get(`${host}/admin/iuran?limit=true`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem('token')}`
@@ -159,7 +159,7 @@ export default function Page(){
             {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getMonth() + 1}-${new Date().getFullYear()}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${thisMonthData[0].fee_id}`)}/>}
             <div className="flex justify-between items-center mb-4 mt-8">
                 <h2 className="font-semibold">Rekapan Iuran Bulanan</h2>
-                <TextButton title="Lainnya"/>
+                <TextButton title="Lainnya" onClick={() => route.push("/cgm-admin/dashboard/iuran")}/>
             </div>
             <div className="flex flex-col gap-4">
                 {allIuranData.map((data: schema.feesType) => {
