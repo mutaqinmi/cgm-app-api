@@ -47,8 +47,8 @@ export default function Navbar(){
     }
 
     return <>
-        <TopNavbar showDrawer={showDrawer} setShowDrawer={setShowDrawer} className="z-30"/>
-        {showDrawer ? <Drawer setShowDrawer={setShowDrawer} className="z-40">
+        <TopNavbar showDrawer={showDrawer} setShowDrawer={setShowDrawer} className="z-30 bg-yellow-300"/>
+        {showDrawer ? <Drawer setShowDrawer={setShowDrawer} className="z-40 md:hidden">
             <DrawerMenuItem icon={<User size={24}/>} title="Tentang Saya" onClick={() => {route.push("/cgm-admin/account"); setShowDrawer(false)}}/>
             <DrawerMenuDropdownItem icon={<Wrench size={24}/>} title="Layanan">
                 <DrawerMenuItem icon={<HandCoins size={24}/>} title="Iuran" onClick={() => {route.push("/cgm-admin/dashboard"); setShowDrawer(false)}}/>
