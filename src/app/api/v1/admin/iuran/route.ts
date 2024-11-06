@@ -120,7 +120,7 @@ export async function POST(req: req){
         const body = await req.json();
 
         // check if iuran data already exists
-        const iuran = await query.getIuran(`${month}-${year}`);
+        const iuran = await query.getIuran(`${year}-${month}`);
         if(iuran.length > 0){
             return res.json({
                 message: 'iuran data already exists',
@@ -130,7 +130,7 @@ export async function POST(req: req){
         }
 
         // set iuran data to database
-        const this_month_iuran = await query.setIuran(`${month}-${year}`, body.amount);
+        const this_month_iuran = await query.setIuran(`${year}-${month}`, body.amount);
         const users = await query.getAllUsers();
         await query.setPayment(this_month_iuran[0].fee_id, users, verified_token);
 
