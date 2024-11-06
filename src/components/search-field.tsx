@@ -1,5 +1,5 @@
 "use client";
-import { MagnifyingGlass, Microphone } from "@phosphor-icons/react";
+import { MagnifyingGlass } from "@phosphor-icons/react";
 
 export default function SearchField(props: {className?: string; value: string; setValue: (value: string) => void}){
     return <div className={`w-full h-full relative ${props.className}`}>
