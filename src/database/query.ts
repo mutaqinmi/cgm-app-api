@@ -76,6 +76,14 @@ export const getAllUsers = async () => {
     return await db.select().from(table.users);
 }
 
+export const searchUser = async (keyword: string) => {
+    return await db.select().from(table.users).where(or(ilike(table.users.name, `%${keyword}%`), ilike(table.users.address, `%${keyword}%`)));
+}
+
+export const getUser = async (user_id: number) => {
+    return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(eq(table.users.user_id, user_id)).orderBy(desc(table.fees.fee_date));
+}
+
 export const setPayment = async (fee_id: number, users: table.usersType[], admin_id: number) => {
     users.map(async (user: table.usersType) => {
         return await db.insert(table.payments).values({
