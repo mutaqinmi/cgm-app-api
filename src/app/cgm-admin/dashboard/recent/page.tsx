@@ -9,6 +9,7 @@ import { useCallback, useState } from "react";
 import * as schema from "@/database/schema";
 import LoadingAnimation from "@/components/loading-animation";
 import Popups from "@/components/popups";
+import * as datestring from "@/lib/date";
 
 interface Iuran {
     paymentHistory: [],
@@ -35,11 +36,21 @@ const useShow = create<ShowComponent>((set) => {
 })
 
 export default function Page(){
-    const route = useRouter();
     const {paymentHistory, setPaymentHistory} = useIuran();
     const {showPopup, setShowPopup} = useShow();
     const [userPaymentID, setUserPaymentID] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    const groupByDate = (data: {payments: schema.paymentsType, users: schema.usersType}[]) => {
+        return data.sort((a, b) => new Date(b.payments.last_update!).getDay() - new Date(a.payments.last_update!).getDay()).reduce((acc, item) => {
+            const date = new Date(item.payments.last_update!).getDate().toString() + ' ' + datestring.toString(new Date(item.payments.last_update!).getFullYear().toString() + '-' + (new Date(item.payments.last_update!).getMonth() + 1).toString());
+            if (!acc[date]) {
+                acc[date] = [];
+            }
+            acc[date].push(item);
+            return acc;
+        }, {} as { [key: string]: {payments: schema.paymentsType, users: schema.usersType}[] });
+    };
 
     const payment_history_api = useCallback(async () => {
         setIsLoading(true);
@@ -63,13 +74,22 @@ export default function Page(){
         payment_history_api()
     }, [payment_history_api])
 
+    const groupData = groupByDate(paymentHistory);
+
     return isLoading ? <LoadingAnimation/> : <>
         <Navbar/>
         <div className="mt-24 px-6">
-            <div className="flex flex-col gap-4 mb-12">
-                {paymentHistory.map((data: {payments: schema.paymentsType, users: schema.usersType}) => {
-                    return <UserListItem key={data.payments.payment_id} address={data.users.address!} name={data.users.name!} phone={data.users.phone!} state={data.payments.payment_description!} onClick={() => {setUserPaymentID(data.payments.payment_id); setShowPopup(true)}}/>
-                })}
+            <div className="flex flex-col-reverse gap-4 mb-12">
+                {Object.keys(groupData).map((date) => (
+                    <div key={date} className="mb-4">
+                        <h2 className="text-md font-semibold mb-4 text-gray-500">{date}</h2>
+                        <div className="flex flex-col gap-4">
+                            {groupData[date].map((data: {payments: schema.paymentsType, users: schema.usersType}) => (
+                                <UserListItem key={data.payments.payment_id} address={data.users.address!} name={data.users.name!} phone={data.users.phone!} state={data.payments.payment_description!} onClick={() => {setUserPaymentID(data.payments.payment_id); setShowPopup(true)}}/>   
+                            ))}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
         {showPopup ? <Popups payment_id={userPaymentID} showPopup={showPopup} setShowPopup={setShowPopup} setData={setPaymentHistory}/> : null}
