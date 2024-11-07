@@ -1,50 +1,66 @@
 'use client'
 import LoadingAnimation from "@/components/loading-animation";
 import Navbar from "@/components/navbar";
-import { Coins, HandCoins, User } from "@phosphor-icons/react";
+import { Coins, HandCoins, Plus, User } from "@phosphor-icons/react";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { create } from "zustand";
 import * as  schema from "@/database/schema";
 import IconButton from "@/components/icon-button";
 import * as date from "@/lib/date";
 import IuranMenuOnUser from "@/components/iuran-menu-on-user";
 import Popups from "@/components/popups";
+import ModalBottomSheet from "@/components/modal-bottom-sheet";
+import NonEditedField from "@/components/non-edited-field";
+import FilledButton from "@/components/filled-button";
 
 interface ComponentState {
     isLoading: boolean,
     showPopup: boolean,
     paymentID: number,
+    showModal: boolean,
     setIsLoading: (isLoading: boolean) => void,
     setShowPopup: (showPopup: boolean) => void,
     setPaymentID: (paymentID: number) => void,
+    setShowModal: (showModal: boolean) => void,
 }
 
 interface UserData {
     data: [],
+    month_list: string[],
     setData: (data: []) => void,
+    setMonthList: (month_list: string[]) => void,
 }
 
 const useComponentState = create<ComponentState>(set => ({
     isLoading: false,
     showPopup: false,
     paymentID: 0,
+    showModal: false,
     setIsLoading: (isLoading: boolean) => set({isLoading}),
     setShowPopup: (showPopup: boolean) => set({showPopup}),
     setPaymentID: (paymentID: number) => set({paymentID}),
+    setShowModal: (showModal: boolean) => set({showModal}),
 }))
 
 const useUserData = create<UserData>(set => ({
     data: [],
+    month_list: [],
     setData: (data: []) => set({data}),
+    setMonthList: (month_list: string[]) => set({month_list}),
 }))
 
 export default function Page(){
     const searchParams = useSearchParams();
+    const month_inc = useRef(1);
+    const currentDate = useRef({
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear(),
+    })
     const route = useRouter();
-    const {isLoading, showPopup, paymentID, setIsLoading, setShowPopup, setPaymentID} = useComponentState();
-    const {setData} = useUserData();
+    const {isLoading, showPopup, paymentID, showModal, setIsLoading, setShowPopup, setPaymentID, setShowModal} = useComponentState();
+    const {month_list, setMonthList, setData} = useUserData();
     const data = useUserData(state => state.data as {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]);
 
     const groupByYear = (data: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]) => {
@@ -83,6 +99,34 @@ export default function Page(){
         }
     }, [searchParams])
 
+    const add_month = () => {
+        let month = currentDate.current.month + month_inc.current;
+        let year = currentDate.current.year;
+
+        if (month > 12) {
+            month = 1;
+            year += 1;
+        }
+
+        const formattedDate: string = `${year}-${month.toString().padStart(2, "0")}`;
+        const updatedList = [...month_list, formattedDate];
+        setMonthList(updatedList);
+
+        currentDate.current.month = month;
+        currentDate.current.year = year;
+        month_inc.current = 1;
+    }
+
+    const resetDate = () => {
+        currentDate.current = {
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+        };
+
+        month_inc.current = 1;
+        setMonthList([]);
+    };
+
     useEffect(() => {
         const user_id = searchParams.get('user_id');
         if(user_id){
@@ -104,7 +148,7 @@ export default function Page(){
                 </div>
                 <div className="w-full my-4 flex justify-evenly items-start">
                     <IconButton icon={<HandCoins/>} title="Bayar Iuran" onClick={() => route.push(`/cgm-admin/users/detail/iuran?user_id=${data[0].users.user_id}`)}/>
-                    <IconButton icon={<Coins/>} title="Iuran Jangka Panjang"/>
+                    <IconButton icon={<Coins/>} title="Iuran Jangka Panjang" onClick={() => setShowModal(true)}/>
                 </div>
             </div>
             <div className="flex flex-col mt-4 gap-4">
@@ -124,5 +168,26 @@ export default function Page(){
             </div>
         </div>
         {showPopup ? <Popups payment_id={paymentID} showPopup={showPopup} setShowPopup={setShowPopup} onRefresh={refresh}/> : null}
+        {showModal ? <ModalBottomSheet setShowModal={setShowModal} title="Iuran Jangka Panjang" onClosed={resetDate}>
+            <div className="flex flex-col gap-4 my-2">
+                <NonEditedField title="Nama Warga" description={data[0].users.name!}/>
+                <NonEditedField title="Alamat" description={data[0].users.address!}/>
+            </div>
+            <div className="flex flex-col gap-4 my-4">
+                <span className="text-black">Iuran untuk</span>
+                <div className="w-full flex gap-2 flex-wrap">
+                    {month_list.map((item: string, index: number) => {
+                        return <div key={index} className="px-4 py-2 bg-blue-500 text-white rounded-full">
+                            <span>{date.toString(item)}</span>
+                        </div>
+                    })}
+                    <div className="px-4 py-2 border border-blue-500 text-blue-500 rounded-full flex justify-center items-center gap-2" onClick={add_month}>
+                        <Plus/>
+                        <span>Tambah Bulan</span>
+                    </div>
+                </div>
+            </div>
+            <FilledButton type="button" title="Tandai Lunas" className="mt-8"/>
+        </ModalBottomSheet> : null}
     </>
 }

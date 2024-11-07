@@ -1,6 +1,6 @@
-export default function NonEditedField(){
-    return <div className="flex flex-col">
-        <p className="font-medium text-[14px] text-black">nama warga</p>
-        <p className="font-medium text-[16px] text-gray-400">Repat Dwi Gunanda</p>
+export default function NonEditedField(props: {title: string, description: string}) {
+    return <div className="flex flex-col gap-1">
+        <span className="text-black">{props.title}</span>
+        <span className="text-gray-400">{props.description}</span>
     </div>
 }
