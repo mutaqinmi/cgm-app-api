@@ -1,6 +1,8 @@
 'use client'
 import { useEffect, useState } from "react"
 import SearchField from "./search-field";
+import OutlinedIconButton from "./outlined-icon-button";
+import { SignOut, Bell } from "@phosphor-icons/react";
 
 export default function TopNavbar(props: {className?: string; showDrawer: boolean; setShowDrawer: (showDrawer: boolean) => void}) {
   const [user, setUser] = useState<string | null>("");
@@ -20,7 +22,7 @@ export default function TopNavbar(props: {className?: string; showDrawer: boolea
     }
   }, []);
 
-  return <div className={`flex items-center w-full p-4 fixed top-0 bg-white ${props.className}`}>
+  return <div className={`flex items-center w-full h-20 p-4 fixed top-0 bg-white md:px-10 lg:px-20 xl:px-28 2xl:px-36 md:bg-[#FBFBFB] ${props.className}`}>
     <label className="md:hidden">
       <div className="w-9 h-9 cursor-pointer flex flex-col items-center justify-center">
         <input className="hidden peer" type="checkbox" checked={props.showDrawer} onChange={(event) => event.currentTarget.checked ? props.setShowDrawer(true) : props.setShowDrawer(false)}/>
@@ -34,9 +36,12 @@ export default function TopNavbar(props: {className?: string; showDrawer: boolea
         <span className="text-xs">{greeting},</span><br />
         <span className="font-semibold">{user}!</span>
       </div>
-          <SearchField className="w-96 bg-red-400"/>
-      <div>
-        <span>hai</span>
+      <div className="hidden md:block">
+        <SearchField placeholder="Apa yang Anda Butuhkan?" />
+      </div>
+      <div className="hidden md:flex md:gap-2">
+        <OutlinedIconButton icon={<SignOut size={24}/>}/>
+        <OutlinedIconButton icon={<Bell size={24}/>}/>
       </div>
     </div>
   </div>

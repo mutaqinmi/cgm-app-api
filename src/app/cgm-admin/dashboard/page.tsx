@@ -1,4 +1,5 @@
 'use client'
+import { HandCoins, User, Users, Wrench } from "@phosphor-icons/react";
 import IuranMenu from "@/components/iuran-menu";
 import Navbar from "@/components/navbar";
 import SingleIuran from "@/components/single-iuran";
@@ -17,6 +18,18 @@ import Form from "next/form";
 import LoadingAnimation from "@/components/loading-animation";
 import Popups from "@/components/popups";
 import { useRouter } from "next/navigation";
+import DrawerMenuDropdownItem from "@/components/drawer-menu-dropdown-item";
+import DrawerMenuItem from "@/components/drawer-menu-item";
+
+interface DrawerState {
+    showDrawer: boolean;
+    setShowDrawer: (showDrawer: boolean) => void;
+}
+
+const useDrawer = create<DrawerState>((set) => ({
+    showDrawer: false,
+    setShowDrawer: (showDrawer: boolean) => set({ showDrawer }),
+}));
 
 interface Iuran {
     allIuranData: [],
@@ -64,7 +77,9 @@ export default function Page(){
     const {showModal, showPopup, setShowModal, setShowPopup} = useShow();
     const [userPaymentID, setUserPaymentID] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
- 
+    const showDrawer = useDrawer.getState().showDrawer;
+    const { setShowDrawer } = useDrawer();
+
     const iuran_this_month_api = useCallback(async () => {
         setIsLoading(true);
 
@@ -154,6 +169,13 @@ export default function Page(){
 
     return isLoading ? <LoadingAnimation/> : <>
         <Navbar/>
+        <div className="hidden md:w-full md:h-10 md:flex md:gap-10 md:mt-20 md:bg-white md:shadow md:px-10 lg:px-20 xl:px-28 2xl:px-36">
+            <DrawerMenuItem icon={<User size={24}/>} title="Tentang Saya" className="" onClick={() => {route.push("/cgm-admin/account"); setShowDrawer(false)}}/>
+            <DrawerMenuDropdownItem icon={<Wrench size={24}/>} title="Layanan" className="mt-2">
+                <DrawerMenuItem icon={<HandCoins size={24}/>} title="Iuran" onClick={() => {route.push("/cgm-admin/dashboard"); setShowDrawer(false)}}/>
+                <DrawerMenuItem icon={<Users size={24}/>} title="Warga" onClick={() => {route.push("/cgm-admin/users"); setShowDrawer(false)}}/>
+            </DrawerMenuDropdownItem>
+        </div>
         <div className="mt-24 px-6">
             <h2 className="font-semibold mb-4">Iuran Bulan Ini</h2>
             {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getMonth() + 1}-${new Date().getFullYear()}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${thisMonthData[0].fee_id}`)}/>}
