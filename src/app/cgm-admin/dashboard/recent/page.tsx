@@ -42,7 +42,7 @@ export default function Page(){
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const groupByDate = (data: {payments: schema.paymentsType, users: schema.usersType}[]) => {
-        return data.sort((a, b) => new Date(b.payments.last_update!).getDay() - new Date(a.payments.last_update!).getDay()).reduce((acc, item) => {
+        return data.sort((a, b) => new Date(b.payments.last_update!).getTime() - new Date(a.payments.last_update!).getTime()).reduce((acc, item) => {
             const date = new Date(item.payments.last_update!).getDate().toString() + ' ' + datestring.toString(new Date(item.payments.last_update!).getFullYear().toString() + '-' + (new Date(item.payments.last_update!).getMonth() + 1).toString());
             if (!acc[date]) {
                 acc[date] = [];
@@ -70,6 +70,10 @@ export default function Page(){
         }).finally(() => setIsLoading(false));
     }, [])
 
+    const refresh = useCallback(() => {
+        payment_history_api();
+    }, [payment_history_api])
+
     useEffect(() => {
         payment_history_api()
     }, [payment_history_api])
@@ -78,8 +82,8 @@ export default function Page(){
 
     return isLoading ? <LoadingAnimation/> : <>
         <Navbar/>
-        <div className="mt-24 px-6">
-            <div className="flex flex-col-reverse gap-4 mb-12">
+        <div className="my-24 px-6">
+            <div className="flex flex-col gap-4 mb-12">
                 {Object.keys(groupData).map((date) => (
                     <div key={date} className="mb-4">
                         <h2 className="text-md font-semibold mb-4 text-gray-500">{date}</h2>
@@ -92,6 +96,6 @@ export default function Page(){
                 ))}
             </div>
         </div>
-        {showPopup ? <Popups payment_id={userPaymentID} showPopup={showPopup} setShowPopup={setShowPopup} setData={setPaymentHistory}/> : null}
+        {showPopup ? <Popups payment_id={userPaymentID} showPopup={showPopup} setShowPopup={setShowPopup} onRefresh={refresh}/> : null}
     </>
 }

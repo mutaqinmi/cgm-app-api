@@ -9,14 +9,16 @@ import { create } from "zustand";
 import * as  schema from "@/database/schema";
 import IconButton from "@/components/icon-button";
 import * as date from "@/lib/date";
-import IuranMenu from "@/components/iuran-menu";
-import Chip from "@/components/chip";
+import IuranMenuOnUser from "@/components/iuran-menu-on-user";
+import Popups from "@/components/popups";
 
 interface ComponentState {
     isLoading: boolean,
-    chipIndex: number,
+    showPopup: boolean,
+    paymentID: number,
     setIsLoading: (isLoading: boolean) => void,
-    setChipIndex: (chipIndex: number) => void,
+    setShowPopup: (showPopup: boolean) => void,
+    setPaymentID: (paymentID: number) => void,
 }
 
 interface UserData {
@@ -26,9 +28,11 @@ interface UserData {
 
 const useComponentState = create<ComponentState>(set => ({
     isLoading: false,
-    chipIndex: 0,
+    showPopup: false,
+    paymentID: 0,
     setIsLoading: (isLoading: boolean) => set({isLoading}),
-    setChipIndex: (chipIndex: number) => set({chipIndex}),
+    setShowPopup: (showPopup: boolean) => set({showPopup}),
+    setPaymentID: (paymentID: number) => set({paymentID}),
 }))
 
 const useUserData = create<UserData>(set => ({
@@ -39,7 +43,7 @@ const useUserData = create<UserData>(set => ({
 export default function Page(){
     const searchParams = useSearchParams();
     const route = useRouter();
-    const {chipIndex, isLoading, setChipIndex, setIsLoading} = useComponentState();
+    const {isLoading, showPopup, paymentID, setIsLoading, setShowPopup, setPaymentID} = useComponentState();
     const {setData} = useUserData();
     const data = useUserData(state => state.data as {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]);
 
@@ -72,6 +76,13 @@ export default function Page(){
         }).finally(() => setIsLoading(false));
     }, [])
 
+    const refresh = useCallback(() => {
+        const user_id = searchParams.get('user_id');
+        if(user_id){
+            get_user_api(user_id);
+        }
+    }, [searchParams])
+
     useEffect(() => {
         const user_id = searchParams.get('user_id');
         if(user_id){
@@ -83,7 +94,7 @@ export default function Page(){
 
     return isLoading ? <LoadingAnimation/> : <>
         <Navbar/>
-        <div className="mt-24 px-6">
+        <div className="my-24 px-6">
             <div className="flex flex-col justify-center items-center gap-4">
                 <div className="w-32 h-32 bg-blue-300 text-blue-500 rounded-full flex justify-center items-center"><User size={45}/></div>
                 <div className="flex flex-col justify-center items-center gap-1">
@@ -92,24 +103,19 @@ export default function Page(){
                     <span className="text-sm">{data[0] ? data[0].users.phone! : ""}</span>
                 </div>
                 <div className="w-full my-4 flex justify-evenly items-start">
-                    <IconButton icon={<HandCoins/>} title="Bayar Iuran"/>
+                    <IconButton icon={<HandCoins/>} title="Bayar Iuran" onClick={() => route.push(`/cgm-admin/users/detail/iuran?user_id=${data[0].users.user_id}`)}/>
                     <IconButton icon={<Coins/>} title="Iuran Jangka Panjang"/>
                 </div>
             </div>
             <div className="flex flex-col mt-4 gap-4">
                 <h2 className="font-semibold text-lg">Riwayat Iuran</h2>
-                {/* <div className="flex gap-2">
-                    <Chip label="Semua" active={chipIndex === 0 ? true : false} onClick={() => {setChipIndex(0)}}/>
-                    <Chip label="Lunas" active={chipIndex === 1 ? true : false} onClick={() => {setChipIndex(1)}}/>
-                    <Chip label="Belum Lunas" active={chipIndex === 2 ? true : false} onClick={() => {setChipIndex(2)}}/>
-                </div> */}
                 <div className="flex flex-col-reverse gap-4">
                     {Object.keys(groupData).map((year) => (
                         <div key={year}>
                             <h2 className="text-lg font-semibold mb-2 text-gray-500">{year}</h2>
                             <div className="flex flex-col gap-4">
                                 {groupData[year].map((data: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}) => {
-                                    return <IuranMenu key={data.fees.fee_id} month={date.toString(data.fees.fee_date!)} title={`Iuran Bulanan ${date.toString(data.fees.fee_date!).split(' ')[0]}`} onClick={() => route.push(`/cgm-admin/users/detail/iuran?fee_id=${data.fees.fee_id}`)}/>
+                                    return <IuranMenuOnUser key={data.fees.fee_id} month={date.toString(data.fees.fee_date!)} title={`Iuran Bulanan ${date.toString(data.fees.fee_date!).split(' ')[0]}`} state={data.payments.payment_status!} state_desc={data.payments.payment_description!} onClick={() => {setPaymentID(data.payments.payment_id); setShowPopup(true)}}/>
                                 })}
                             </div>
                         </div>
@@ -117,5 +123,6 @@ export default function Page(){
                 </div>
             </div>
         </div>
+        {showPopup ? <Popups payment_id={paymentID} showPopup={showPopup} setShowPopup={setShowPopup} onRefresh={refresh}/> : null}
     </>
 }

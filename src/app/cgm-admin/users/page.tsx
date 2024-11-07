@@ -8,6 +8,7 @@ import * as schema from "@/database/schema";
 import UserListItem from "@/components/user-list-item";
 import Form from "next/form";
 import { useRouter } from "next/navigation";
+import LoadingAnimation from "@/components/loading-animation";
 
 interface UserData {
     users: [],
@@ -87,9 +88,9 @@ export default function Page(){
         all_iuran_api();
     }, [all_iuran_api])
 
-    return <>
+    return isLoading ? <LoadingAnimation/> : <>
         <Navbar/>
-        <div className="mt-24 px-6">
+        <div className="my-24 px-6">
             <Form action={""} onSubmit={searchUserOrAddress}>
                 <SearchField value={searchField} setValue={setSearchField}/>
             </Form>

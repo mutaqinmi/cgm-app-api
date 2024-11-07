@@ -18,6 +18,17 @@ export async function GET(req: req){
 
         const user_id = req.nextUrl.searchParams.get('user_id');
         const search = req.nextUrl.searchParams.get('search');
+        const filtered = req.nextUrl.searchParams.get('filtered');
+
+        if(user_id && filtered){
+            const users = await query.getUserWithUndoneFilter(parseInt(user_id));
+            return res.json({
+                message: 'success',
+                data: users,
+            }, {
+                status: 200
+            })
+        }
 
         if(search){
             const users = await query.searchUser(search);
