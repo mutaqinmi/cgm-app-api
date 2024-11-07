@@ -63,7 +63,7 @@ export default function Page(){
 
     return isLoading ? <LoadingAnimation/> : <>
         <Navbar/>
-        <div className="mt-24 px-6">
+        <div className="my-24 px-6">
             <div className="flex flex-col-reverse gap-4">
                 {Object.keys(groupData).map((year) => (
                     <div key={year}>

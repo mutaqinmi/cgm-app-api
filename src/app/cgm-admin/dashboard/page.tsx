@@ -160,6 +160,12 @@ export default function Page(){
         event.preventDefault();
         set_iuran_api(iuranField)
     }
+
+    const refresh = useCallback(() => {
+        iuran_this_month_api()
+        all_iuran_api()
+        payment_history_api()
+    }, [iuran_this_month_api, all_iuran_api, payment_history_api])
     
     useEffect(() => {
         iuran_this_month_api()
@@ -169,14 +175,7 @@ export default function Page(){
 
     return isLoading ? <LoadingAnimation/> : <>
         <Navbar/>
-        <div className="hidden md:w-full md:h-10 md:flex md:gap-10 md:mt-20 md:bg-white md:shadow md:px-10 lg:px-20 xl:px-28 2xl:px-36">
-            <DrawerMenuItem icon={<User size={24}/>} title="Tentang Saya" className="" onClick={() => {route.push("/cgm-admin/account"); setShowDrawer(false)}}/>
-            <DrawerMenuDropdownItem icon={<Wrench size={24}/>} title="Layanan" className="mt-2">
-                <DrawerMenuItem icon={<HandCoins size={24}/>} title="Iuran" onClick={() => {route.push("/cgm-admin/dashboard"); setShowDrawer(false)}}/>
-                <DrawerMenuItem icon={<Users size={24}/>} title="Warga" onClick={() => {route.push("/cgm-admin/users"); setShowDrawer(false)}}/>
-            </DrawerMenuDropdownItem>
-        </div>
-        <div className="mt-24 px-6">
+        <div className="my-24 px-6">
             <h2 className="font-semibold mb-4">Iuran Bulan Ini</h2>
             {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getMonth() + 1}-${new Date().getFullYear()}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${thisMonthData[0].fee_id}`)}/>}
             <div className="flex justify-between items-center mb-4 mt-8">
@@ -203,7 +202,7 @@ export default function Page(){
                     <FilledButton type="submit" title="Atur Iuran"/>
                 </Form>
             </ModalBottomSheet> : null}
-            {showPopup ? <Popups payment_id={userPaymentID} showPopup={showPopup} setShowPopup={setShowPopup} setData={setPaymentHistory} isDashboard/> : null}
+            {showPopup ? <Popups payment_id={userPaymentID} showPopup={showPopup} setShowPopup={setShowPopup} onRefresh={refresh}/> : null}
         </div>
     </>
 }
