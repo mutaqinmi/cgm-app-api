@@ -7,6 +7,7 @@ import { SignOut, Bell } from "@phosphor-icons/react";
 export default function TopNavbar(props: {className?: string; showDrawer: boolean; setShowDrawer: (showDrawer: boolean) => void}) {
   const [user, setUser] = useState<string | null>("");
   const [greeting, setGreeting] = useState<string>("");
+  const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -37,7 +38,7 @@ export default function TopNavbar(props: {className?: string; showDrawer: boolea
         <span className="font-semibold">{user}!</span>
       </div>
       <div className="hidden md:block">
-        <SearchField placeholder="Apa yang Anda Butuhkan?" />
+        <SearchField placeholder="Apa yang Anda Butuhkan?" value={search} setValue={setSearch}/>
       </div>
       <div className="hidden md:flex md:gap-2">
         <OutlinedIconButton icon={<SignOut size={24}/>}/>

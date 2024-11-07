@@ -92,7 +92,7 @@ export default function Page(){
         <Navbar/>
         <div className="my-24 px-6">
             <Form action={""} onSubmit={searchUserOrAddress}>
-                <SearchField value={searchField} setValue={setSearchField}/>
+                <SearchField placeholder="Cari Warga atau Alamat" value={searchField} setValue={setSearchField}/>
             </Form>
             <div className="flex flex-col gap-4 my-4">
                 {users.map((user: schema.usersType) => {

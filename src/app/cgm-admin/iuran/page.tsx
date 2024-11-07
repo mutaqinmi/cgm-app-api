@@ -152,7 +152,7 @@ export default function Page(){
         <div className="my-24 px-6">
             <Summary date={iuran[0] ? iuran[0].fees?.fee_date! : ""} amount={iuran[0] ? iuran[0].fees?.fee_amount! : 0} total={iuran[0] ? iuran.reduce((total: number, item: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}) => total + (item.fees.fee_amount || 0 * (Array.isArray(item.users) ? item.users.length : 0)), 0)! : 0} unpaid={iuran[0] ? iuran.reduce((total: number, item) => {if (item.payments.payment_description !== "done") return total + ((item.fees.fee_amount || 0) * ((Array.isArray(item.users) ? item.users.length : 1))); return total}, 0)! : 0}/>
             <Form action={""} onSubmit={searchUserOrAddress}>
-                <SearchField className="mt-8 mb-4" value={search} setValue={setSearch}/>
+                <SearchField placeholder="Cari Warga atau Alamat" className="mt-8 mb-4" value={search} setValue={setSearch}/>
             </Form>
             <div className="flex gap-2">
                 <Chip label="Semua" active={chipIndex === 0 ? true : false} onClick={() => {setChipIndex(0); filter(parseInt(searchParams.get('fee_id')!), "")}}/>
