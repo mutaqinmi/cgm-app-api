@@ -64,5 +64,5 @@ export type feesType = typeof fees.$inferSelect;
 export const fees = pgTable('fees', {
     fee_id: serial('fee_id').primaryKey(),
     fee_amount: integer('fee_amount'),
-    fee_date: varchar('fee_date'),
+    fee_date: varchar('fee_date').unique(),
 })

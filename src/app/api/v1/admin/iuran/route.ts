@@ -23,6 +23,8 @@ export async function GET(req: req){
         const filter = req.nextUrl.searchParams.get('filter');
         const search = req.nextUrl.searchParams.get('search');
         const limit = req.nextUrl.searchParams.get('limit');
+
+        const current_date = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
         
         if(fee_id && search){
             const iuran = await query.searchIuran(parseInt(fee_id), search);

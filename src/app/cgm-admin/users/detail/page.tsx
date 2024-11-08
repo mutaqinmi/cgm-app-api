@@ -92,6 +92,28 @@ export default function Page(){
         }).finally(() => setIsLoading(false));
     }, [])
 
+    const set_multiple_iuran_api = useCallback(async (user_id: number, month_list: string[]) => {
+        setIsLoading(true);
+
+        const host = window.location.protocol + "//" + window.location.host + "/api/v1";
+        return await axios.post(`${host}/admin/iuran/multiple`, {
+            user_id,
+            date: month_list
+        }, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            }
+        }).then((res: AxiosResponse) => {
+            refresh();
+            resetDate();
+            setShowModal(false);
+        }).catch((error: AxiosError) => {
+            const { message } = error.response?.data as {message: string};
+            console.log(message);
+        }).finally(() => setIsLoading(false));
+    }, [])
+
     const refresh = useCallback(() => {
         const user_id = searchParams.get('user_id');
         if(user_id){
@@ -187,7 +209,7 @@ export default function Page(){
                     </div>
                 </div>
             </div>
-            <FilledButton type="button" title="Tandai Lunas" className="mt-8"/>
+            <FilledButton type="button" title="Tandai Lunas" className="mt-8" onClick={() => set_multiple_iuran_api(data[0].users.user_id!, month_list)}/>
         </ModalBottomSheet> : null}
     </>
 }

@@ -1,6 +1,6 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
-import { and, asc, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 
 export const getAdministrator = async (phone_number: string) => {
     return await db.select().from(table.administrators).where(eq(table.administrators.phone, phone_number));
@@ -52,6 +52,21 @@ export const setIuran = async (date: string, amount: number) => {
     }).returning();
 }
 
+export const getMultipleIuran = async (date: string[]) => {
+    return await db.select().from(table.fees).where(inArray(table.fees.fee_date, date));
+}
+
+export const setMultipleIuran = async (date: string[], amount: number) => {
+    const feeData = date.map((d: string) => {
+        return {
+            fee_date: d,
+            fee_amount: amount,
+        };
+    });
+    
+    return await db.insert(table.fees).values(feeData).returning().onConflictDoNothing({target: table.fees.fee_date});
+}
+
 export const getLimitedPaymentHistory = async () => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update)).limit(5);
 }
@@ -89,11 +104,38 @@ export const getUserWithUndoneFilter = async (user_id: number) => {
 }
 
 export const setPayment = async (fee_id: number, users: table.usersType[], admin_id: number) => {
-    users.map(async (user: table.usersType) => {
-        return await db.insert(table.payments).values({
+    const data = users.map((user: table.usersType) => {
+        return {
             fee_id,
             user_id: user.user_id,
             admin_id,
-        });
-    })
+        }
+    });
+
+    return await db.insert(table.payments).values(data);
+}
+
+export const setPaymentWithMultpleID = async (fees: table.feesType[], users: table.usersType[], admin_id: number) => {
+    const data = fees.map((fee: table.feesType) => {
+        return users.map((user: table.usersType) => {
+            return {
+                fee_id: fee.fee_id,
+                user_id: user.user_id,
+                admin_id,
+            }
+        })
+    }).flat(2);
+
+    return await db.insert(table.payments).values(data);
+}
+
+//TODO: get fee id from inserting
+export const setMultiplePayment = async (fee_id: number, user_id: number, admin_id: number) => {
+    return await db.update(table.payments).set({
+        fee_id,
+        user_id,
+        admin_id,
+        payment_status: true,
+        payment_description: "done",
+    }).where(and(eq(table.payments.fee_id, fee_id), eq(table.payments.user_id, user_id)));
 }

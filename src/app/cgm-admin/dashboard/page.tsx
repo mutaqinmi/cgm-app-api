@@ -18,18 +18,6 @@ import Form from "next/form";
 import LoadingAnimation from "@/components/loading-animation";
 import Popups from "@/components/popups";
 import { useRouter } from "next/navigation";
-import DrawerMenuDropdownItem from "@/components/drawer-menu-dropdown-item";
-import DrawerMenuItem from "@/components/drawer-menu-item";
-
-interface DrawerState {
-    showDrawer: boolean;
-    setShowDrawer: (showDrawer: boolean) => void;
-}
-
-const useDrawer = create<DrawerState>((set) => ({
-    showDrawer: false,
-    setShowDrawer: (showDrawer: boolean) => set({ showDrawer }),
-}));
 
 interface Iuran {
     allIuranData: [],
@@ -77,8 +65,6 @@ export default function Page(){
     const {showModal, showPopup, setShowModal, setShowPopup} = useShow();
     const [userPaymentID, setUserPaymentID] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const showDrawer = useDrawer.getState().showDrawer;
-    const { setShowDrawer } = useDrawer();
 
     const iuran_this_month_api = useCallback(async () => {
         setIsLoading(true);
@@ -177,7 +163,7 @@ export default function Page(){
         <Navbar/>
         <div className="my-24 px-6">
             <h2 className="font-semibold mb-4">Iuran Bulan Ini</h2>
-            {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getMonth() + 1}-${new Date().getFullYear()}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${thisMonthData[0].fee_id}`)}/>}
+            {thisMonthData.length < 1 ? <IuranNotSet date={`${new Date().getFullYear()}-${new Date().getMonth() + 1}`} setShowModal={setShowModal}/> : <SingleIuran title={date.toString(thisMonthData[0].fee_date as string)} amount={thisMonthData[0].fee_amount as number} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${thisMonthData[0].fee_id}`)}/>}
             <div className="flex justify-between items-center mb-4 mt-8">
                 <h2 className="font-semibold">Rekapan Iuran Bulanan</h2>
                 <TextButton title="Lainnya" onClick={() => route.push("/cgm-admin/dashboard/iuran")}/>
@@ -196,7 +182,7 @@ export default function Page(){
                     return <UserListItem key={data.payments.payment_id} address={data.users.address!} name={data.users.name!} phone={data.users.phone!} state={data.payments.payment_description!} onClick={() => {setUserPaymentID(data.payments.payment_id); setShowPopup(true)}}/>
                 })}
             </div>
-            {showModal ? <ModalBottomSheet setShowModal={setShowModal} title={`Atur Iuran ${date.toString((new Date().getMonth() + 1).toString() + '-' + (new Date().getFullYear()).toString())}`}>
+            {showModal ? <ModalBottomSheet setShowModal={setShowModal} title={`Atur Iuran ${date.toString((new Date().getFullYear()).toString() + '-' + (new Date().getMonth() + 1).toString())}`} onClosed={refresh}>
                 <Form action={""} formMethod="POST" onSubmit={set_iuran}>
                     <RegularInputField title="Nominal Iuran" value={iuranField} setValue={setIuranField} className="my-6"/>
                     <FilledButton type="submit" title="Atur Iuran"/>
