@@ -1,5 +1,5 @@
-import Test from "./test";
+"use client"
 
 export default function Page(){
-    return <Test/>
+    return <div></div>
 }
