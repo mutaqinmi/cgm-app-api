@@ -1,62 +1,101 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
-import { and, asc, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 
+/**
+ * get administrator data by phone number
+ */
 export const getAdministrator = async (phone_number: string) => {
     return await db.select().from(table.administrators).where(eq(table.administrators.phone, phone_number));
 }
 
-export const setAdminToken = async (admin_id: number, token: string) => {
+/**
+ * set administrator token
+ */
+export const setAdministratorToken = async (admin_id: number, token: string) => {
     return await db.insert(table.admin_tokens).values({
         admin_id: admin_id,
         token: token,
     })
 }
 
+/**
+ * get administrator token
+ */
 export const getAdminToken = async (token: string) => {
     return await db.select().from(table.admin_tokens).where(eq(table.admin_tokens.token, token));
 }
 
+/**
+ * remove administrator token
+ */
 export const removeAdminToken = async (admin_id: number) => {
     return await db.delete(table.admin_tokens).where(eq(table.admin_tokens.admin_id, admin_id));
 }
 
-export const getIuran = async (date: string) => {
+/**
+ * get all fees data by date
+ */
+export const getFees = async (date: string) => {
     return await db.select().from(table.fees).where(eq(table.fees.fee_date, date));
 }
 
-export const getAllIuran = async () => {
+/**
+ * get all fees data ordered by date
+ */
+export const getAllFees = async () => {
     return await db.select().from(table.fees).orderBy(desc(table.fees.fee_date));
 }
 
-export const getAllIuranLimited = async () => {
+/**
+ * get all fees data ordered by date with limit
+ */
+export const getAllFeesLimited = async () => {
     return await db.select().from(table.fees).orderBy(desc(table.fees.fee_date)).limit(3);
 }
 
-export const getIuranById = async (fee_id: number) => {
+/**
+ * get fees data by id joined with payments and users
+ */
+export const getFeeById = async (fee_id: number) => {
     return await db.select().from(table.fees).leftJoin(table.payments, eq(table.fees.fee_id, table.payments.fee_id)).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).where(eq(table.fees.fee_id, fee_id));
 }
 
-export const getIuranByStatus = async (fee_id: number, filter: string) => {
+/**
+ * get fees data by id joined with payments and users filtered by payment status
+ */
+export const getFeesByStatus = async (fee_id: number, filter: string) => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.payments.payment_description, filter)));
 }
 
-export const searchIuran = async (fee_id: number, keyword: string) => {
+/**
+ * get fees data by search query joined with payments and users by name or address
+ */
+export const searchFees = async (fee_id: number, keyword: string) => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), or(ilike(table.users.name, `%${keyword}%`), ilike(table.users.address, `%${keyword}%`))));
 }
 
-export const setIuran = async (date: string, amount: number) => {
+/**
+ * set single fee data (per-month)
+ */
+export const setFee = async (date: string, amount: number) => {
     return await db.insert(table.fees).values({
         fee_date: date,
         fee_amount: amount,
     }).returning();
 }
 
-export const getMultipleIuran = async (date: string[]) => {
+/**
+ * get multiple fees data by date
+ */
+export const getMultipleFees = async (date: string[]) => {
     return await db.select().from(table.fees).where(inArray(table.fees.fee_date, date));
 }
 
-export const setMultipleIuran = async (date: string[], amount: number) => {
+/**
+ * set multiple fees data by date
+ */
+export const setMultipleFees = async (date: string[], amount: number) => {
     const feeData = date.map((d: string) => {
         return {
             fee_date: d,
@@ -67,42 +106,65 @@ export const setMultipleIuran = async (date: string[], amount: number) => {
     return await db.insert(table.fees).values(feeData).returning().onConflictDoNothing({target: table.fees.fee_date});
 }
 
-export const getLimitedPaymentHistory = async () => {
+/**
+ * get payment history joined with payments and users limited
+ */
+export const getPaymentsHistoryLimited = async () => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update)).limit(5);
 }
 
-export const getPaymentHistory = async () => {
+/**
+ * get single payment history joined with payments and users
+ */
+export const getPaymentsHistory = async () => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update));
 }
 
-export const getAllPaymentHistory = async () => {
-    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update));
-}
-
+/**
+ * get single payment history joined with payments and users filtered with payment id
+ */
 export const getPaymentById = async (payment_id: number) => {
     return await db.select().from(table.fees).leftJoin(table.payments, eq(table.fees.fee_id, table.payments.fee_id)).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).where(eq(table.payments.payment_id, payment_id));
 }
 
+/**
+ * update payment status and description
+ */
 export const updatePayment = async (payment_id: number, payment_status: boolean, payment_description: string) => {
     return await db.update(table.payments).set({payment_status, payment_description, last_update: sql`NOW()`}).where(eq(table.payments.payment_id, payment_id));
 }
 
+/**
+ * get all users data
+ */
 export const getAllUsers = async () => {
     return await db.select().from(table.users);
 }
 
+/**
+ * search users data by keyword
+ */
 export const searchUser = async (keyword: string) => {
     return await db.select().from(table.users).where(or(ilike(table.users.name, `%${keyword}%`), ilike(table.users.address, `%${keyword}%`)));
 }
 
-export const getUser = async (user_id: number) => {
+/**
+ * get user data by id joined with payments and fees
+ */
+export const getUserData = async (user_id: number) => {
     return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(eq(table.users.user_id, user_id)).orderBy(desc(table.fees.fee_date));
 }
 
+/**
+ * get user data by id joined with payments and fees filtered with payment status
+ */
 export const getUserWithUndoneFilter = async (user_id: number) => {
     return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.users.user_id, user_id), eq(table.payments.payment_status, false))).orderBy(desc(table.fees.fee_date));
 }
 
+/**
+ * set multiple payment data by users
+ */
 export const setPayment = async (fee_id: number, users: table.usersType[], admin_id: number) => {
     const data = users.map((user: table.usersType) => {
         return {
@@ -115,6 +177,9 @@ export const setPayment = async (fee_id: number, users: table.usersType[], admin
     return await db.insert(table.payments).values(data);
 }
 
+/**
+ * set multiple payment data by users and fees
+ */
 export const setPaymentWithMultpleID = async (fees: table.feesType[], users: table.usersType[], admin_id: number) => {
     const data = fees.map((fee: table.feesType) => {
         return users.map((user: table.usersType) => {
@@ -129,7 +194,9 @@ export const setPaymentWithMultpleID = async (fees: table.feesType[], users: tab
     return await db.insert(table.payments).values(data);
 }
 
-//TODO: get fee id from inserting
+/**
+ * update multiple payment data on single user
+ */
 export const setMultiplePayment = async (fee_id: number, user_id: number, admin_id: number) => {
     return await db.update(table.payments).set({
         fee_id,

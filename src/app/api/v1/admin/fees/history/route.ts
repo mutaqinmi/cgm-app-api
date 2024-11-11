@@ -3,11 +3,12 @@ import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
 
 export async function GET(req: req){
+    // get query from request
+    const limit = req.nextUrl.searchParams.get('limit');
+
     try {
         // check if token exists
-        const token: string = req.headers.get('authorization')!;
-        const cookieToken = req.cookies.get("token")!;
-        const verified_token = await verifyToken(token, cookieToken);
+        const verified_token = await verifyToken(req);
         if(!verified_token){
             return res.json({
                 message: 'token tidak valid',
@@ -16,10 +17,12 @@ export async function GET(req: req){
             })
         }
 
-        const limit = req.nextUrl.searchParams.get('limit');
-
+        // check if limit is true
         if(limit && limit === "true"){
-            const history = await query.getLimitedPaymentHistory();
+            // get histroy data from database
+            const history = await query.getPaymentsHistoryLimited();
+
+            // return response
             return res.json({
                 message: 'success',
                 data: history,
@@ -28,8 +31,8 @@ export async function GET(req: req){
             })
         }
 
-        // get histroy data from database
-        const history = await query.getPaymentHistory();
+        // get history data from database
+        const history = await query.getPaymentsHistory();
 
         // return response
         return res.json({

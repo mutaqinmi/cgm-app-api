@@ -3,11 +3,14 @@ import { NextRequest as req, NextResponse as res } from 'next/server';
 import * as query from '@/database/query';
 
 export async function GET(req: req){
+    // get query params from request
+    const user_id = req.nextUrl.searchParams.get('user_id');
+    const search = req.nextUrl.searchParams.get('search');
+    const filtered = req.nextUrl.searchParams.get('filtered');
+
     try {
         // check if token exists
-        const token: string = req.headers.get('authorization')!;
-        const cookieToken = req.cookies.get("token")!;
-        const verified_token = await verifyToken(token, cookieToken);
+        const verified_token = await verifyToken(req);
         if(verified_token === 0){
             return res.json({
                 message: 'token tidak valid',
@@ -16,12 +19,12 @@ export async function GET(req: req){
             })
         }
 
-        const user_id = req.nextUrl.searchParams.get('user_id');
-        const search = req.nextUrl.searchParams.get('search');
-        const filtered = req.nextUrl.searchParams.get('filtered');
-
+        // get user data with undone filter
         if(user_id && filtered){
+            // get user data with undone filter
             const users = await query.getUserWithUndoneFilter(parseInt(user_id));
+
+            // return response
             return res.json({
                 message: 'success',
                 data: users,
@@ -30,8 +33,12 @@ export async function GET(req: req){
             })
         }
 
+        // search user
         if(search){
+            // search user
             const users = await query.searchUser(search);
+
+            // return response
             return res.json({
                 message: 'success',
                 data: users,
@@ -40,8 +47,12 @@ export async function GET(req: req){
             })
         }
 
+        // get user data by user_id
         if(user_id){
-            const user = await query.getUser(parseInt(user_id));
+            // get user data by user_id
+            const user = await query.getUserData(parseInt(user_id));
+
+            // return response
             return res.json({
                 message: 'success',
                 data: user,
@@ -50,8 +61,10 @@ export async function GET(req: req){
             })
         }
 
+        // get all users
         const users = await query.getAllUsers();
 
+        // return response
         return res.json({
             message: 'success',
             data: users,

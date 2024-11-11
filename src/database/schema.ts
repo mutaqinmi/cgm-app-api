@@ -1,18 +1,29 @@
-import { InferSelectModel, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { boolean, date, index, integer, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
 
+// user token table
 export type user_tokensType = typeof user_tokens.$inferSelect;
 export const user_tokens = pgTable('user_tokens', {
     user_id: serial('user_id').references(() => users.user_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     token: varchar('token'),
+}, (table) => {
+    return {
+        tokenIndex: index('token_idx').on(table.token),
+    }
 })
 
+// admin token table
 export type admin_tokensType = typeof admin_tokens.$inferSelect;
 export const admin_tokens = pgTable('admin_tokens', {
     admin_id: serial('admin_id').references(() => administrators.admin_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     token: varchar('token'),
+}, (table) => {
+    return {
+        tokenIndex: index('token_idx').on(table.token),
+    }
 })
 
+// user table
 export type usersType = typeof users.$inferSelect;
 export const users = pgTable('users', {
     user_id: serial('user_id').primaryKey(),
@@ -20,16 +31,40 @@ export const users = pgTable('users', {
     password: varchar('password', { length: 255 }).default('12345'),
     address: varchar('address', { length: 50 }),
     phone: varchar('phone', { length: 20 }),
+}, (table) => {
+    return {
+        nameIndex: index('name_idx').on(table.name),
+        addressIndex: index('address_idx').on(table.address),
+    }
 })
 
+// admin table
 export type administratorsType = typeof administrators.$inferSelect;
 export const administrators = pgTable('administrators', {
     admin_id: serial('admin_id').primaryKey(),
     name: varchar('name', { length: 50 }),
     password: varchar('password', { length: 255 }).default('12345'),
     phone: varchar('phone', { length: 20 }),
+}, (table) => {
+    return {
+        nameIndex: index('name_idx').on(table.name),
+        phoneIndex: index('phone_idx').on(table.phone),
+    }
 })
 
+// fee table
+export type feesType = typeof fees.$inferSelect;
+export const fees = pgTable('fees', {
+    fee_id: serial('fee_id').primaryKey(),
+    fee_amount: integer('fee_amount'),
+    fee_date: varchar('fee_date').unique(),
+}, (table) => {
+    return {
+        feeDateIndex: index('fee_date_idx').on(table.fee_date),
+    }
+})
+
+// payment table
 export type paymentsType = typeof payments.$inferSelect;
 export const payments = pgTable('payments', {
     payment_id: serial('payment_id').primaryKey(),
@@ -40,17 +75,14 @@ export const payments = pgTable('payments', {
     payment_status: boolean('payment_status').default(false),
     payment_description: varchar('payment_description', { length: 255 }).default('undone'),
     last_update: timestamp('last_update').default(sql`NOW()`),
+}, (table) => {
+    return {
+        paymentStatusIndex: index('payment_status_idx').on(table.payment_status),
+        paymentDescIndex: index('payment_desc_idx').on(table.payment_description),
+    }
 })
 
-// export const posts = pgTable('posts', {
-//     post_id: serial('post_id').primaryKey(),
-//     admin_id: serial('admin_id').references(() => administrators.admin_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
-//     post_title: varchar('post_title', { length: 50 }),
-//     post_content: varchar('post_content'),
-//     post_date: timestamp('post_date').default(sql`NOW()`),
-//     post_image: varchar('post_image', { length: 255 }).default('announcement-default-image.png'),
-// })
-
+// notification table
 export type notificationsType = typeof notifications.$inferSelect;
 export const notifications = pgTable('notifications', {
     notification_id: serial('notification_id').primaryKey(),
@@ -58,11 +90,4 @@ export const notifications = pgTable('notifications', {
     notification_title: varchar('notification_title', { length: 50 }),
     notification_content: varchar('notification_content'),
     notification_date: timestamp('notification_date').default(sql`NOW()`),
-})
-
-export type feesType = typeof fees.$inferSelect;
-export const fees = pgTable('fees', {
-    fee_id: serial('fee_id').primaryKey(),
-    fee_amount: integer('fee_amount'),
-    fee_date: varchar('fee_date').unique(),
 })

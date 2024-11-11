@@ -4,12 +4,8 @@ import { verifyToken } from "@/lib/auth";
 
 export async function GET(req: req){
     try {
-        // get token from request
-        const token: string = req.headers.get('authorization')!;
-        const cookieToken = req.cookies.get("token")!;
-        
         // check if token exists
-        const verified_token = await verifyToken(token, cookieToken);
+        const verified_token = await verifyToken(req);
         if(verified_token === 0){
             return res.json({
                 message: 'token tidak valid',
@@ -20,8 +16,6 @@ export async function GET(req: req){
 
         // remove token in database
         await query.removeAdminToken(verified_token);
-
-        // clear cookie
 
         // return response
         return res.json({

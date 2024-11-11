@@ -1,3 +1,7 @@
+/**
+ * This method is used for converting string format yyyy-mm to string format M yyyy
+ */
+
 export function toString(datetime: string): string {
     let date = datetime.split('-')[1];
     let year = datetime.split('-')[0];

@@ -3,11 +3,12 @@ import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
 
 export async function GET(req: req){
+    // get query from request
+    const payment_id = req.nextUrl.searchParams.get('payment_id');
+
     try {
         // check if token exists
-        const token: string = req.headers.get('authorization')!;
-        const cookieToken = req.cookies.get("token")!;
-        const verified_token = await verifyToken(token, cookieToken);
+        const verified_token = await verifyToken(req);
         if(!verified_token){
             return res.json({
                 message: 'token tidak valid',
@@ -15,9 +16,6 @@ export async function GET(req: req){
                 status: 401
             })
         }
-
-        // get id from query
-        const payment_id = req.nextUrl.searchParams.get('payment_id');
 
         // get payment data from database
         const payment = await query.getPaymentById(parseInt(payment_id!));
@@ -43,11 +41,13 @@ export async function GET(req: req){
 }
 
 export async function PATCH(req: req){
+    // get data from request
+    const payment_id = req.nextUrl.searchParams.get('payment_id');
+    const body = await req.json();
+
     try {
         // check if token exists
-        const token: string = req.headers.get('authorization')!;
-        const cookieToken = req.cookies.get("token")!;
-        const verified_token = await verifyToken(token, cookieToken);
+        const verified_token = await verifyToken(req);
         if(!verified_token){
             return res.json({
                 message: 'token tidak valid',
@@ -56,11 +56,7 @@ export async function PATCH(req: req){
             })
         }
 
-        // get id from query
-        const payment_id = req.nextUrl.searchParams.get('payment_id');
-        const body = await req.json();
-
-        // update payment data from database
+        // update payment data on database
         await query.updatePayment(parseInt(payment_id!), body.payment_status, body.payment_description);
 
         // return response

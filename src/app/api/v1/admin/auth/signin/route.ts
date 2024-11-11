@@ -2,16 +2,21 @@ import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
 import { generateToken } from "@/lib/token";
 
-export async function POST(req: req){
-    try {
-        // get body from request
-        const body = await req.json();
+interface RequestBody {
+    phone: string,
+    password: string,
+}
 
-        // parse request body
-        let phone_number: string = body.phone;
-        phone_number = phone_number.startsWith("8") ? phone_number.replace("8", "08") : phone_number;
-        const admin_password: string = body.password;
-        
+export async function POST(req: req){
+    // get body from request
+    const body: RequestBody = await req.json();
+
+    // parse request body
+    let phone_number: string = body.phone;
+    phone_number = phone_number.startsWith("8") ? phone_number.replace("8", "08") : phone_number;
+    const admin_password: string = body.password;
+    
+    try {
         // get administrator data from database
         const administrator = await query.getAdministrator(phone_number);
 
@@ -38,7 +43,11 @@ export async function POST(req: req){
         const token = generateToken(payloads);
 
         // set token in database
-        await query.setAdminToken(administrator[0].admin_id, token);
+        await query.setAdministratorToken(administrator[0].admin_id, token);
+
+        // set cookie expiration
+        const expiration = new Date();
+        expiration.setDate(expiration.getDate() + 7);
 
         // return response
         return res.json({
@@ -50,7 +59,7 @@ export async function POST(req: req){
         }, {
             status: 200,
             headers: {
-                "Set-Cookie": `token=${token}; path=/; HttpOnly; SameSite=Strict;`
+                "Set-Cookie": `token=${token}; path=/; HttpOnly; SameSite=Strict; expires=${expiration.toUTCString()}`
             }
         })
     } catch (error) {
