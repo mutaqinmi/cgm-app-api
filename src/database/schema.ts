@@ -8,7 +8,7 @@ export const user_tokens = pgTable('user_tokens', {
     token: varchar('token'),
 }, (table) => {
     return {
-        tokenIndex: index('token_idx').on(table.token),
+        userTokenIndex: index('user_token_idx').on(table.token),
     }
 })
 
@@ -19,7 +19,7 @@ export const admin_tokens = pgTable('admin_tokens', {
     token: varchar('token'),
 }, (table) => {
     return {
-        tokenIndex: index('token_idx').on(table.token),
+        adminTokenIndex: index('admin_token_idx').on(table.token),
     }
 })
 
@@ -33,8 +33,8 @@ export const users = pgTable('users', {
     phone: varchar('phone', { length: 20 }),
 }, (table) => {
     return {
-        nameIndex: index('name_idx').on(table.name),
-        addressIndex: index('address_idx').on(table.address),
+        userNameIndex: index('user_name_idx').on(table.name),
+        userAddressIndex: index('user_address_idx').on(table.address),
     }
 })
 
@@ -47,8 +47,8 @@ export const administrators = pgTable('administrators', {
     phone: varchar('phone', { length: 20 }),
 }, (table) => {
     return {
-        nameIndex: index('name_idx').on(table.name),
-        phoneIndex: index('phone_idx').on(table.phone),
+        adminNameIndex: index('admin_name_idx').on(table.name),
+        adminPhoneIndex: index('admin_phone_idx').on(table.phone),
     }
 })
 

@@ -10,7 +10,6 @@ import { FormEvent, useCallback, useState } from "react";
 import { create } from "zustand";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import LoadingAnimation from "@/components/loading-animation";
-import { api_url } from "@/lib/hostname";
 
 interface InputState {
     phone: string;
@@ -39,7 +38,7 @@ export default function Page(){
         setIsLoading(true);
         setError(undefined);
 
-        return await axios.post(`${api_url}/admin/auth/signin`, {
+        return await axios.post(`${process.env.API_URL}/admin/auth/signin`, {
             phone,
             password
         }, {
@@ -53,6 +52,7 @@ export default function Page(){
                 route.push("/cgm-admin");
             }
         }).catch((error: AxiosError) => {
+            console.log(error.response?.data);
             const {message} = error.response?.data as {message: string};
             setError(message);
         }).finally(() => setIsLoading(false));
