@@ -1,33 +1,13 @@
-'use client'
-import numberFormatter from "@/lib/formatter";
-import VertDivider from "./vert-divider";
-import * as date from "@/lib/date";
-// export default function Summary(props: {date: string; amount: number; total: number; unpaid: number}) {
-//     return <div className="w-full">
-//         <div className="flex flex-col justify-center items-center w-full">
-//             <span className="text-sm">Iuran Bulan {date.toString(props.date)}</span>
-//             <span className="text-3xl font-semibold mt-2">{numberFormatter(props.amount.toString())}</span>
-//         </div>
-//         <div className="flex justify-center items-center w-full h-full mt-8">
-//             <div className="w-full flex flex-col justify-center items-center text-center text-blue-500">
-//                 <span className="text-xs w-full">Jumlah Seluruh Iuran</span>
-//                 <span className="text-lg">{numberFormatter(props.total.toString())}</span>
-//             </div>
-//             <VertDivider/>
-//             <div className="w-full flex flex-col justify-center items-center text-center text-red-500">
-//                 <span className="text-xs w-full">Jumlah Belum Bayar</span>
-//                 <span className="text-lg">{numberFormatter(props.unpaid.toString())}</span>
-//             </div>
-//         </div>
-//     </div>
-// }
 
-export default function Summary(props: {icon: React.ReactNode; total: number; }) {
-    return <div className="w-full h-20 flex">
-        {props.total}
-        <div>
-            <span>Jumlah Warga</span><br />
-            <span>{props.icon}</span>
+export default function Logo(props: {className?: string; title: string; total: number; nominal: number; icon: React.ReactNode;}) {
+    return <div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
+        <div className="p-2 md:p-3 bg-blue-200 rounded-lg">
+            {/* <Users className="text-blue-500 text-lg md:text-4xl"/> */}
+        </div>
+        <div className="flex flex-col">
+            <span className="text-xs text-gray-500">{props.title}</span>
+            <span className="text-2xl font-semibold">{props.total}</span>
+            <span className="text-xs md:text-sm text-blue-500 mt-1">( Rp. 1.568.000 )</span>
         </div>
     </div>
 }

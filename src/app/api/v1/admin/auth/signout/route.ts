@@ -1,21 +1,13 @@
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
-import { verifyToken } from "@/lib/auth";
 
 export async function GET(req: req){
     try {
-        // check if token exists
-        const verified_token = await verifyToken(req);
-        if(verified_token === 0){
-            return res.json({
-                message: 'token tidak valid',
-            }, {
-                status: 401
-            })
-        }
+        // get admin id from headers
+        const admin_id = req.headers.get('admin-id');
 
         // remove token in database
-        await query.removeAdminToken(verified_token);
+        await query.removeAdminToken(parseInt(admin_id!));
 
         // return response
         return res.json({
