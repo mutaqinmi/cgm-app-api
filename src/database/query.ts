@@ -165,12 +165,11 @@ export const getUserWithUndoneFilter = async (user_id: number) => {
 /**
  * set multiple payment data by users
  */
-export const setPayment = async (fee_id: number, users: table.usersType[], admin_id: number) => {
+export const setPayment = async (fee_id: number, users: table.usersType[]) => {
     const data = users.map((user: table.usersType) => {
         return {
             fee_id,
             user_id: user.user_id,
-            admin_id,
         }
     });
 
@@ -180,13 +179,12 @@ export const setPayment = async (fee_id: number, users: table.usersType[], admin
 /**
  * set multiple payment data by users and fees
  */
-export const setPaymentWithMultpleID = async (fees: table.feesType[], users: table.usersType[], admin_id: number) => {
+export const setPaymentWithMultpleID = async (fees: table.feesType[], users: table.usersType[]) => {
     const data = fees.map((fee: table.feesType) => {
         return users.map((user: table.usersType) => {
             return {
                 fee_id: fee.fee_id,
                 user_id: user.user_id,
-                admin_id,
             }
         })
     }).flat(2);
@@ -197,11 +195,10 @@ export const setPaymentWithMultpleID = async (fees: table.feesType[], users: tab
 /**
  * update multiple payment data on single user
  */
-export const setMultiplePayment = async (fee_id: number, user_id: number, admin_id: number) => {
+export const setMultiplePayment = async (fee_id: number, user_id: number) => {
     return await db.update(table.payments).set({
         fee_id,
         user_id,
-        admin_id,
         payment_status: true,
         payment_description: "done",
     }).where(and(eq(table.payments.fee_id, fee_id), eq(table.payments.user_id, user_id)));

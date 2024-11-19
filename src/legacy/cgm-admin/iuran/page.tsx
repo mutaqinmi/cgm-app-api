@@ -1,6 +1,6 @@
 'use client'
 import Navbar from "@/components/navbar";
-import Summary from "@/components/summary";
+import Summary from "@/components/card";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useState } from "react";

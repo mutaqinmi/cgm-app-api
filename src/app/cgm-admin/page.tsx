@@ -1,13 +1,31 @@
 'use client';
 import Chart from "@/components/chart";
-import Logo from "@/components/logo";
-import { Bell, CaretRight, ChartBar, HandCoins, SignOut, User, Users, Plus, MagnifyingGlass, CaretDown, Funnel, Pencil, ArrowSquareOut, Eye, EyeSlash, CaretLeft, XCircle, Trash, CheckCircle, DotsThreeVertical, Phone, MapPin, X, List  } from "@phosphor-icons/react";
+import { CaretRight, HandCoins, User, Users, Plus, Funnel, Pencil, Eye, EyeSlash, XCircle, Trash, CheckCircle, DotsThreeVertical, Phone, MapPin, X, List  } from "@phosphor-icons/react";
 import { create } from "zustand";
 import Link from 'next/link';
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as date from "@/lib/date";
 import SideBar from "@/components/sidebar";
 import LoadingAnimation from "@/components/loading-animation";
+import TopBar from "@/components/topbar";
+import Card from "@/components/card";
+import RegularChoiceChip from "@/components/regular-choice-chip";
+import Container from "@/components/container";
+import UserListItem from "@/components/user-list-item";
+import TableHead from "@/components/table-head";
+import VerticalDivider from "@/components/vertical-divider";
+import SearchField from "@/components/search-field";
+import IconButton from "@/components/icon-button";
+import PaginationWidget from "@/components/pagination";
+import FeeListItem from "@/components/fee-list-item";
+import UserActivityList from "@/components/user-activity-list";
+import DropDown from "@/components/dropdown";
+import DropDownItem from "@/components/dropdown-item";
+import ChoiceChip from "@/components/choice-chip";
+import UserListFeeItem from "@/components/user-list-fee-item";
+import UnpaidTransaction from "@/components/unpaid-transaction";
+import LongFeeChip from "@/components/long-fee-chip";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 interface ComponentState {
     navbarIndex: number,
@@ -57,54 +75,13 @@ const useComponent = create<ComponentState>((set) => {
     }
 })
 
+// Root Component
 export default function Page(){
     const component = useComponent();
 
     return component.isLoading ? <LoadingAnimation/> : <div>
         <SideBar sidebarState={component.showSidebar} sidebarController={component.setShowSidebar} navbarState={component.navbarIndex} navbarController={component.setNavbarIndex} loadingController={component.setIsLoading}/>
-        <div className="flex w-full py-6 px-4 md:px-8 md:pl-72 z-40 justify-between items-center bg-white fixed top-0">
-            <div className="flex items-center gap-4">
-                <List size={24} onClick={() => component.setShowSidebar(true)} className="md:hidden"/>
-                <h1 className="text-2xl font-semibold">{(() => {
-                    if(component.navbarIndex === 0) return 'Dashboard';
-                    if(component.navbarIndex === 1) return 'Iuran';
-                    if(component.navbarIndex === 2) return 'Warga';
-                    if(component.navbarIndex === 3) return 'Tentang Saya';
-                })()}</h1>
-            </div>
-            <div className="flex flex-row-reverse justify-center items-center gap-4">
-                <Bell size={32} onClick={() => component.setShowNotification(!component.showNotification)}/>
-            </div>
-            {component.showNotification ? <div className="bg-white w-80 md:w-96 p-4 rounded-lg shadow-md shadow-gray-300 absolute right-8 -top-0 mt-20 flex flex-col gap-4">
-                <div className="flex gap-4 justify-start items-center">
-                    <div className="p-3 bg-blue-200 rounded-lg">
-                        <Bell className="text-blue-500" size={18}/>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-xs text-gray-400">Senin, 11 November 2024 06.34</span>
-                        <span className="text-sm">Aktivitas login terdeteksi, Anda login pada perangkat A-113B. Jika bukan anda, segera amankan akun anda!</span>
-                    </div>
-                </div>
-                <div className="flex gap-4 justify-start items-center">
-                    <div className="p-3 bg-blue-200 rounded-lg">
-                        <Bell className="text-blue-500" size={18}/>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-xs text-gray-400">Senin, 11 November 2024 06.34</span>
-                        <span className="text-sm">Aktivitas login terdeteksi, Anda login pada perangkat A-113B. Jika bukan anda, segera amankan akun anda!</span>
-                    </div>
-                </div>
-                <div className="flex gap-4 justify-start items-center">
-                    <div className="p-3 bg-blue-200 rounded-lg">
-                        <Bell className="text-blue-500" size={18}/>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-xs text-gray-400">Senin, 11 November 2024 06.34</span>
-                        <span className="text-sm">Aktivitas login terdeteksi, Anda login pada perangkat A-113B. Jika bukan anda, segera amankan akun anda!</span>
-                    </div>
-                </div>
-            </div> : null}
-        </div>
+        <TopBar navbarState={component.navbarIndex} sidebarController={component.setShowSidebar} notificationState={component.showNotification} notificationController={component.setShowNotification}/>
         <div className="md:ml-64 mt-12 p-4 md:p-8">
             {(() => {
                 if(component.navbarIndex === 0){
@@ -128,291 +105,99 @@ export default function Page(){
 function Dashboard() {
     const component = useComponent();
 
+    const currentMonthFeeAPI = useCallback(async () => {
+        component.setIsLoading(true);
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+
+        return await axios.get(`${process.env.API_URL}/admin/fees?month=${currentMonth}&year=${currentYear}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: [] };
+                    console.log(data);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+            .finally(() => component.setIsLoading(false));
+    }, []);
+
+    useEffect(() => {
+        currentMonthFeeAPI();
+    }, [currentMonthFeeAPI]);
+
     return <>
         <div className="mt-8">
             <h1 className="font-semibold text-lg">Iuran Bulan Ini</h1>
         </div>
         <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            <div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
-                <div className="p-2 md:p-3 bg-blue-200 rounded-lg">
-                    <Users className="text-blue-500 text-lg md:text-4xl"/>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-gray-500">Jumlah warga</span>
-                    <span className="text-2xl font-semibold">40</span>
-                    <span className="text-xs md:text-sm text-blue-500 mt-1">( Rp. 1.568.000 )</span>
-                </div>
-            </div>
-            <div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
-                <div className="p-2 md:p-3 bg-green-200 rounded-lg">
-                    <Users className="text-green-500 text-lg md:text-4xl"/>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-gray-500">Sudah Lunas</span>
-                    <span className="text-2xl font-semibold">40</span>
-                    <span className="text-xs md:text-sm text-green-500 mt-1">( Rp. 1.568.000 )</span>
-                </div>
-            </div>
-            <div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
-                <div className="p-2 md:p-3 bg-yellow-200 rounded-lg">
-                    <Users className="text-yellow-500 text-lg md:text-4xl"/>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-gray-500">Menunggu Konfirmasi</span>
-                    <span className="text-2xl font-semibold">40</span>
-                    <span className="text-xs md:text-sm text-yellow-500 mt-1">( Rp. 1.568.000 )</span>
-                </div>
-            </div>
-            <div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
-                <div className="p-2 md:p-3 bg-red-200 rounded-lg">
-                    <Users className="text-red-500 text-lg md:text-4xl"/>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-gray-500">Belum Lunas</span>
-                    <span className="text-2xl font-semibold">40</span>
-                    <span className="text-xs md:text-sm text-red-500 mt-1">( Rp. 1.568.000 )</span>
-                </div>
-            </div>
+            <Card color="blue" title="Jumlah Warga" total={40} nominal={1568000} icon={<Users/>}/>
+            <Card color="green" title="Sudah Lunas" total={40} nominal={1568000} icon={<HandCoins/>}/>
+            <Card color="yellow" title="Menunggu Konfirmasi" total={40} nominal={1568000} icon={<HandCoins/>}/>
+            <Card color="red" title="Belum Lunas" total={40} nominal={1568000} icon={<HandCoins/>}/>
         </div>
         <div className="mt-8 w-full grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="col-span-1 md:col-span-3 flex flex-col gap-8">
-                <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
+                <Container>
                     <div>
                         <h1 className="text-lg font-semibold">Grafik Pembayaran</h1>
                     </div>
                     <div className="flex mt-4">
-                        <button className={`px-4 py-3 rounded-full text-xs md:text-base ${component.filterDataIndex === 0 ? 'bg-blue-500 text-white' : 'bg-white text-black'}`} onClick={() => component.setFilterDataIndex(0)}>12 Bulan</button>
-                        <button className={`px-4 py-3 rounded-full text-xs md:text-base ${component.filterDataIndex === 1 ? 'bg-blue-500 text-white' : 'bg-white text-black'}`} onClick={() => component.setFilterDataIndex(1)}>6 Bulan</button>
-                        <button className={`px-4 py-3 rounded-full text-xs md:text-base ${component.filterDataIndex === 2 ? 'bg-blue-500 text-white' : 'bg-white text-black'}`} onClick={() => component.setFilterDataIndex(2)}>1 Bulan</button>
+                        <RegularChoiceChip active={component.filterDataIndex === 0} label="12 Bulan" onClick={() => component.setFilterDataIndex(0)}/>
+                        <RegularChoiceChip active={component.filterDataIndex === 1} label="6 Bulan" onClick={() => component.setFilterDataIndex(1)}/>
+                        <RegularChoiceChip active={component.filterDataIndex === 2} label="1 Bulan" onClick={() => component.setFilterDataIndex(2)}/>
                     </div>
                     <div className="mt-8">
                         <Chart/>
                     </div>
-                </div>
-                <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
+                </Container>
+                <Container>
                     <div className="flex-col md:flex-row flex gap-4 justify-between items-start md:items-center">
                         <h1 className="text-lg font-semibold">Daftar Warga</h1>
                         <div className="flex gap-4 justify-center items-center">
-                            <div className="relative">
-                                <input type="search" name="search" id="search" placeholder="Cari Warga atau Alamat" className="w-full md:w-72 bg-zinc-100 rounded-lg py-3 pl-4 pr-8 border-none outline-none"/>
-                                <MagnifyingGlass size={16} className="text-gray-500 absolute top-1/2 -translate-y-1/2 right-4"/>
-                            </div>
-                            <div className="h-8 w-[0.5px] bg-gray-500 bg-opacity-50"></div>
-                            <div className="p-4 bg-blue-500 rounded-md justify-center items-center flex">
-                                <Plus size={14} className="text-white"/>
-                            </div>
+                            <SearchField/>
+                            <VerticalDivider/>
+                            <IconButton icon={<Plus size={14}/>}/>
                         </div>
                     </div>
                     <div className="mt-8">
                         <table className="w-full">
-                            <thead>
-                                <tr className="text-center">
-                                    <th>Nama</th>
-                                    <th>No. Telepon</th>
-                                    <th>Alamat</th>
-                                </tr>
-                            </thead>
+                            <TableHead title={['Nama', 'No. Telepon', 'Alamat', 'RT']}/>
                             <tbody>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">+62 812 - 3456 - 7890</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">+62 812 - 3456 - 7890</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">+62 812 - 3456 - 7890</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">+62 812 - 3456 - 7890</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">+62 812 - 3456 - 7890</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">+62 812 - 3456 - 7890</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                </tr>
+                                <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
+                                <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
+                                <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
                             </tbody>
                         </table>
                     </div>
-                    <div className="flex justify-center items-center gap-2 mt-8">
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretLeft/>
-                        </div>
-                        <span className="text-xs text-gray-500">Halaman 1 dari 256</span>
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretRight/>
-                        </div>
-                    </div>
-                </div>
+                    <PaginationWidget/>
+                </Container>
             </div>
             <div className="col-span-1 md:col-span-2 flex flex-col gap-8">
-                <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
+                <Container>
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Rekapan Iuran Bulanan</h1>
                         <input type="month" name="month" id="month" className="bg-blue-500 text-white [&::-webkit-calendar-picker-indicator]:invert-[1] outline-none p-2 rounded-md [&::-webkit-datetime-edit]:hidden"/>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">November 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan November 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">Oktober 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan Oktober 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">September 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan September 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">Agustus 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan Agustus 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">Juli 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan Juli 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">Juni 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan Juni 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
+                        <FeeListItem month="November 2024" title="Iuran Bulan November 2024"/>
+                        <FeeListItem month="Oktober 2024" title="Iuran Bulan Oktober 2024"/>
+                        <FeeListItem month="September 2024" title="Iuran Bulan September 2024"/>
                     </div>
-                    <div className="flex justify-center items-center gap-2 mt-8">
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretLeft/>
-                        </div>
-                        <span className="text-xs text-gray-500">Halaman 1 dari 256</span>
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretRight/>
-                        </div>
-                    </div>
-                </div>
+                    <PaginationWidget/>
+                </Container>
                 <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Aktivitas Terbaru</h1>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <div className="flex gap-4 justify-between items-center cursor-pointer">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-14 h-14 bg-blue-200 rounded-full flex justify-center items-center">
-                                    <User size={24} className="text-blue-500" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">November 2024</span>
-                                        <span className="leading-none">&#8226;</span>
-                                        <span className="rounded-full bg-yellow-200 px-2 py-1 text-yellow-500 text-xs">Menunggu Konfirmasi</span>
-                                    </div>
-                                    <span className="text-md font-semibold">Repat Dwi Gunanda</span>
-                                    <span className="text-xs mt-1">+62 812 - 3456 - 7890</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center cursor-pointer">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-14 h-14 bg-blue-200 rounded-full flex justify-center items-center">
-                                    <User size={24} className="text-blue-500" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">November 2024</span>
-                                        <span className="leading-none">&#8226;</span>
-                                        <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                                    </div>
-                                    <span className="text-md font-semibold">Repat Dwi Gunanda</span>
-                                    <span className="text-xs mt-1">+62 812 - 3456 - 7890</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center cursor-pointer">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-14 h-14 bg-blue-200 rounded-full flex justify-center items-center">
-                                    <User size={24} className="text-blue-500" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">November 2024</span>
-                                        <span className="leading-none">&#8226;</span>
-                                        <span className="rounded-full bg-red-200 px-2 py-1 text-red-500 text-xs">Belum Lunas</span>
-                                    </div>
-                                    <span className="text-md font-semibold">Repat Dwi Gunanda</span>
-                                    <span className="text-xs mt-1">+62 812 - 3456 - 7890</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
+                        <UserActivityList month="November 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Belum Lunas"/>
+                        <UserActivityList month="Oktober 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
+                        <UserActivityList month="September 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
                     </div>
-                    <div className="flex justify-center items-center gap-2 mt-8">
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretLeft/>
-                        </div>
-                        <span className="text-xs text-gray-500">Halaman 1 dari 256</span>
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretRight/>
-                        </div>
-                    </div>
+                    <PaginationWidget/>
                 </div>
             </div>
         </div>
@@ -429,317 +214,72 @@ function Iuran() {
                 <h1 className="font-semibold text-xl md:text-2xl">November 2024</h1>
             </div>
             <div className="relative">
-                <button className="py-3 px-4 w-36 bg-blue-500 text-white flex justify-between items-center gap-4 rounded-full" onClick={() => component.setShowContextMenu(!component.showContextMenu)}>
-                    <span>{component.selectedContext}</span>
-                    <CaretDown size={16} className="text-white"/>
-                </button>
+                <DropDown label={component.selectedContext} onClick={() => component.setShowContextMenu(!component.showContextMenu)}/>
                 {component.showContextMenu ? <div className="w-full absolute mt-2 flex flex-col justify-center items-center shadow-md shadow-gray-300">
-                    <button className="w-full p-2 md:p-3 bg-white hover:bg-gray-100" onClick={() => {component.setSelectedContext('Semua RT'); component.setShowContextMenu(false)}}>Semua RT</button>
-                    <button className="w-full p-2 md:p-3 bg-white hover:bg-gray-100" onClick={() => {component.setSelectedContext('RT 001'); component.setShowContextMenu(false)}}>RT 001</button>
-                    <button className="w-full p-2 md:p-3 bg-white hover:bg-gray-100" onClick={() => {component.setSelectedContext('RT 002'); component.setShowContextMenu(false)}}>RT 002</button>
-                    <button className="w-full p-2 md:p-3 bg-white hover:bg-gray-100" onClick={() => {component.setSelectedContext('RT 003'); component.setShowContextMenu(false)}}>RT 003</button>
-                    <button className="w-full p-2 md:p-3 bg-white hover:bg-gray-100" onClick={() => {component.setSelectedContext('RT 004'); component.setShowContextMenu(false)}}>RT 004</button>
+                    <DropDownItem label="Semua RT" onClick={() => {component.setSelectedContext('Semua RT'); component.setShowContextMenu(false)}}/>
+                    <DropDownItem label="RT 001" onClick={() => {component.setSelectedContext('RT 001'); component.setShowContextMenu(false)}}/>
+                    <DropDownItem label="RT 002" onClick={() => {component.setSelectedContext('RT 002'); component.setShowContextMenu(false)}}/>
+                    <DropDownItem label="RT 003" onClick={() => {component.setSelectedContext('RT 003'); component.setShowContextMenu(false)}}/>
+                    <DropDownItem label="RT 004" onClick={() => {component.setSelectedContext('RT 004'); component.setShowContextMenu(false)}}/>
                 </div> : null}
             </div>
         </div>
         <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            <div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
-                <div className="p-2 md:p-3 bg-blue-200 rounded-lg">
-                    <Users className="text-blue-500 text-lg md:text-4xl"/>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-gray-500">Jumlah warga</span>
-                    <span className="text-2xl font-semibold">40</span>
-                    <span className="text-xs md:text-sm text-blue-500 mt-1">( Rp. 1.568.000 )</span>
-                </div>
-            </div>
-            <div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
-                <div className="p-2 md:p-3 bg-green-200 rounded-lg">
-                    <Users className="text-green-500 text-lg md:text-4xl"/>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-gray-500">Sudah Lunas</span>
-                    <span className="text-2xl font-semibold">40</span>
-                    <span className="text-xs md:text-sm text-green-500 mt-1">( Rp. 1.568.000 )</span>
-                </div>
-            </div><div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
-                <div className="p-2 md:p-3 bg-yellow-200 rounded-lg">
-                    <Users className="text-yellow-500 text-lg md:text-4xl"/>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-gray-500">Menunggu Konfirmasi</span>
-                    <span className="text-2xl font-semibold">40</span>
-                    <span className="text-xs md:text-sm text-yellow-500 mt-1">( Rp. 1.568.000 )</span>
-                </div>
-            </div><div className="w-full col-span-1 bg-white p-4 flex gap-4 items-center rounded-lg shadow-md shadow-gray-300">
-                <div className="p-2 md:p-3 bg-red-200 rounded-lg">
-                    <Users className="text-red-500 text-lg md:text-4xl"/>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xs text-gray-500">Belum Lunas</span>
-                    <span className="text-2xl font-semibold">40</span>
-                    <span className="text-xs md:text-sm text-red-500 mt-1">( Rp. 1.568.000 )</span>
-                </div>
-            </div>
+            <Card color="blue" title="Jumlah Warga" total={40} nominal={1568000} icon={<Users/>}/>
+            <Card color="green" title="Sudah Lunas" total={40} nominal={1568000} icon={<HandCoins/>}/>
+            <Card color="yellow" title="Menunggu Konfirmasi" total={40} nominal={1568000} icon={<HandCoins/>}/>
+            <Card color="red" title="Belum Lunas" total={40} nominal={1568000} icon={<HandCoins/>}/>
         </div>
         <div className="mt-8 w-full grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="col-span-1 md:col-span-3 flex flex-col gap-8">
-                <div className="w-full bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
+                <Container>
                     <div className="w-full flex-col-reverse md:flex-row flex justify-between items-start md:items-center gap-4">
                         <div className="flex gap-2">
-                            <button className={`px-4 py-2 rounded-full border border-blue-500 ${component.filterStatusIndex === 0 ? 'bg-blue-500 text-white' : 'bg-blue-200 text-blue-500'}`} onClick={() => component.setFilterStatusIndex(0)}>Semua</button>
-                            <button className={`px-4 py-2 rounded-full border border-blue-500 ${component.filterStatusIndex === 1 ? 'bg-blue-500 text-white' : 'bg-blue-200 text-blue-500'}`} onClick={() => component.setFilterStatusIndex(1)}>Lunas</button>
-                            <button className={`px-4 py-2 rounded-full border border-blue-500 ${component.filterStatusIndex === 2 ? 'bg-blue-500 text-white' : 'bg-blue-200 text-blue-500'}`} onClick={() => component.setFilterStatusIndex(2)}>Belum Lunas</button>
+                            <ChoiceChip label="Semua" active={component.filterStatusIndex === 0} onClick={() => component.setFilterStatusIndex(0)}/>
+                            <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => component.setFilterStatusIndex(1)}/>
+                            <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => component.setFilterStatusIndex(2)}/>
                         </div>
-                        <div className="w-full md:w-fit relative">  
-                            <input type="search" name="search" id="search" placeholder="Cari Warga atau Alamat" className="w-full md:w-64 bg-zinc-100 rounded-lg py-3 pl-4 pr-8 border-none outline-none"/>
-                            <MagnifyingGlass size={16} className="text-gray-500 absolute top-1/2 -translate-y-1/2 right-4"/>
-                        </div>
+                        <SearchField/>
                     </div>
                     <div className="mt-8">
                         <table className="w-full">
-                            <thead>
-                                <tr className="text-center">
-                                    <th>Nama</th>
-                                    <th>Alamat</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
+                            <TableHead title={['Nama', 'Alamat', 'Status']}/>
                             <tbody>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-red-200 px-2 py-1 text-red-500 text-xs">Menunggu Konfirmasi</span>
-                                    </td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                                    </td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-red-200 px-2 py-1 text-red-500 text-xs">Menunggu Konfirmasi</span>
-                                    </td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                                    </td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-red-200 px-2 py-1 text-red-500 text-xs">Menunggu Konfirmasi</span>
-                                    </td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                                    </td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                                    </td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                                    </td>
-                                </tr>
-                                <tr className="text-center border-b border-b-gray-200">
-                                    <td className="py-3">Repat Dwi Gunanda</td>
-                                    <td className="py-3">Perum CGM, Blok. A 23</td>
-                                    <td className="py-3">
-                                        <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                                    </td>
-                                </tr>
+                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
+                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
+                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
+                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
+                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
                             </tbody>
                         </table>
                     </div>
-                    <div className="flex justify-center items-center gap-2 mt-8">
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretLeft/>
-                        </div>
-                        <span className="text-xs text-gray-500">Halaman 1 dari 256</span>
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretRight/>
-                        </div>
-                    </div>
-                </div>
+                    <PaginationWidget/>
+                </Container>
             </div>
             <div className="col-span-1 md:col-span-2 flex flex-col gap-8">
-                <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
+                <Container>
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Rekapan Iuran Bulanan</h1>
                         <input type="month" name="month" id="month" className="bg-blue-500 text-white [&::-webkit-calendar-picker-indicator]:invert-[1] outline-none p-2 rounded-md [&::-webkit-datetime-edit]:hidden"/>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">November 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan November 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">Oktober 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan Oktober 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">September 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan September 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">Agustus 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan Agustus 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">Juli 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan Juli 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-blue-200 rounded-lg">
-                                    <HandCoins className="text-blue-500" size={18}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs">Juni 2024</span>
-                                    <span className="text-md font-semibold">Iuran Bulan Juni 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
+                        <FeeListItem month="November 2024" title="Iuran Bulan November 2024"/>
+                        <FeeListItem month="Oktober 2024" title="Iuran Bulan Oktober 2024"/>
+                        <FeeListItem month="September 2024" title="Iuran Bulan September 2024"/>
                     </div>
-                    <div className="flex justify-center items-center gap-2 mt-8">
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretLeft/>
-                        </div>
-                        <span className="text-xs text-gray-500">Halaman 1 dari 256</span>
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretRight/>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
+                    <PaginationWidget/>
+                </Container>
+                <Container>
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Aktivitas Terbaru</h1>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <div className="flex gap-4 justify-between items-center cursor-pointer">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-14 h-14 bg-blue-200 rounded-full flex justify-center items-center">
-                                    <User size={24} className="text-blue-500" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">November 2024</span>
-                                        <span className="leading-none">&#8226;</span>
-                                        <span className="rounded-full bg-yellow-200 px-2 py-1 text-yellow-500 text-xs">Menunggu Konfirmasi</span>
-                                    </div>
-                                    <span className="text-md font-semibold">Repat Dwi Gunanda</span>
-                                    <span className="text-xs mt-1">+62 812 - 3456 - 7890</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center cursor-pointer">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-14 h-14 bg-blue-200 rounded-full flex justify-center items-center">
-                                    <User size={24} className="text-blue-500" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">November 2024</span>
-                                        <span className="leading-none">&#8226;</span>
-                                        <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                                    </div>
-                                    <span className="text-md font-semibold">Repat Dwi Gunanda</span>
-                                    <span className="text-xs mt-1">+62 812 - 3456 - 7890</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center cursor-pointer">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-14 h-14 bg-blue-200 rounded-full flex justify-center items-center">
-                                    <User size={24} className="text-blue-500" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">November 2024</span>
-                                        <span className="leading-none">&#8226;</span>
-                                        <span className="rounded-full bg-red-200 px-2 py-1 text-red-500 text-xs">Belum Lunas</span>
-                                    </div>
-                                    <span className="text-md font-semibold">Repat Dwi Gunanda</span>
-                                    <span className="text-xs mt-1">+62 812 - 3456 - 7890</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
+                        <UserActivityList month="November 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Belum Lunas"/>
+                        <UserActivityList month="Oktober 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
+                        <UserActivityList month="September 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
                     </div>
-                    <div className="flex justify-center items-center gap-2 mt-8">
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretLeft/>
-                        </div>
-                        <span className="text-xs text-gray-500">Halaman 1 dari 256</span>
-                        <div className="p-1 bg-blue-500 text-white rounded-md">
-                            <CaretRight/>
-                        </div>
-                    </div>
-                </div>
+                    <PaginationWidget/>
+                </Container>
             </div>
         </div>
     </>
@@ -751,89 +291,30 @@ function Warga() {
 
     return <>    
         <div className="mt-4 w-full">
-            <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
+            <Container>
                 <div className="flex-col gap-4 md:gap-0 md:flex-row flex justify-between items-start md:items-center">
                     <h1 className="text-lg font-semibold">Daftar Warga</h1>
                     <div className="flex gap-4 justify-center items-center">
-                        <div className="relative">
-                            <input type="search" name="search" id="search" placeholder="Cari Warga atau Alamat" className="w-full md:w-72 bg-zinc-100 rounded-lg py-3 pl-4 pr-8 border-none outline-none"/>
-                            <MagnifyingGlass size={16} className="text-gray-500 absolute top-1/2 -translate-y-1/2 right-4"/>
-                        </div>
-                        <div className="h-8 w-[0.5px] bg-gray-500 bg-opacity-50 hidden md:flex"></div>
-                        <div className="p-4 bg-blue-500 rounded-md justify-center items-center flex">
-                            <Funnel size={14} className="text-white" />
-                        </div>
-                        <div className="p-4 bg-blue-500 rounded-md justify-center items-center flex">
-                            <Plus size={14} className="text-white"/>
-                        </div>
+                        <SearchField/>
+                        <VerticalDivider/>
+                        <IconButton icon={<Funnel size={14}/>}/>
+                        <IconButton icon={<Plus size={14}/>}/>
                     </div>
                 </div>
                 <div className="mt-8">
                     <table className="w-full">
-                        <thead>
-                            <tr className="text-center">
-                                <th>Nama</th>
-                                <th>No. Telepon</th>
-                                <th>Alamat</th>
-                                <th>RT</th>
-                            </tr>
-                        </thead>
+                        <TableHead title={['Nama', 'No. Telepon', 'Alamat', 'RT']}/>
                         <tbody>
-                            <tr className="text-center border-b border-b-gray-200">
-                                <td className="py-3">Repat Dwi Gunanda</td>
-                                <td className="py-3">+62 812 - 3456 - 7890</td>
-                                <td className="py-3">Perum CGM, Blok. A 23</td>
-                                <td className="py-3">01</td>
-                                <td className="py-1"><CaretRight size={14}/></td>
-                            </tr>
-                            <tr className="text-center border-b border-b-gray-200">
-                                <td className="py-3">Repat Dwi Gunanda</td>
-                                <td className="py-3">+62 812 - 3456 - 7890</td>
-                                <td className="py-3">Perum CGM, Blok. A 23</td>
-                                <td className="py-3">02</td>
-                                <td className="py-1"><CaretRight size={14}/></td>
-                            </tr>
-                            <tr className="text-center border-b border-b-gray-200">
-                                <td className="py-3">Repat Dwi Gunanda</td>
-                                <td className="py-3">+62 812 - 3456 - 7890</td>
-                                <td className="py-3">Perum CGM, Blok. A 23</td>
-                                <td className="py-3">03</td>
-                                <td className="py-1"><CaretRight size={14}/></td>
-                            </tr>
-                            <tr className="text-center border-b border-b-gray-200">
-                                <td className="py-3">Repat Dwi Gunanda</td>
-                                <td className="py-3">+62 812 - 3456 - 7890</td>
-                                <td className="py-3">Perum CGM, Blok. A 23</td>
-                                <td className="py-3">04</td>
-                                <td className="py-1"><CaretRight size={14}/></td>
-                            </tr>
-                            <tr className="text-center border-b border-b-gray-200">
-                                <td className="py-3">Repat Dwi Gunanda</td>
-                                <td className="py-3">+62 812 - 3456 - 7890</td>
-                                <td className="py-3">Perum CGM, Blok. A 23</td>
-                                <td className="py-3">01</td>
-                                <td className="py-1"><CaretRight size={14}/></td>
-                            </tr>
-                            <tr className="text-center border-b border-b-gray-200">
-                                <td className="py-3">Repat Dwi Gunanda</td>
-                                <td className="py-3">+62 812 - 3456 - 7890</td>
-                                <td className="py-3">Perum CGM, Blok. A 23</td>
-                                <td className="py-3">01</td>
-                                <td className="py-1"><CaretRight size={14}/></td>
-                            </tr>
+                            <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
+                            <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
+                            <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
+                            <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
+                            <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
                         </tbody>
                     </table>
                 </div>
-                <div className="flex justify-center items-center gap-2 mt-8">
-                    <div className="p-1 bg-blue-500 text-white rounded-md">
-                        <CaretLeft/>
-                    </div>
-                    <span className="text-xs text-gray-500">Halaman 1 dari 256</span>
-                    <div className="p-1 bg-blue-500 text-white rounded-md">
-                        <CaretRight/>
-                    </div>
-                </div>
-            </div>
+                <PaginationWidget/>
+            </Container>
         </div>
     </>
 }
@@ -939,7 +420,7 @@ function DetailWarga(){
     return <>
         <div className="mt-8 grid grid-cols-5 gap-8">
             <div className="col-span-3 flex flex-col gap-8">
-                <div className="bg-white shadow-md shadow-gray-300 p-4 rounded-lg">
+                <Container>
                     <div className="flex gap-4 justify-between">
                         <div className="flex gap-4 items-center">
                             <div className="w-20 h-20 bg-blue-200 rounded-full flex justify-center items-center">
@@ -965,114 +446,49 @@ function DetailWarga(){
                             </div> : null}
                         </div>
                     </div>
-                </div>
-                <div className="bg-white shadow-md shadow-gray-300 p-4 rounded-lg">
+                </Container>
+                <Container>
                     <h1 className="text-lg font-semibold">Riwayat Iuran</h1>
-                    <div className="flex gap-2 mt-4">
-                        <button className={`px-4 py-2 rounded-full border border-blue-500 ${component.filterStatusIndex === 0 ? 'bg-blue-500 text-white' : 'bg-blue-200 text-blue-500'}`} onClick={() => component.setFilterStatusIndex(0)}>Semua</button>
-                        <button className={`px-4 py-2 rounded-full border border-blue-500 ${component.filterStatusIndex === 1 ? 'bg-blue-500 text-white' : 'bg-blue-200 text-blue-500'}`} onClick={() => component.setFilterStatusIndex(1)}>Lunas</button>
-                        <button className={`px-4 py-2 rounded-full border border-blue-500 ${component.filterStatusIndex === 2 ? 'bg-blue-500 text-white' : 'bg-blue-200 text-blue-500'}`} onClick={() => component.setFilterStatusIndex(2)}>Belum Lunas</button>
+                    <div className="flex gap-2 my-4">
+                        <ChoiceChip label="Semua" active={component.filterStatusIndex === 0} onClick={() => component.setFilterStatusIndex(0)}/>
+                        <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => component.setFilterStatusIndex(1)}/>
+                        <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => component.setFilterStatusIndex(2)}/>
                     </div>
-                    <h1 className="text-sm mt-8">2024</h1>
-                    <div className="flex gap-4 items-center mt-2">
-                        <div className="p-3 bg-blue-200 rounded-lg">
-                            <CheckCircle className="text-blue-500" size={24}/>
-                        </div>
-                        <div className="flex flex-col">
-                            <div className="flex gap-2 items-center">
-                                <span className="text-xs">September 2024</span>
-                                <span className="leading-none">&#8226;</span>
-                                <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                            </div>
-                            <span className="text-md font-semibold">Iuran Bulan September</span>
-                        </div>
+                    <div className="flex flex-col gap-2">
+                        <FeeListItem month="November" title="Iuran Bulan November 2024"/>
+                        <FeeListItem month="Oktober" title="Iuran Bulan Oktober 2024"/>
+                        <FeeListItem month="September" title="Iuran Bulan September 2024"/>
                     </div>
-                    <div className="flex gap-4 items-center mt-4">
-                        <div className="p-3 bg-blue-200 rounded-lg">
-                            <CheckCircle className="text-blue-500" size={24}/>
-                        </div>
-                        <div className="flex flex-col">
-                            <div className="flex gap-2 items-center">
-                                <span className="text-xs">Oktober 2024</span>
-                                <span className="leading-none">&#8226;</span>
-                                <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                            </div>
-                            <span className="text-md font-semibold">Iuran Bulan Oktober</span>
-                        </div>
-                    </div>
-                    <div className="flex gap-4 items-center mt-4">
-                        <div className="p-3 bg-blue-200 rounded-lg">
-                            <CheckCircle className="text-blue-500" size={24}/>
-                        </div>
-                        <div className="flex flex-col">
-                            <div className="flex gap-2 items-center">
-                                <span className="text-xs">November 2024</span>
-                                <span className="leading-none">&#8226;</span>
-                                <span className="rounded-full bg-green-200 px-2 py-1 text-green-500 text-xs">Lunas</span>
-                            </div>
-                            <span className="text-md font-semibold">Iuran Bulan November</span>
-                        </div>
-                    </div>
-                </div>
+                </Container>
             </div>
             <div className="col-span-2 flex flex-col gap-8">
-                <div className="bg-white shadow-md shadow-gray-300 p-4 rounded-lg">
+                <Container>
                     <h1 className="font-semibold text-lg">Iuran Belum Lunas</h1>
                     <div className="w-full flex justify-center font-bold text-3xl items-center mt-4 gap-1">
                         <span>Rp. </span>
                         <span>110.000</span>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-red-200 rounded-lg">
-                                    <XCircle className="text-red-500" size={24}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">November 2024</span>
-                                        <span className="rounded-full bg-red-200 px-2 py-1 text-red-500 text-xs">Belum Lunas</span>
-                                    </div>
-                                    <span className="text-md font-semibold">Iuran Bulan November 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight size={14}/>
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <div className="flex gap-4">
-                                <div className="p-3 bg-red-200 rounded-lg">
-                                    <XCircle  className="text-red-500" size={24}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">November 2024</span>
-                                        <span className="rounded-full bg-red-200 px-2 py-1 text-red-500 text-xs">Belum Lunas</span>
-                                    </div>
-                                    <span className="text-md font-semibold">Iuran Bulan November 2024</span>
-                                </div>
-                            </div>
-                            <CaretRight  size={14}/>
-                        </div>
+                        <UnpaidTransaction month="November 2024" title="Iuran Bulan November 2024" status="Belum Lunas"/>
+                        <UnpaidTransaction month="Oktober 2024" title="Iuran Bulan Oktober 2024" status="Belum Lunas"/>
                     </div>
-                </div>
-                <div className="bg-white shadow-md shadow-gray-300 p-4 flex flex-col gap-4 rounded-lg">
+                </Container>
+                <Container>
                     <div className="flex justify-between items-center">
                         <h1 className="font-semibold text-lg">Iuran Jangka Panjang</h1>
                         {monthList.length ? <Trash size={24} className="text-red-500" onClick={resetDate}/> : null}
                     </div>
-                    <div className="w-full flex gap-2 flex-wrap">
+                    <div className="w-full h-fit flex gap-2 flex-wrap mt-4">
                         {monthList.map((item: string, index: number) => {
-                            return <div key={index} className="px-4 py-2 bg-blue-500 text-white rounded-full">
-                                <span>{date.toString(item)}</span>
-                            </div>
+                            return <LongFeeChip key={index} item={item}/>
                         })}
                         <button className="px-4 py-2 border border-blue-500 text-blue-500 rounded-full flex justify-center items-center gap-2" onClick={add_month}>
                             <Plus/>
                             <span>Tambah Bulan</span>
                         </button>
                     </div>
-                    {monthList.length ? <button className="bg-blue-500 p-3 text-white rounded-lg mt-4">Tandai Lunas</button> : null}
-                </div>
+                    {monthList.length ? <button className="bg-blue-500 p-3 text-white rounded-lg mt-8 w-full">Tandai Lunas</button> : null}
+                </Container>
             </div>
         </div>
     </>

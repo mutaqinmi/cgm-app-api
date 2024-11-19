@@ -1,6 +1,5 @@
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
-import { verifyToken } from "@/lib/auth";
 import * as schema from '@/database/schema';
 
 interface RequestBody {
@@ -22,16 +21,6 @@ export async function GET(req: req){
     const limit = req.nextUrl.searchParams.get('limit');
 
     try {
-        // check if token exists
-        const verified_token = await verifyToken(req);
-        if(verified_token === 0){
-            return res.json({
-                message: 'token tidak valid',
-            }, {
-                status: 401
-            })
-        }
-
         // search fees
         if(fee_id && search){
             // search fees data from database
@@ -138,16 +127,6 @@ export async function POST(req: req){
     const amount: number = 55000;
 
     try {
-        // check if token exists
-        const verified_token = await verifyToken(req);
-        if(verified_token === 0){
-            return res.json({
-                message: 'token tidak valid',
-            }, {
-                status: 401
-            })
-        }
-
         // set multiple iuran data to database
         if(multiple === "true"){
             // set iuran data to database
@@ -155,7 +134,7 @@ export async function POST(req: req){
             if(fees.length){
                 // apply change to all users
                 const users = await query.getAllUsers();
-                await query.setPaymentWithMultpleID(fees, users, verified_token);
+                await query.setPaymentWithMultpleID(fees, users);
             }
     
             // get multiple fees data from database thats not inserted on previous command
@@ -166,7 +145,7 @@ export async function POST(req: req){
             
             // set multiple payment to user by user_id
             fee_list.map(async (fees: schema.feesType) => {
-                await query.setMultiplePayment(fees.fee_id, body.user_id, verified_token);
+                await query.setMultiplePayment(fees.fee_id, body.user_id);
             })
             
             // return response
@@ -192,7 +171,7 @@ export async function POST(req: req){
 
         // apply change to all users
         const users = await query.getAllUsers();
-        await query.setPayment(this_month_fee[0].fee_id, users, verified_token);
+        await query.setPayment(this_month_fee[0].fee_id, users);
 
         // return response
         return res.json({

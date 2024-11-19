@@ -16,7 +16,9 @@ export async function middleware(req: NextRequest){
     
         // fetch the token from the server
         try {
-            const response = await axios.get(`${process.env.API_URL}/admin/auth?token=${cookie_token}`);
+            const response = await axios.post(`${process.env.API_URL}/admin/auth`, {
+                token: cookie_token
+            });
             const { data } = response.data as { data: number };
     
             if(pathname.startsWith('/cgm-admin') && (data === 0 || data === undefined)){    
@@ -46,15 +48,17 @@ export async function middleware(req: NextRequest){
     if (pathname.startsWith('/api/v1/admin')){
         if(!cookie_token){
             // If the token is not found, redirect to the signin page
-            if(pathname.startsWith('/api/admin/auth')) return NextResponse.next();
+            if(pathname.startsWith('/api/v1/admin/auth')) return NextResponse.next();
         }
     
         // fetch the token from the server
         try {
-            const response = await axios.get(`${process.env.API_URL}/admin/auth?token=${cookie_token}`);
+            const response = await axios.post(`${process.env.API_URL}/admin/auth`, {
+                token: cookie_token
+            });
             const { data } = response.data as { data: number };
     
-            if(pathname.startsWith('/api/admin') && (data === 0 || data === undefined)){    
+            if(pathname.startsWith('/api/v1/admin') && (data === 0 || data === undefined)){    
                 // If the token is not found, redirect to the signin page
                 return NextResponse.json({
                     message: 'token tidak valid',
@@ -72,7 +76,7 @@ export async function middleware(req: NextRequest){
                 }
             });
         } catch (error) {
-            if(pathname.startsWith('/api/admin')){    
+            if(pathname.startsWith('/api/v1/admin')){    
                 // If the token is not found, redirect to the signin page
                 return NextResponse.json({
                     message: 'token tidak valid',

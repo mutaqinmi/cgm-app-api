@@ -31,10 +31,12 @@ export const users = pgTable('users', {
     password: varchar('password', { length: 255 }).default('12345'),
     address: varchar('address', { length: 50 }),
     phone: varchar('phone', { length: 20 }),
+    rt: varchar('rt', { length: 10 }),
 }, (table) => {
     return {
         userNameIndex: index('user_name_idx').on(table.name),
         userAddressIndex: index('user_address_idx').on(table.address),
+        userRTIndex: index('user_rt_idx').on(table.rt),
     }
 })
 
@@ -70,7 +72,6 @@ export const payments = pgTable('payments', {
     payment_id: serial('payment_id').primaryKey(),
     fee_id: serial('fee_id').references(() => fees.fee_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     user_id: serial('user_id').references(() => users.user_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
-    admin_id: serial('admin_id').references(() => administrators.admin_id, { onUpdate: 'cascade', onDelete: 'cascade' }),
     payment_date: date('payment_date').default(sql`NOW()`),
     payment_status: boolean('payment_status').default(false),
     payment_description: varchar('payment_description', { length: 255 }).default('undone'),

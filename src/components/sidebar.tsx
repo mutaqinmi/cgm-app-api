@@ -41,15 +41,15 @@ export default function SideBar(props: {className?: string; sidebarState: boolea
             </div>
             <div className="mt-4 p-4">
                 <ul>
-                    <SideBarMenu icon={<ChartBar size={24}/>} label="Dashboard" active={props.navbarState === 0 ? true : false} onClick={() => {props.navbarController(0); props.sidebarController(false)}}/>
-                    <SideBarMenu icon={<HandCoins size={24}/>} label="Iuran" active={props.navbarState === 1 ? true : false} onClick={() => {props.navbarController(1); props.sidebarController(false)}}/>
-                    <SideBarMenu icon={<Users size={24}/>} label="Warga" active={props.navbarState === 2 ? true : false} onClick={() => {props.navbarController(2); props.sidebarController(false)}}/>
+                    <SideBarMenu icon={<ChartBar size={24}/>} label="Dashboard" active={props.navbarState === 0} onClick={() => {props.navbarController(0); props.sidebarController(false)}}/>
+                    <SideBarMenu icon={<HandCoins size={24}/>} label="Iuran" active={props.navbarState === 1} onClick={() => {props.navbarController(1); props.sidebarController(false)}}/>
+                    <SideBarMenu icon={<Users size={24}/>} label="Warga" active={props.navbarState === 2} onClick={() => {props.navbarController(2); props.sidebarController(false)}}/>
                 </ul>
             </div>
         </div>
         <div className="p-4">
             <ul>
-                <SideBarMenu icon={<User size={24}/>} label="Tentang Saya" active={props.navbarState === 3 ? true : false} onClick={() => {props.navbarController(3); props.sidebarController(false)}}/>
+                <SideBarMenu icon={<User size={24}/>} label="Tentang Saya" active={props.navbarState === 3} onClick={() => {props.navbarController(3); props.sidebarController(false)}}/>
                 <li>
                     <HorizontalDivider/>
                 </li>
