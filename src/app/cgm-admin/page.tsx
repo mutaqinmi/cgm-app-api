@@ -1,10 +1,10 @@
 'use client';
 import Chart from "@/components/chart";
-import { CaretRight, HandCoins, User, Users, Plus, Funnel, Pencil, Eye, EyeSlash, XCircle, Trash, CheckCircle, DotsThreeVertical, Phone, MapPin, X, List  } from "@phosphor-icons/react";
+import { CaretRight, HandCoins, User, Users, Plus, Funnel, Pencil, Eye, EyeSlash, XCircle, Trash, CheckCircle, DotsThreeVertical, Phone, MapPin, X, List, ArrowRight  } from "@phosphor-icons/react";
 import { create } from "zustand";
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from "react";
-import * as date from "@/lib/date";
+import * as convertDate from "@/lib/date-converter";
 import SideBar from "@/components/sidebar";
 import LoadingAnimation from "@/components/loading-animation";
 import TopBar from "@/components/topbar";
@@ -26,6 +26,10 @@ import UserListFeeItem from "@/components/user-list-fee-item";
 import UnpaidTransaction from "@/components/unpaid-transaction";
 import LongFeeChip from "@/components/long-fee-chip";
 import axios, { AxiosError, AxiosResponse } from "axios";
+import FilledButton from "@/components/filled-button";
+import Form from "next/form";
+import { useRouter } from "next/navigation";
+import * as schema from "@/database/schema";
 
 interface ComponentState {
     navbarIndex: number,
@@ -38,6 +42,7 @@ interface ComponentState {
     selectedUserID: number,
     showSidebar: boolean,
     isLoading: boolean,
+    showSetFeePopup: boolean,
     setNavbarIndex: (index: number) => void,
     setFilterDataIndex: (index: number) => void,
     setShowContextMenu: (show: boolean) => void,
@@ -48,6 +53,7 @@ interface ComponentState {
     setSelectedUserID: (id: number) => void,
     setShowSidebar: (show: boolean) => void,
     setIsLoading: (loading: boolean) => void,
+    setShowSetFeePopup: (show: boolean) => void,
 }
 
 const useComponent = create<ComponentState>((set) => {
@@ -62,6 +68,7 @@ const useComponent = create<ComponentState>((set) => {
         selectedUserID: 0,
         showSidebar: false,
         isLoading: false,
+        showSetFeePopup: false,
         setNavbarIndex: (index: number) => set({navbarIndex: index}),
         setFilterDataIndex: (index: number) => set({filterDataIndex: index}),
         setShowContextMenu: (show: boolean) => set({showContextMenu: show}),
@@ -72,15 +79,33 @@ const useComponent = create<ComponentState>((set) => {
         setSelectedUserID: (id: number) => set({selectedUserID: id}),
         setShowSidebar: (show: boolean) => set({showSidebar: show}),
         setIsLoading: (loading: boolean) => set({isLoading: loading}),
+        setShowSetFeePopup: (show: boolean) => set({showSetFeePopup: show}),
     }
 })
 
 // Root Component
 export default function Page(){
+    const route = useRouter();
     const component = useComponent();
 
-    return component.isLoading ? <LoadingAnimation/> : <div>
-        <SideBar sidebarState={component.showSidebar} sidebarController={component.setShowSidebar} navbarState={component.navbarIndex} navbarController={component.setNavbarIndex} loadingController={component.setIsLoading}/>
+    const setNewFee = useCallback(async (amount: number) => {
+        return await axios.post(`${process.env.API_URL}/admin/fees`, { amount })
+            .then((res: AxiosResponse) => {
+                if(res.status === 201){
+                    location.reload();
+                    component.setShowSetFeePopup(false);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, [])
+
+    const setNewFeeHandler = (e: React.FormEvent<HTMLFormElement>) => setNewFee(e.currentTarget.amount.value);
+
+    return <>
+        <SideBar sidebarState={component.showSidebar} sidebarController={component.setShowSidebar} navbarState={component.navbarIndex} navbarController={component.setNavbarIndex}/>
         <TopBar navbarState={component.navbarIndex} sidebarController={component.setShowSidebar} notificationState={component.showNotification} notificationController={component.setShowNotification}/>
         <div className="md:ml-64 mt-12 p-4 md:p-8">
             {(() => {
@@ -99,45 +124,174 @@ export default function Page(){
                 }
             })()}
         </div>
-    </div>
+        {component.showSetFeePopup ? <div className="w-screen h-screen bg-black bg-opacity-50 fixed top-0 z-50 flex justify-center items-center">
+            <div className="w-4/5 md:w-80 p-4 bg-white rounded-lg">
+                <div className="flex justify-between">
+                    <div>
+                        <span className="text-sm">Atur Iuran</span>
+                        <h1 className="font-semibold text-xl">{convertDate.toString(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`)}</h1>
+                    </div>
+                    <X onClick={() => component.setShowSetFeePopup(false)}/>
+                </div>
+                <Form action={""} onSubmit={setNewFeeHandler}>
+                    <div className="my-8 flex flex-col gap-2">
+                        <span>Jumlah Iuran</span>
+                        <div className="relative">
+                            <span className="font-semibold text-gray-500 absolute top-1/2 -translate-y-1/2 left-3">Rp.</span>
+                            <input type="text" name="amount" id="amount" inputMode="numeric" className="w-full py-2 pl-11 pr-3 outline-none border border-slate-500 rounded-lg font-semibold" placeholder="Masukkan Jumlah Iuran"/>
+                        </div>
+                    </div>
+                    <FilledButton type="submit" label="Atur Iuran"/>
+                </Form>
+            </div>
+        </div> : null}
+        <div className="w-screen h-screen bg-black bg-opacity-50 fixed top-0 z-50 flex justify-center items-center">
+            <div className="w-4/5 md:w-96 p-4 bg-white rounded-lg">
+                <div className="flex justify-between">
+                    <h1 className="font-semibold text-xl">Tambah Warga</h1>
+                    <X/>
+                </div>
+                <Form action={""} className="grid grid-cols-3 mt-8 gap-2">
+                    <input type="text" name="name" id="name" className="col-span-3 w-full px-3 py-2 border border-slate-500 rounded-lg outline-none" placeholder="Nama Warga" required/>
+                    <input type="tel" name="phone" id="phone" className="col-span-3 w-full px-3 py-2 border border-slate-500 rounded-lg outline-none" placeholder="No Telepon" required/>
+                    <textarea name="address" id="address" className="col-span-2 w-full px-3 py-2 border border-slate-500 rounded-lg outline-none" placeholder="Alamat" required></textarea>
+                    <select name="rt" id="rt" className="col-span-1 w-full h-fit px-3 py-2 border border-slate-500 rounded-lg outline-none" required>
+                        <option defaultValue={"Pilih RT"} disabled>Pilih RT</option>
+                        <option value="001">RT 001</option>
+                        <option value="002">RT 002</option>
+                        <option value="003">RT 003</option>
+                        <option value="004">RT 004</option>
+                    </select>
+                    <FilledButton type="submit" label="Tambah Warga" className="col-span-3 mt-4"/>
+                </Form>
+            </div>
+        </div>
+    </>
 }
 
 function Dashboard() {
-    const component = useComponent();
+    const { filterDataIndex, setFilterDataIndex, setShowSetFeePopup } = useComponent();
+    const [currentMonthData, setCurrentMonthData] = useState<{fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]>([]);
+    const [usersList, setUsersList] = useState<schema.usersType[]>([]);
+    const [userListPagination, setUserListPagination] = useState<number>(1);
+    const [userCount, setUserCount] = useState<number>(0);
+    const [searchKeyword, setSearchKeyword] = useState<string>('');
 
-    const currentMonthFeeAPI = useCallback(async () => {
-        component.setIsLoading(true);
-        const currentMonth = new Date().getMonth() + 1;
-        const currentYear = new Date().getFullYear();
-
-        return await axios.get(`${process.env.API_URL}/admin/fees?month=${currentMonth}&year=${currentYear}`)
+    const getCurrentMonthFee = useCallback(async (fee_id: number) => {
+        return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
-                    const { data } = res.data as { data: [] };
-                    console.log(data);
+                    const { data } = res.data as { data: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[] };
+                    setCurrentMonthData(data);
                 }
             })
             .catch((error: AxiosError) => {
                 const { message } = error.response?.data as { message: string };
                 console.log(message);
             })
-            .finally(() => component.setIsLoading(false));
+    }, [])
+
+    const currentMonthFeeAPI = useCallback(async () => {
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+
+        return await axios.get(`${process.env.API_URL}/admin/fees?month=${currentMonth}&year=${currentYear}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: schema.feesType[] };
+                    getCurrentMonthFee(data[0].fee_id);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
     }, []);
+
+    const getAllUsers = useCallback(async (pagination: number) => {
+        return await axios.get(`${process.env.API_URL}/admin/users?page=${pagination}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: schema.usersType[] };
+                    setUsersList(data);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, [])
+
+    const getUsersCount = useCallback(async () => {
+        return await axios.get(`${process.env.API_URL}/admin/users?count=true`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: number };
+                    setUserCount(data);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, [])
+
+    const searchUser = useCallback(async (keyword: string) => {
+        if(keyword === '') return getAllUsers(userListPagination);
+
+        return await axios.get(`${process.env.API_URL}/admin/users?search=${keyword}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: schema.usersType[] };
+                    setUsersList(data);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, [])
+    
+    const totalDoneAmount = currentMonthData.reduce((accumulator, currentValue) => {
+        if (currentValue.payments.payment_description === "done") {
+            return accumulator + 1;
+        }
+        return accumulator;
+    }, 0);
+
+    const totalPendingAmount = currentMonthData.reduce((accumulator, currentValue) => {
+        if (currentValue.payments.payment_description === "pending") {
+            return accumulator + 1;
+        }
+        return accumulator;
+    }, 0);
+
+    const totalUndoneAmount = currentMonthData.reduce((accumulator, currentValue) => {
+        if (currentValue.payments.payment_description === "undone") {
+            return accumulator + 1;
+        }
+        return accumulator;
+    }, 0);
+
+    const userListPaginationHandler = (pagination: number) => getAllUsers(pagination);
+    const searchUserHandler = (keyword: string) => searchUser(keyword);
 
     useEffect(() => {
         currentMonthFeeAPI();
-    }, [currentMonthFeeAPI]);
+        getAllUsers(userListPagination);
+        getUsersCount();
+    }, [currentMonthFeeAPI, getAllUsers]);
 
     return <>
         <div className="mt-8">
             <h1 className="font-semibold text-lg">Iuran Bulan Ini</h1>
         </div>
-        <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            <Card color="blue" title="Jumlah Warga" total={40} nominal={1568000} icon={<Users/>}/>
-            <Card color="green" title="Sudah Lunas" total={40} nominal={1568000} icon={<HandCoins/>}/>
-            <Card color="yellow" title="Menunggu Konfirmasi" total={40} nominal={1568000} icon={<HandCoins/>}/>
-            <Card color="red" title="Belum Lunas" total={40} nominal={1568000} icon={<HandCoins/>}/>
-        </div>
+        {currentMonthData.length ? <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            <Card color="blue" title="Jumlah Warga" total={currentMonthData.length} nominal={currentMonthData.length * currentMonthData[0].fees.fee_amount!} icon={<Users/>}/>
+            <Card color="green" title="Sudah Lunas" total={totalDoneAmount} nominal={totalDoneAmount * currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
+            <Card color="yellow" title="Menunggu Konfirmasi" total={totalPendingAmount} nominal={totalPendingAmount * currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
+            <Card color="red" title="Belum Lunas" total={totalUndoneAmount} nominal={totalUndoneAmount * currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
+        </div> : <span className="w-full p-4 bg-red-200 text-red-500 border border-red-500 mt-4 rounded-lg block text-center">Iuran bulan {convertDate.toString(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`)} belum anda atur. <span className="underline cursor-pointer" onClick={() => setShowSetFeePopup(true)}>Atur sekarang</span></span>}
         <div className="mt-8 w-full grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="col-span-1 md:col-span-3 flex flex-col gap-8">
                 <Container>
@@ -145,19 +299,26 @@ function Dashboard() {
                         <h1 className="text-lg font-semibold">Grafik Pembayaran</h1>
                     </div>
                     <div className="flex mt-4">
-                        <RegularChoiceChip active={component.filterDataIndex === 0} label="12 Bulan" onClick={() => component.setFilterDataIndex(0)}/>
-                        <RegularChoiceChip active={component.filterDataIndex === 1} label="6 Bulan" onClick={() => component.setFilterDataIndex(1)}/>
-                        <RegularChoiceChip active={component.filterDataIndex === 2} label="1 Bulan" onClick={() => component.setFilterDataIndex(2)}/>
+                        <RegularChoiceChip active={filterDataIndex === 0} label="12 Bulan" onClick={() => setFilterDataIndex(0)}/>
+                        <RegularChoiceChip active={filterDataIndex === 1} label="6 Bulan" onClick={() => setFilterDataIndex(1)}/>
+                        <RegularChoiceChip active={filterDataIndex === 2} label="1 Bulan" onClick={() => setFilterDataIndex(2)}/>
                     </div>
                     <div className="mt-8">
-                        <Chart/>
+                        <Chart chartData={[
+                            { month: "Januari", done: 186, undone: 21 },
+                            { month: "Februari", done: 122, undone: 23 },
+                            { month: "Maret", done: 232, undone: 54 },
+                            { month: "April", done: 123, undone: 43 },
+                            { month: "Mei", done: 122, undone: 76 },
+                            { month: "Juni", done: 212, undone: 23 },
+                        ]}/>
                     </div>
                 </Container>
                 <Container>
                     <div className="flex-col md:flex-row flex gap-4 justify-between items-start md:items-center">
                         <h1 className="text-lg font-semibold">Daftar Warga</h1>
                         <div className="flex gap-4 justify-center items-center">
-                            <SearchField/>
+                            <SearchField value={searchKeyword} setValue={setSearchKeyword} onChange={searchUserHandler}/>
                             <VerticalDivider/>
                             <IconButton icon={<Plus size={14}/>}/>
                         </div>
@@ -166,13 +327,13 @@ function Dashboard() {
                         <table className="w-full">
                             <TableHead title={['Nama', 'No. Telepon', 'Alamat', 'RT']}/>
                             <tbody>
-                                <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
-                                <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
-                                <UserListItem name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" address="Perum CGM, Blok. A 23" rt="01"/>
+                                {usersList.map((user: schema.usersType) => {
+                                    return <UserListItem key={user.user_id} name={user.name!} phone={user.phone!} address={user.address!} rt={user.rt!}/>
+                                })}
                             </tbody>
                         </table>
                     </div>
-                    <PaginationWidget/>
+                    {searchKeyword === '' ? <PaginationWidget currentPage={userListPagination} totalPage={userCount / 10} onClickNext={() => {if(userListPagination >= userCount / 10) return; setUserListPagination(userListPagination + 1); userListPaginationHandler(userListPagination + 1)}} onClickPrev={() => {if(userListPagination <= 1) return; setUserListPagination(userListPagination - 1); userListPaginationHandler(userListPagination - 1)}}/> : null}
                 </Container>
             </div>
             <div className="col-span-1 md:col-span-2 flex flex-col gap-8">
@@ -186,7 +347,7 @@ function Dashboard() {
                         <FeeListItem month="Oktober 2024" title="Iuran Bulan Oktober 2024"/>
                         <FeeListItem month="September 2024" title="Iuran Bulan September 2024"/>
                     </div>
-                    <PaginationWidget/>
+                    <PaginationWidget currentPage={1} totalPage={256}/>
                 </Container>
                 <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
                     <div className="flex justify-between items-center">
@@ -197,7 +358,7 @@ function Dashboard() {
                         <UserActivityList month="Oktober 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
                         <UserActivityList month="September 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
                     </div>
-                    <PaginationWidget/>
+                    <PaginationWidget currentPage={1} totalPage={256}/>
                 </div>
             </div>
         </div>
@@ -206,6 +367,7 @@ function Dashboard() {
 
 function Iuran() {
     const component = useComponent();
+    const [searchKeyword, setSearchKeyword] = useState<string>('');
     
     return <>
         <div className="mt-8 flex justify-between items-center">
@@ -239,7 +401,7 @@ function Iuran() {
                             <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => component.setFilterStatusIndex(1)}/>
                             <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => component.setFilterStatusIndex(2)}/>
                         </div>
-                        <SearchField/>
+                        <SearchField value={searchKeyword} setValue={setSearchKeyword} onChange={() => {}}/>
                     </div>
                     <div className="mt-8">
                         <table className="w-full">
@@ -253,7 +415,7 @@ function Iuran() {
                             </tbody>
                         </table>
                     </div>
-                    <PaginationWidget/>
+                    <PaginationWidget currentPage={1} totalPage={256}/>
                 </Container>
             </div>
             <div className="col-span-1 md:col-span-2 flex flex-col gap-8">
@@ -267,7 +429,7 @@ function Iuran() {
                         <FeeListItem month="Oktober 2024" title="Iuran Bulan Oktober 2024"/>
                         <FeeListItem month="September 2024" title="Iuran Bulan September 2024"/>
                     </div>
-                    <PaginationWidget/>
+                    <PaginationWidget currentPage={1} totalPage={256}/>
                 </Container>
                 <Container>
                     <div className="flex justify-between items-center">
@@ -278,7 +440,7 @@ function Iuran() {
                         <UserActivityList month="Oktober 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
                         <UserActivityList month="September 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
                     </div>
-                    <PaginationWidget/>
+                    <PaginationWidget currentPage={1} totalPage={256}/>
                 </Container>
             </div>
         </div>
@@ -288,6 +450,7 @@ function Iuran() {
 
 function Warga() {
     const component = useComponent();
+    const [searchKeyword, setSearchKeyword] = useState<string>('');
 
     return <>    
         <div className="mt-4 w-full">
@@ -295,7 +458,7 @@ function Warga() {
                 <div className="flex-col gap-4 md:gap-0 md:flex-row flex justify-between items-start md:items-center">
                     <h1 className="text-lg font-semibold">Daftar Warga</h1>
                     <div className="flex gap-4 justify-center items-center">
-                        <SearchField/>
+                        <SearchField value={searchKeyword} setValue={setSearchKeyword} onChange={() => {}}/>
                         <VerticalDivider/>
                         <IconButton icon={<Funnel size={14}/>}/>
                         <IconButton icon={<Plus size={14}/>}/>
@@ -313,7 +476,7 @@ function Warga() {
                         </tbody>
                     </table>
                 </div>
-                <PaginationWidget/>
+                <PaginationWidget currentPage={1} totalPage={256}/>
             </Container>
         </div>
     </>

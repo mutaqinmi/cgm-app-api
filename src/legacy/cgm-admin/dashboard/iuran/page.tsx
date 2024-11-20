@@ -6,7 +6,7 @@ import { create } from "zustand";
 import * as schema from "@/database/schema";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import * as date from "@/lib/date";
+import * as date from "@/lib/date-converter";
 import LoadingAnimation from "@/components/loading-animation";
 
 interface Iuran {

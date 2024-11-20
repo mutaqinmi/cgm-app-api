@@ -6,17 +6,12 @@ import { useCallback } from "react";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 
-export default function SideBar(props: {className?: string; sidebarState: boolean; sidebarController: (show: boolean) => void; navbarState: number; navbarController: (index: number) => void; loadingController: (show: boolean) => void}) {
+export default function SideBar(props: {className?: string; sidebarState: boolean; sidebarController: (show: boolean) => void; navbarState: number; navbarController: (index: number) => void;}) {
     const route = useRouter();
 
     const signoutAPI = useCallback(async () => {
-        props.loadingController(true);
-
         const confirmDialog = confirm("Apakah anda yakin ingin keluar?");
-        if(!confirmDialog){
-            props.loadingController(false);
-            return;
-        }
+        if(!confirmDialog) return;
 
         return await axios.get(`${process.env.API_URL}/admin/auth/signout`)
             .then(res => {
@@ -28,8 +23,7 @@ export default function SideBar(props: {className?: string; sidebarState: boolea
                 const { message } = error.response?.data as { message: string };
                 console.log(message);
             })
-            .finally(() => props.loadingController(false));
-    }, [props.loadingController, route]);
+    }, [route]);
 
     const signoutController = useCallback(async () => await signoutAPI(), [signoutAPI]);
 

@@ -142,6 +142,20 @@ export const getAllUsers = async () => {
 }
 
 /**
+ * get all users count
+ */
+export const getAllUsersCount = async () => {
+    return await db.$count(table.users);
+}
+
+/**
+ * get all users data with pagination
+ */
+export const getAllUsersWithPagination = async (pagination: number) => {
+    return await db.select().from(table.users).limit(10).offset(10 * (pagination - 1));
+}
+
+/**
  * search users data by keyword
  */
 export const searchUser = async (keyword: string) => {

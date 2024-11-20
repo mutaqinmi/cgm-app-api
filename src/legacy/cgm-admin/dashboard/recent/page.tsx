@@ -9,7 +9,7 @@ import { useCallback, useState } from "react";
 import * as schema from "@/database/schema";
 import LoadingAnimation from "@/components/loading-animation";
 import Popups from "@/components/popups";
-import * as datestring from "@/lib/date";
+import * as datestring from "@/lib/date-converter";
 
 interface Iuran {
     paymentHistory: [],

@@ -7,15 +7,33 @@ export async function GET(req: req){
     const user_id = req.nextUrl.searchParams.get('user_id');
     const search = req.nextUrl.searchParams.get('search');
     const filtered = req.nextUrl.searchParams.get('filtered');
+    const page = req.nextUrl.searchParams.get('page');
+    const count = req.nextUrl.searchParams.get('count');
 
     try {
-        // check if token exists
-        const verified_token = await verifyToken(req);
-        if(verified_token === 0){
+        if(count && count === 'true'){
+            // get all users count
+            const usersCount = await query.getAllUsersCount();
+
+            // return response
             return res.json({
-                message: 'token tidak valid',
+                message: 'success',
+                data: usersCount,
             }, {
-                status: 401
+                status: 200
+            })
+        }
+
+        if(page){
+            // get all users with pagination
+            const users = await query.getAllUsersWithPagination(parseInt(page));
+
+            // return response
+            return res.json({
+                message: 'success',
+                data: users,
+            }, {
+                status: 200
             })
         }
 

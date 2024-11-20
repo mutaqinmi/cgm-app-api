@@ -1,48 +1,22 @@
 "use client"
-
-import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
+export default function Chart(props: {chartData: {month: string, done: number, undone: number}[]}) {
+  const chartConfig = {
+    done: {
+      label: "Lunas",
+      color: "hsl(var(--chart-1))",
+    },
+    undone: {
+      label: "Belum Lunas",
+      color: "hsl(var(--chart-2))",
+    },
+  } satisfies ChartConfig
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig
-
-export default function Chart() {
   return (
     <ChartContainer config={chartConfig}>
-        <BarChart accessibilityLayer data={chartData}>
+        <BarChart accessibilityLayer data={props.chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
                 dataKey="month"
@@ -53,11 +27,11 @@ export default function Chart() {
             />
             <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="dashed" />}
+                content={<ChartTooltipContent indicator="line"/>}
             />
             <ChartLegend content={<ChartLegendContent/>}/>
-            <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-            <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+            <Bar dataKey="done" fill="var(--color-done)" radius={4} />
+            <Bar dataKey="undone" fill="var(--color-undone)" radius={4} />
         </BarChart>
     </ChartContainer>
   )

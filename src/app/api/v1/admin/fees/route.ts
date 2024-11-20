@@ -80,7 +80,7 @@ export async function GET(req: req){
             }
 
             // get all fees data from database
-            const all_fees= await query.getAllFees();
+            const all_fees = await query.getAllFees();
 
             // return response
             return res.json({
@@ -152,7 +152,7 @@ export async function POST(req: req){
             return res.json({
                 message: 'success',
             }, {
-                status: 200
+                status: 201
             })
         }
 
@@ -177,7 +177,7 @@ export async function POST(req: req){
         return res.json({
             message: 'success',
         }, {
-            status: 200
+            status: 201
         })
     } catch (error) {
         // log error

@@ -44,13 +44,10 @@ export async function middleware(req: NextRequest){
             }
         }
     }
+    
+    if(pathname.startsWith('/api/v1/admin/auth')) return NextResponse.next();
 
     if (pathname.startsWith('/api/v1/admin')){
-        if(!cookie_token){
-            // If the token is not found, redirect to the signin page
-            if(pathname.startsWith('/api/v1/admin/auth')) return NextResponse.next();
-        }
-    
         // fetch the token from the server
         try {
             const response = await axios.post(`${process.env.API_URL}/admin/auth`, {
