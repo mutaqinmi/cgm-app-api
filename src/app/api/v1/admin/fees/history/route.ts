@@ -1,31 +1,24 @@
-import { verifyToken } from "@/lib/auth";
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
 
 export async function GET(req: req){
     // get query from request
-    const limit = req.nextUrl.searchParams.get('limit');
+    const page = req.nextUrl.searchParams.get('page');
 
     try {
-        // check if token exists
-        const verified_token = await verifyToken(req);
-        if(!verified_token){
-            return res.json({
-                message: 'token tidak valid',
-            }, {
-                status: 401
-            })
-        }
+        // get payment history data
+        if(page){
+            // get history data from database
+            const history = await query.getPaymentsHistoryWithPagination(parseInt(page));
 
-        // check if limit is true
-        if(limit && limit === "true"){
-            // get histroy data from database
-            const history = await query.getPaymentsHistoryLimited();
+            // get history count from database
+            const historyCount = await query.getPaymentsHistoryCount();
 
             // return response
             return res.json({
                 message: 'success',
                 data: history,
+                count: historyCount,
             }, {
                 status: 200
             })

@@ -1,7 +1,7 @@
 import { CaretRight, HandCoins } from "@phosphor-icons/react";
 
 export default function FeeListItem(props: {onClick?: () => void; month: string; title: string}) {
-    return <div className="flex gap-4 justify-between items-center" onClick={props.onClick}>
+    return <div className="flex gap-4 justify-between items-center cursor-pointer" onClick={props.onClick}>
         <div className="flex gap-4">
             <div className="p-3 bg-blue-200 rounded-lg">
                 <HandCoins className="text-blue-500" size={18}/>

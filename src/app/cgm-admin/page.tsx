@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as convertDate from "@/lib/date-converter";
 import SideBar from "@/components/sidebar";
-import LoadingAnimation from "@/components/loading-animation";
 import TopBar from "@/components/topbar";
 import Card from "@/components/card";
 import RegularChoiceChip from "@/components/regular-choice-chip";
@@ -30,6 +29,7 @@ import FilledButton from "@/components/filled-button";
 import Form from "next/form";
 import { useRouter } from "next/navigation";
 import * as schema from "@/database/schema";
+import * as dateConvert from "@/lib/date-converter";
 
 interface ComponentState {
     navbarIndex: number,
@@ -43,6 +43,7 @@ interface ComponentState {
     showSidebar: boolean,
     isLoading: boolean,
     showSetFeePopup: boolean,
+    showAddUserPopup: boolean,
     setNavbarIndex: (index: number) => void,
     setFilterDataIndex: (index: number) => void,
     setShowContextMenu: (show: boolean) => void,
@@ -54,6 +55,7 @@ interface ComponentState {
     setShowSidebar: (show: boolean) => void,
     setIsLoading: (loading: boolean) => void,
     setShowSetFeePopup: (show: boolean) => void,
+    setShowAddUserPopup: (show: boolean) => void,
 }
 
 const useComponent = create<ComponentState>((set) => {
@@ -69,6 +71,7 @@ const useComponent = create<ComponentState>((set) => {
         showSidebar: false,
         isLoading: false,
         showSetFeePopup: false,
+        showAddUserPopup: false,
         setNavbarIndex: (index: number) => set({navbarIndex: index}),
         setFilterDataIndex: (index: number) => set({filterDataIndex: index}),
         setShowContextMenu: (show: boolean) => set({showContextMenu: show}),
@@ -80,6 +83,7 @@ const useComponent = create<ComponentState>((set) => {
         setShowSidebar: (show: boolean) => set({showSidebar: show}),
         setIsLoading: (loading: boolean) => set({isLoading: loading}),
         setShowSetFeePopup: (show: boolean) => set({showSetFeePopup: show}),
+        setShowAddUserPopup: (show: boolean) => set({showAddUserPopup: show}),
     }
 })
 
@@ -102,7 +106,22 @@ export default function Page(){
             })
     }, [])
 
+    const createNewUser = useCallback(async (name: string, phone: string, address: string, rt: string) => {
+        return await axios.post(`${process.env.API_URL}/admin/users`, { name, phone, address, rt })
+            .then((res: AxiosResponse) => {
+                if(res.status === 201){
+                    location.reload();
+                    component.setShowAddUserPopup(false);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, [])
+
     const setNewFeeHandler = (e: React.FormEvent<HTMLFormElement>) => setNewFee(e.currentTarget.amount.value);
+    const createNewUserHandler = (e: React.FormEvent<HTMLFormElement>) => createNewUser(e.currentTarget.username.value, e.currentTarget.phone.value, e.currentTarget.address.value, e.currentTarget.rt.value);
 
     return <>
         <SideBar sidebarState={component.showSidebar} sidebarController={component.setShowSidebar} navbarState={component.navbarIndex} navbarController={component.setNavbarIndex}/>
@@ -145,16 +164,25 @@ export default function Page(){
                 </Form>
             </div>
         </div> : null}
-        <div className="w-screen h-screen bg-black bg-opacity-50 fixed top-0 z-50 flex justify-center items-center">
+        {component.showAddUserPopup ? <div className="w-screen h-screen bg-black bg-opacity-50 fixed top-0 z-50 flex justify-center items-center">
             <div className="w-4/5 md:w-96 p-4 bg-white rounded-lg">
                 <div className="flex justify-between">
                     <h1 className="font-semibold text-xl">Tambah Warga</h1>
-                    <X/>
+                    <X onClick={() => component.setShowAddUserPopup(false)}/>
                 </div>
-                <Form action={""} className="grid grid-cols-3 mt-8 gap-2">
-                    <input type="text" name="name" id="name" className="col-span-3 w-full px-3 py-2 border border-slate-500 rounded-lg outline-none" placeholder="Nama Warga" required/>
-                    <input type="tel" name="phone" id="phone" className="col-span-3 w-full px-3 py-2 border border-slate-500 rounded-lg outline-none" placeholder="No Telepon" required/>
-                    <textarea name="address" id="address" className="col-span-2 w-full px-3 py-2 border border-slate-500 rounded-lg outline-none" placeholder="Alamat" required></textarea>
+                <Form action={""} className="grid grid-cols-3 mt-8 gap-4" onSubmit={createNewUserHandler}>
+                    <div className="w-full col-span-3 relative">
+                        <input type="text" name="username" id="username" className="w-full px-3 py-2 border border-slate-500 rounded-lg outline-none peer" required/>
+                        <label htmlFor="username" className="transition-all ease-in-out absolute bg-white px-2 top-1/2 -translate-y-1/2 left-2 peer-focus:text-xs peer-focus:top-0 peer-valid:text-xs peer-valid:top-0">Nama Warga</label>
+                    </div>
+                    <div className="w-full col-span-3 relative">
+                        <input type="tel" name="phone" id="phone" className="w-full px-3 py-2 border border-slate-500 rounded-lg outline-none peer" required/>
+                        <label htmlFor="phone" className="transition-all ease-in-out absolute bg-white px-2 top-1/2 -translate-y-1/2 left-2 peer-focus:text-xs peer-focus:top-0 peer-valid:text-xs peer-valid:top-0">No Telepon</label>
+                    </div>
+                    <div className="w-full col-span-2 relative">
+                        <textarea rows={3} name="address" id="address" className="w-full px-3 py-2 border border-slate-500 rounded-lg outline-none peer" required></textarea>
+                        <label htmlFor="address" className="transition-all ease-in-out absolute bg-white px-2 top-1/2 -translate-y-1/2 left-2 peer-focus:text-xs peer-focus:top-0 peer-valid:text-xs peer-valid:top-0">Alamat</label>
+                    </div>
                     <select name="rt" id="rt" className="col-span-1 w-full h-fit px-3 py-2 border border-slate-500 rounded-lg outline-none" required>
                         <option defaultValue={"Pilih RT"} disabled>Pilih RT</option>
                         <option value="001">RT 001</option>
@@ -165,17 +193,24 @@ export default function Page(){
                     <FilledButton type="submit" label="Tambah Warga" className="col-span-3 mt-4"/>
                 </Form>
             </div>
-        </div>
+        </div> : null}
     </>
 }
 
 function Dashboard() {
-    const { filterDataIndex, setFilterDataIndex, setShowSetFeePopup } = useComponent();
+    const { filterDataIndex, setFilterDataIndex, setShowSetFeePopup, setShowAddUserPopup } = useComponent();
     const [currentMonthData, setCurrentMonthData] = useState<{fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]>([]);
     const [usersList, setUsersList] = useState<schema.usersType[]>([]);
     const [userListPagination, setUserListPagination] = useState<number>(1);
     const [userCount, setUserCount] = useState<number>(0);
     const [searchKeyword, setSearchKeyword] = useState<string>('');
+    const [feeList, setFeeList] = useState<schema.feesType[]>([]);
+    const [feeListPagination, setFeeListPagination] = useState<number>(1);
+    const [feesCount, setFeesCount] = useState<number>(0);
+    const [paymentHistoryList, setPaymentHistoryList] = useState<{payments: schema.paymentsType, users: schema.usersType}[]>([]);
+    const [paymentHistoryPagination, setPaymentHistoryPagination] = useState<number>(1);
+    const [paymentHistoryCount, setPaymentHistoryCount] = useState<number>(0);
+    const [chartData, setChartData] = useState<{ month: string, done: number, undone: number }[]>([]);
 
     const getCurrentMonthFee = useCallback(async (fee_id: number) => {
         return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}`)
@@ -191,7 +226,7 @@ function Dashboard() {
             })
     }, [])
 
-    const currentMonthFeeAPI = useCallback(async () => {
+    const currentMonthFeeAPI = useCallback(async () => {        
         const currentMonth = new Date().getMonth() + 1;
         const currentYear = new Date().getFullYear();
 
@@ -208,12 +243,13 @@ function Dashboard() {
             })
     }, []);
 
-    const getAllUsers = useCallback(async (pagination: number) => {
+    const getAllUsers = useCallback(async (pagination: number) => {        
         return await axios.get(`${process.env.API_URL}/admin/users?page=${pagination}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
-                    const { data } = res.data as { data: schema.usersType[] };
+                    const { data, count } = res.data as { data: schema.usersType[], count: number };
                     setUsersList(data);
+                    setUserCount(count);
                 }
             })
             .catch((error: AxiosError) => {
@@ -222,21 +258,7 @@ function Dashboard() {
             })
     }, [])
 
-    const getUsersCount = useCallback(async () => {
-        return await axios.get(`${process.env.API_URL}/admin/users?count=true`)
-            .then((res: AxiosResponse) => {
-                if(res.status === 200){
-                    const { data } = res.data as { data: number };
-                    setUserCount(data);
-                }
-            })
-            .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
-            })
-    }, [])
-
-    const searchUser = useCallback(async (keyword: string) => {
+    const searchUser = useCallback(async (keyword: string) => {        
         if(keyword === '') return getAllUsers(userListPagination);
 
         return await axios.get(`${process.env.API_URL}/admin/users?search=${keyword}`)
@@ -251,7 +273,67 @@ function Dashboard() {
                 console.log(message);
             })
     }, [])
-    
+
+    const getAllFees = useCallback(async (pagination: number) => {        
+        return await axios.get(`${process.env.API_URL}/admin/fees?page=${pagination}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data, count } = res.data as { data: schema.feesType[], count: number };
+                    setFeeList(data);
+                    setFeesCount(count);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, [])
+
+    const getFeeByMonth = useCallback(async (month: string, year: string) => {        
+        if(month === '' || year === '') return getAllFees(feeListPagination);
+        
+        return await axios.get(`${process.env.API_URL}/admin/fees?month=${month}&year=${year}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: schema.feesType[] };
+                    setFeeList(data);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, []);
+
+    const getActivityHistory = useCallback(async (pagination: number) => {        
+        return await axios.get(`${process.env.API_URL}/admin/fees/history?page=${pagination}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data, count } = res.data as { data: {payments: schema.paymentsType, users: schema.usersType}[], count: number };
+                    setPaymentHistoryList(data);
+                    setPaymentHistoryCount(count);
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, [])
+
+    const getChartData = useCallback(async () => {
+        return await axios.get(`${process.env.API_URL}/admin/fees?chart_data=true`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: { month: string, done: number, undone: number }[] };
+                    setChartData(Object.values(data));
+                }
+            })
+            .catch((error: AxiosError) => {
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
+            })
+    }, [])
+
     const totalDoneAmount = currentMonthData.reduce((accumulator, currentValue) => {
         if (currentValue.payments.payment_description === "done") {
             return accumulator + 1;
@@ -275,12 +357,17 @@ function Dashboard() {
 
     const userListPaginationHandler = (pagination: number) => getAllUsers(pagination);
     const searchUserHandler = (keyword: string) => searchUser(keyword);
+    const feeListPaginationHandler = (pagination: number) => getAllFees(pagination);
+    const dateFilterHandler = (e: React.ChangeEvent<HTMLInputElement>) => getFeeByMonth(e.currentTarget.value.split('-')[1], e.currentTarget.value.split('-')[0]);
+    const paymentHistoryPaginationHandler = (pagination: number) => getActivityHistory(pagination);
 
     useEffect(() => {
         currentMonthFeeAPI();
         getAllUsers(userListPagination);
-        getUsersCount();
-    }, [currentMonthFeeAPI, getAllUsers]);
+        getAllFees(feeListPagination);
+        getActivityHistory(paymentHistoryPagination);
+        getChartData();
+    }, [currentMonthFeeAPI, getAllUsers, getAllFees, getActivityHistory, getChartData]);
 
     return <>
         <div className="mt-8">
@@ -297,21 +384,12 @@ function Dashboard() {
                 <Container>
                     <div>
                         <h1 className="text-lg font-semibold">Grafik Pembayaran</h1>
-                    </div>
-                    <div className="flex mt-4">
-                        <RegularChoiceChip active={filterDataIndex === 0} label="12 Bulan" onClick={() => setFilterDataIndex(0)}/>
-                        <RegularChoiceChip active={filterDataIndex === 1} label="6 Bulan" onClick={() => setFilterDataIndex(1)}/>
-                        <RegularChoiceChip active={filterDataIndex === 2} label="1 Bulan" onClick={() => setFilterDataIndex(2)}/>
+                        <span className="text-sm">Menampilkan statistik selama 6 bulan terakhir.</span>
                     </div>
                     <div className="mt-8">
-                        <Chart chartData={[
-                            { month: "Januari", done: 186, undone: 21 },
-                            { month: "Februari", done: 122, undone: 23 },
-                            { month: "Maret", done: 232, undone: 54 },
-                            { month: "April", done: 123, undone: 43 },
-                            { month: "Mei", done: 122, undone: 76 },
-                            { month: "Juni", done: 212, undone: 23 },
-                        ]}/>
+                        <Chart chartData={chartData.map((data) => {
+                            return { month: dateConvert.toString(data.month), done: data.done, undone: data.undone }
+                        })}/>
                     </div>
                 </Container>
                 <Container>
@@ -320,7 +398,7 @@ function Dashboard() {
                         <div className="flex gap-4 justify-center items-center">
                             <SearchField value={searchKeyword} setValue={setSearchKeyword} onChange={searchUserHandler}/>
                             <VerticalDivider/>
-                            <IconButton icon={<Plus size={14}/>}/>
+                            <IconButton icon={<Plus size={14}/>} onClick={() => setShowAddUserPopup(true)}/>
                         </div>
                     </div>
                     <div className="mt-8">
@@ -333,32 +411,32 @@ function Dashboard() {
                             </tbody>
                         </table>
                     </div>
-                    {searchKeyword === '' ? <PaginationWidget currentPage={userListPagination} totalPage={userCount / 10} onClickNext={() => {if(userListPagination >= userCount / 10) return; setUserListPagination(userListPagination + 1); userListPaginationHandler(userListPagination + 1)}} onClickPrev={() => {if(userListPagination <= 1) return; setUserListPagination(userListPagination - 1); userListPaginationHandler(userListPagination - 1)}}/> : null}
+                    {searchKeyword === '' ? <PaginationWidget currentPage={userListPagination} totalPage={Math.ceil(userCount / 10)} onClickNext={() => {if(userListPagination >= Math.ceil(userCount / 10)) return; setUserListPagination(userListPagination + 1); userListPaginationHandler(userListPagination + 1)}} onClickPrev={() => {if(userListPagination <= 1) return; setUserListPagination(userListPagination - 1); userListPaginationHandler(userListPagination - 1)}}/> : null}
                 </Container>
             </div>
             <div className="col-span-1 md:col-span-2 flex flex-col gap-8">
                 <Container>
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Rekapan Iuran Bulanan</h1>
-                        <input type="month" name="month" id="month" className="bg-blue-500 text-white [&::-webkit-calendar-picker-indicator]:invert-[1] outline-none p-2 rounded-md [&::-webkit-datetime-edit]:hidden"/>
+                        <input type="month" name="month" id="month" onChange={dateFilterHandler} className="bg-blue-500 text-white [&::-webkit-calendar-picker-indicator]:invert-[1] outline-none p-2 rounded-md [&::-webkit-datetime-edit]:text-sm" defaultValue={`${new Date().getFullYear()}-${new Date().getMonth() + 1}`}/>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <FeeListItem month="November 2024" title="Iuran Bulan November 2024"/>
-                        <FeeListItem month="Oktober 2024" title="Iuran Bulan Oktober 2024"/>
-                        <FeeListItem month="September 2024" title="Iuran Bulan September 2024"/>
+                        {feeList.map((fee: schema.feesType) => {
+                            return <FeeListItem key={fee.fee_id} month={convertDate.toString(fee.fee_date!)} title={`Iuran Bulan ${convertDate.toString(fee.fee_date!)}`}/>
+                        })}
                     </div>
-                    <PaginationWidget currentPage={1} totalPage={256}/>
+                    <PaginationWidget currentPage={feeListPagination} totalPage={Math.ceil(feesCount / 10)} onClickNext={() => {if(feeListPagination >= Math.ceil(feesCount / 10)) return; setFeeListPagination(feeListPagination + 1); feeListPaginationHandler(feeListPagination + 1)}} onClickPrev={() => {if(feeListPagination <= 1) return; setFeeListPagination(feeListPagination - 1); feeListPaginationHandler(feeListPagination - 1)}}/>
                 </Container>
                 <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Aktivitas Terbaru</h1>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <UserActivityList month="November 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Belum Lunas"/>
-                        <UserActivityList month="Oktober 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
-                        <UserActivityList month="September 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
+                        {paymentHistoryList.map((history: {payments: schema.paymentsType, users: schema.usersType}) => {
+                            return <UserActivityList key={history.payments.payment_id} month={history.payments.last_update!} name={history.users.name!} phone={history.users.phone!} status={history.payments.payment_description!}/>
+                        })}
                     </div>
-                    <PaginationWidget currentPage={1} totalPage={256}/>
+                    <PaginationWidget currentPage={paymentHistoryPagination} totalPage={Math.ceil(paymentHistoryCount / 5)} onClickNext={() => {if(paymentHistoryPagination >= Math.ceil(paymentHistoryCount / 5)) return; setPaymentHistoryPagination(paymentHistoryPagination + 1); paymentHistoryPaginationHandler(paymentHistoryPagination + 1)}} onClickPrev={() => {if(paymentHistoryPagination <= 1) return; setPaymentHistoryPagination(paymentHistoryPagination - 1); paymentHistoryPaginationHandler(paymentHistoryPagination - 1)}}/>
                 </div>
             </div>
         </div>
@@ -436,9 +514,9 @@ function Iuran() {
                         <h1 className="text-lg font-semibold">Aktivitas Terbaru</h1>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <UserActivityList month="November 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Belum Lunas"/>
+                        {/* <UserActivityList month="November 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Belum Lunas"/>
                         <UserActivityList month="Oktober 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
-                        <UserActivityList month="September 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
+                        <UserActivityList month="September 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/> */}
                     </div>
                     <PaginationWidget currentPage={1} totalPage={256}/>
                 </Container>

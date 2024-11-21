@@ -1,6 +1,6 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
-import { and, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, ilike, inArray, lte, or, sql } from 'drizzle-orm';
 
 /**
  * get administrator data by phone number
@@ -76,6 +76,20 @@ export const searchFees = async (fee_id: number, keyword: string) => {
 }
 
 /**
+ * get all fees data with pagination
+ */
+export const getFeesWithPagination = async (pagination: number) => {
+    return await db.select().from(table.fees).limit(10).offset(10 * (pagination - 1));
+}
+
+/**
+ * get fees count
+ */
+export const getCountFees = async () => {
+    return await db.$count(table.fees);
+}
+
+/**
  * set single fee data (per-month)
  */
 export const setFee = async (date: string, amount: number) => {
@@ -107,10 +121,10 @@ export const setMultipleFees = async (date: string[], amount: number) => {
 }
 
 /**
- * get payment history joined with payments and users limited
+ * get payment history joined with payments and users with pagination
  */
-export const getPaymentsHistoryLimited = async () => {
-    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update)).limit(5);
+export const getPaymentsHistoryWithPagination = async (pagination: number) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update)).limit(5).offset(5 * (pagination - 1));
 }
 
 /**
@@ -118,6 +132,17 @@ export const getPaymentsHistoryLimited = async () => {
  */
 export const getPaymentsHistory = async () => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update));
+}
+
+export const getChartData = async (previousDate: string, currentDate: string) => {
+    return await db.select().from(table.payments).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(gte(table.payments.payment_date, previousDate), lte(table.payments.payment_date, currentDate)));
+}
+
+/**
+ * get payments history count
+ */
+export const getPaymentsHistoryCount = async () => {
+    return await db.$count(table.payments);
 }
 
 /**
@@ -174,6 +199,18 @@ export const getUserData = async (user_id: number) => {
  */
 export const getUserWithUndoneFilter = async (user_id: number) => {
     return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.users.user_id, user_id), eq(table.payments.payment_status, false))).orderBy(desc(table.fees.fee_date));
+}
+
+/**
+ * create new user
+ */
+export const addNewUser = async (name: string, address: string, phone: string, rt: string) => {
+    return await db.insert(table.users).values({
+        name,
+        address,
+        phone,
+        rt,
+    });
 }
 
 /**

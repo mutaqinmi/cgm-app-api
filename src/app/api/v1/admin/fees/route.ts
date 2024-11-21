@@ -19,8 +19,71 @@ export async function GET(req: req){
     const filter = req.nextUrl.searchParams.get('filter');
     const search = req.nextUrl.searchParams.get('search');
     const limit = req.nextUrl.searchParams.get('limit');
+    const page = req.nextUrl.searchParams.get('page');
+    const chart_data = req.nextUrl.searchParams.get('chart_data');
 
     try {
+        // get chart data
+        if(chart_data && chart_data === "true"){
+            // get current date and 6 months ago
+            const currentDate = new Date();
+            const newDate = new Date(currentDate);
+            newDate.setMonth(currentDate.getMonth() - 6);
+
+            // get chart data from database
+            const fees = await query.getChartData(new Date(newDate).toISOString().slice(0, 10), new Date(currentDate).toISOString().slice(0, 10));
+
+            // group by date
+            const groupByDate = (data: {payments: schema.paymentsType; fees: schema.feesType | null}[]) => {
+                return data.reduce((acc, item) => {
+                    if (item.fees) {
+                        const date = item.fees.fee_date;
+                        if (!acc[date!]) {
+                            acc[date!] = {
+                                month: date!,
+                                done: 0,
+                                undone: 0,
+                            };
+                        }
+                        if (item.payments.payment_description === "done") {
+                            acc[date!].done += 1;
+                        } else if (item.payments.payment_description === "undone") {
+                            acc[date!].undone += 1;
+                        }
+                    }
+                    return acc;
+                }, {} as { [key: string]: { month: string; done: number; undone: number; } });
+            };
+
+            const groupByDateData = groupByDate(fees);
+
+            // return response
+            return res.json({
+                message: 'success',
+                data: groupByDateData,
+            }, {
+                status: 200
+            })
+        }
+
+        // get fees data with pagination
+        if(page){
+            // get fees data from database with pagination
+            const fees = await query.getFeesWithPagination(parseInt(page));
+
+            // get fees count from database
+            const feesCount = await query.getCountFees();
+
+            // return response
+            return res.json({
+                message: 'success',
+                data: fees,
+                count: feesCount,
+            }, {
+                status: 200
+            })
+        }
+
         // search fees
         if(fee_id && search){
             // search fees data from database

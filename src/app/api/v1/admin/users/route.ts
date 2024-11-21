@@ -1,6 +1,12 @@
-import { verifyToken } from '@/lib/auth';
 import { NextRequest as req, NextResponse as res } from 'next/server';
 import * as query from '@/database/query';
+
+interface RequestBody {
+    name: string,
+    phone: string,
+    address: string,
+    rt: string,
+}
 
 export async function GET(req: req){
     // get query params from request
@@ -8,30 +14,23 @@ export async function GET(req: req){
     const search = req.nextUrl.searchParams.get('search');
     const filtered = req.nextUrl.searchParams.get('filtered');
     const page = req.nextUrl.searchParams.get('page');
-    const count = req.nextUrl.searchParams.get('count');
 
     try {
-        if(count && count === 'true'){
+        if(page){
+            // get all users with pagination
+            const usersList = await query.getAllUsersWithPagination(parseInt(page));
+
+            // extract password from users data
+            const users = usersList.map(({password, ...userData}) => userData);
+
             // get all users count
             const usersCount = await query.getAllUsersCount();
 
             // return response
             return res.json({
                 message: 'success',
-                data: usersCount,
-            }, {
-                status: 200
-            })
-        }
-
-        if(page){
-            // get all users with pagination
-            const users = await query.getAllUsersWithPagination(parseInt(page));
-
-            // return response
-            return res.json({
-                message: 'success',
                 data: users,
+                count: usersCount,
             }, {
                 status: 200
             })
@@ -40,7 +39,10 @@ export async function GET(req: req){
         // get user data with undone filter
         if(user_id && filtered){
             // get user data with undone filter
-            const users = await query.getUserWithUndoneFilter(parseInt(user_id));
+            const usersList = await query.getUserWithUndoneFilter(parseInt(user_id));
+
+            // extract password from users data
+            const users = usersList.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
 
             // return response
             return res.json({
@@ -54,7 +56,10 @@ export async function GET(req: req){
         // search user
         if(search){
             // search user
-            const users = await query.searchUser(search);
+            const usersList = await query.searchUser(search);
+
+            // extract password from users data
+            const users = usersList.map(({password, ...userData}) => userData);
 
             // return response
             return res.json({
@@ -68,7 +73,10 @@ export async function GET(req: req){
         // get user data by user_id
         if(user_id){
             // get user data by user_id
-            const user = await query.getUserData(parseInt(user_id));
+            const userData = await query.getUserData(parseInt(user_id));
+
+            // extract password from users data
+            const user = userData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
 
             // return response
             return res.json({
@@ -80,7 +88,10 @@ export async function GET(req: req){
         }
 
         // get all users
-        const users = await query.getAllUsers();
+        const usersList = await query.getAllUsers();
+
+        // extract password from users data
+        const users = usersList.map(({password, ...userData}) => userData);
 
         // return response
         return res.json({
@@ -99,5 +110,32 @@ export async function GET(req: req){
         }, {
             status: 500
         })
+    }
+}
+
+export async function POST(req: req){
+    const body: RequestBody = await req.json();
+
+    try {
+        // add new user
+        await query.addNewUser(body.name, body.address, body.phone, body.rt);
+        
+        // return response
+        return res.json({
+            message: 'success',
+        }, {
+            status: 201
+        })
+    } catch (error) {
+        // log error
+        console.log(error);
+
+        // return response
+        return res.json({
+            message: "an error occured, see console for details",
+        }, {
+            status: 500
+        })
+        
     }
 }
