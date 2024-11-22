@@ -113,6 +113,9 @@ export async function GET(req: req){
     }
 }
 
+//! IMPORTANT!
+//TODO: add payment on new user
+
 export async function POST(req: req){
     const body: RequestBody = await req.json();
 

@@ -73,7 +73,7 @@ export default function Page(){
             <Form action={""} formMethod="POST" onSubmit={signin}>
                 <PhoneNumberInput phone={phone} setPhone={setPhone} className="mt-12"/>
                 <PasswordInputField password={password} setPassword={setPassword}/>
-                <FilledButton type="submit" className="mt-12" title="Masuk"/>
+                <FilledButton type="submit" className="mt-12" label="Masuk"/>
             </Form>
         </div>
         <Logo className="mt-24"/>

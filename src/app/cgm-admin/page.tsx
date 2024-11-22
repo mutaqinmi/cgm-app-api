@@ -39,6 +39,7 @@ interface ComponentState {
     filterStatusIndex: number,
     showNotification: boolean,
     profileSelectedIndex: number,
+    selectedFeeID: number,
     selectedUserID: number,
     showSidebar: boolean,
     isLoading: boolean,
@@ -51,6 +52,7 @@ interface ComponentState {
     setFilterStatusIndex: (index: number) => void,
     setShowNotification: (show: boolean) => void,
     setProfileSelectedIndex: (index: number) => void,
+    setSelectedFeeID: (id: number) => void,
     setSelectedUserID: (id: number) => void,
     setShowSidebar: (show: boolean) => void,
     setIsLoading: (loading: boolean) => void,
@@ -67,6 +69,7 @@ const useComponent = create<ComponentState>((set) => {
         filterStatusIndex: 0,
         showNotification: false,
         profileSelectedIndex: 0,
+        selectedFeeID: 0,
         selectedUserID: 0,
         showSidebar: false,
         isLoading: false,
@@ -79,6 +82,7 @@ const useComponent = create<ComponentState>((set) => {
         setFilterStatusIndex: (index: number) => set({filterStatusIndex: index}),
         setShowNotification: (show: boolean) => set({showNotification: show}),
         setProfileSelectedIndex: (index: number) => set({profileSelectedIndex: index}),
+        setSelectedFeeID: (id: number) => set({selectedFeeID: id}),
         setSelectedUserID: (id: number) => set({selectedUserID: id}),
         setShowSidebar: (show: boolean) => set({showSidebar: show}),
         setIsLoading: (loading: boolean) => set({isLoading: loading}),
@@ -101,8 +105,7 @@ export default function Page(){
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, [])
 
@@ -115,8 +118,7 @@ export default function Page(){
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, [])
 
@@ -198,7 +200,7 @@ export default function Page(){
 }
 
 function Dashboard() {
-    const { filterDataIndex, setFilterDataIndex, setShowSetFeePopup, setShowAddUserPopup } = useComponent();
+    const { setShowSetFeePopup, setShowAddUserPopup } = useComponent();
     const [currentMonthData, setCurrentMonthData] = useState<{fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]>([]);
     const [usersList, setUsersList] = useState<schema.usersType[]>([]);
     const [userListPagination, setUserListPagination] = useState<number>(1);
@@ -221,8 +223,7 @@ function Dashboard() {
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, [])
 
@@ -238,8 +239,7 @@ function Dashboard() {
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, []);
 
@@ -253,8 +253,7 @@ function Dashboard() {
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, [])
 
@@ -269,8 +268,7 @@ function Dashboard() {
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, [])
 
@@ -284,8 +282,7 @@ function Dashboard() {
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, [])
 
@@ -300,8 +297,7 @@ function Dashboard() {
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, []);
 
@@ -315,8 +311,7 @@ function Dashboard() {
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, [])
 
@@ -329,8 +324,7 @@ function Dashboard() {
                 }
             })
             .catch((error: AxiosError) => {
-                const { message } = error.response?.data as { message: string };
-                console.log(message);
+                console.log(error);
             })
     }, [])
 
@@ -427,7 +421,7 @@ function Dashboard() {
                     </div>
                     <PaginationWidget currentPage={feeListPagination} totalPage={Math.ceil(feesCount / 10)} onClickNext={() => {if(feeListPagination >= Math.ceil(feesCount / 10)) return; setFeeListPagination(feeListPagination + 1); feeListPaginationHandler(feeListPagination + 1)}} onClickPrev={() => {if(feeListPagination <= 1) return; setFeeListPagination(feeListPagination - 1); feeListPaginationHandler(feeListPagination - 1)}}/>
                 </Container>
-                <div className="bg-white p-4 md:p-8 rounded-lg shadow-md shadow-gray-300">
+                <Container>
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Aktivitas Terbaru</h1>
                     </div>
@@ -437,47 +431,180 @@ function Dashboard() {
                         })}
                     </div>
                     <PaginationWidget currentPage={paymentHistoryPagination} totalPage={Math.ceil(paymentHistoryCount / 5)} onClickNext={() => {if(paymentHistoryPagination >= Math.ceil(paymentHistoryCount / 5)) return; setPaymentHistoryPagination(paymentHistoryPagination + 1); paymentHistoryPaginationHandler(paymentHistoryPagination + 1)}} onClickPrev={() => {if(paymentHistoryPagination <= 1) return; setPaymentHistoryPagination(paymentHistoryPagination - 1); paymentHistoryPaginationHandler(paymentHistoryPagination - 1)}}/>
-                </div>
+                </Container>
             </div>
         </div>
     </>
 }
 
 function Iuran() {
-    const component = useComponent();
+    const { selectedContext, setSelectedContext, showContextMenu, setShowContextMenu, filterStatusIndex, setFilterStatusIndex, setShowSetFeePopup } = useComponent();
     const [searchKeyword, setSearchKeyword] = useState<string>('');
+    const [currentMonthData, setCurrentMonthData] = useState<{fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]>([]);
+    const [usersList, setUsersList] = useState<{fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]>([]);
+    const [userListPagination, setUserListPagination] = useState<number>(1);
+    const [feeList, setFeeList] = useState<schema.feesType[]>([]);
+    const [feeListPagination, setFeeListPagination] = useState<number>(1);
+    const [feesCount, setFeesCount] = useState<number>(0);
+    const [paymentHistoryList, setPaymentHistoryList] = useState<{payments: schema.paymentsType, users: schema.usersType}[]>([]);
+    const [paymentHistoryPagination, setPaymentHistoryPagination] = useState<number>(1);
+    const [paymentHistoryCount, setPaymentHistoryCount] = useState<number>(0);
+
+    const getCurrentMonthFee = useCallback(async (fee_id: number, pagination: number) => {
+        return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}&page=${pagination}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data, users } = res.data as { data: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[], users: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[] };
+                    setCurrentMonthData(data);
+                    setUsersList(users);
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, [])
+
+    const getFilteredCurrentMonthFee = useCallback(async (fee_id: number, filter: string, pagination: number) => {
+        if(filter === 'Semua RT') return getCurrentMonthFee(fee_id, pagination);
+
+        return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}&filter=${filter}&page=${pagination}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data, users } = res.data as { data: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[], users: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[] };
+                    setCurrentMonthData(data);
+                    setUsersList(users);
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, [])
+
+    const currentMonthFeeAPI = useCallback(async () => {        
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+
+        return await axios.get(`${process.env.API_URL}/admin/fees?month=${currentMonth}&year=${currentYear}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: schema.feesType[] };
+                    getCurrentMonthFee(data[0].fee_id, 1);
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, []);
+
+    const getAllFees = useCallback(async (pagination: number) => {        
+        return await axios.get(`${process.env.API_URL}/admin/fees?page=${pagination}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data, count } = res.data as { data: schema.feesType[], count: number };
+                    setFeeList(data);
+                    setFeesCount(count);
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, [])
+
+    const getFeeByMonth = useCallback(async (month: string, year: string) => {        
+        if(month === '' || year === '') return getAllFees(feeListPagination);
+        
+        return await axios.get(`${process.env.API_URL}/admin/fees?month=${month}&year=${year}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: schema.feesType[] };
+                    setFeeList(data);
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, []);
+
+    const getActivityHistory = useCallback(async (pagination: number) => {        
+        return await axios.get(`${process.env.API_URL}/admin/fees/history?page=${pagination}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data, count } = res.data as { data: {payments: schema.paymentsType, users: schema.usersType}[], count: number };
+                    setPaymentHistoryList(data);
+                    setPaymentHistoryCount(count);
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, [])
+
+    const totalDoneAmount = currentMonthData.reduce((accumulator, currentValue) => {
+        if (currentValue.payments.payment_description === "done") {
+            return accumulator + 1;
+        }
+        return accumulator;
+    }, 0);
+
+    const totalPendingAmount = currentMonthData.reduce((accumulator, currentValue) => {
+        if (currentValue.payments.payment_description === "pending") {
+            return accumulator + 1;
+        }
+        return accumulator;
+    }, 0);
+
+    const totalUndoneAmount = currentMonthData.reduce((accumulator, currentValue) => {
+        if (currentValue.payments.payment_description === "undone") {
+            return accumulator + 1;
+        }
+        return accumulator;
+    }, 0);
+
+    const filterRTHandler = (fee_id: number, filter: string, pagination: number) => getFilteredCurrentMonthFee(fee_id, filter, pagination);
+    const userListPaginationHandler = (pagination: number) => getCurrentMonthFee(currentMonthData[0].fees.fee_id, pagination);
+    const feeListPaginationHandler = (pagination: number) => getAllFees(pagination);
+    const dateFilterHandler = (e: React.ChangeEvent<HTMLInputElement>) => getFeeByMonth(e.currentTarget.value.split('-')[1], e.currentTarget.value.split('-')[0]);
+    const paymentHistoryPaginationHandler = (pagination: number) => getActivityHistory(pagination);
+
+    useEffect(() => {
+        currentMonthFeeAPI();
+        getAllFees(feeListPagination);
+        getActivityHistory(paymentHistoryPagination);
+    }, [currentMonthFeeAPI, getAllFees, getActivityHistory]);
     
-    return <>
+    return !currentMonthData.length ? <div className="w-full h-screen flex flex-col gap-8 justify-center items-center">
+        <span>Iuran bulan {convertDate.toString(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`)} belum anda atur. <span className="underline cursor-pointer" onClick={() => setShowSetFeePopup(true)}>Atur sekarang</span></span>
+    </div> : <>
         <div className="mt-8 flex justify-between items-center">
             <div>
-                <span className="text-xs">Iuran Bulan Ini</span>
-                <h1 className="font-semibold text-xl md:text-2xl">November 2024</h1>
+                <span className="text-xs">Iuran Bulan</span>
+                <h1 className="font-semibold text-xl md:text-2xl">{dateConvert.toString(currentMonthData[0].fees.fee_date!)}</h1>
             </div>
             <div className="relative">
-                <DropDown label={component.selectedContext} onClick={() => component.setShowContextMenu(!component.showContextMenu)}/>
-                {component.showContextMenu ? <div className="w-full absolute mt-2 flex flex-col justify-center items-center shadow-md shadow-gray-300">
-                    <DropDownItem label="Semua RT" onClick={() => {component.setSelectedContext('Semua RT'); component.setShowContextMenu(false)}}/>
-                    <DropDownItem label="RT 001" onClick={() => {component.setSelectedContext('RT 001'); component.setShowContextMenu(false)}}/>
-                    <DropDownItem label="RT 002" onClick={() => {component.setSelectedContext('RT 002'); component.setShowContextMenu(false)}}/>
-                    <DropDownItem label="RT 003" onClick={() => {component.setSelectedContext('RT 003'); component.setShowContextMenu(false)}}/>
-                    <DropDownItem label="RT 004" onClick={() => {component.setSelectedContext('RT 004'); component.setShowContextMenu(false)}}/>
+                <DropDown label={selectedContext} onClick={() => setShowContextMenu(!showContextMenu)}/>
+                {showContextMenu ? <div className="w-full absolute mt-2 flex flex-col justify-center items-center shadow-md shadow-gray-300">
+                    <DropDownItem label="Semua RT" onClick={() => {setSelectedContext('Semua RT'); setShowContextMenu(false); filterRTHandler(currentMonthData[0].fees.fee_id, 'Semua RT', userListPagination)}}/>
+                    <DropDownItem label="RT 001" onClick={() => {setSelectedContext('RT 001'); setShowContextMenu(false); filterRTHandler(currentMonthData[0].fees.fee_id, '1', userListPagination)}}/>
+                    <DropDownItem label="RT 002" onClick={() => {setSelectedContext('RT 002'); setShowContextMenu(false); filterRTHandler(currentMonthData[0].fees.fee_id, '2', userListPagination)}}/>
+                    <DropDownItem label="RT 003" onClick={() => {setSelectedContext('RT 003'); setShowContextMenu(false); filterRTHandler(currentMonthData[0].fees.fee_id, '3', userListPagination)}}/>
+                    <DropDownItem label="RT 004" onClick={() => {setSelectedContext('RT 004'); setShowContextMenu(false); filterRTHandler(currentMonthData[0].fees.fee_id, '4', userListPagination)}}/>
                 </div> : null}
             </div>
         </div>
         <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            <Card color="blue" title="Jumlah Warga" total={40} nominal={1568000} icon={<Users/>}/>
-            <Card color="green" title="Sudah Lunas" total={40} nominal={1568000} icon={<HandCoins/>}/>
-            <Card color="yellow" title="Menunggu Konfirmasi" total={40} nominal={1568000} icon={<HandCoins/>}/>
-            <Card color="red" title="Belum Lunas" total={40} nominal={1568000} icon={<HandCoins/>}/>
+        <Card color="blue" title="Jumlah Warga" total={currentMonthData.length} nominal={currentMonthData.length * currentMonthData[0].fees.fee_amount!} icon={<Users/>}/>
+            <Card color="green" title="Sudah Lunas" total={totalDoneAmount} nominal={totalDoneAmount * currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
+            <Card color="yellow" title="Menunggu Konfirmasi" total={totalPendingAmount} nominal={totalPendingAmount * currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
+            <Card color="red" title="Belum Lunas" total={totalUndoneAmount} nominal={totalUndoneAmount * currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
         </div>
         <div className="mt-8 w-full grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="col-span-1 md:col-span-3 flex flex-col gap-8">
                 <Container>
                     <div className="w-full flex-col-reverse md:flex-row flex justify-between items-start md:items-center gap-4">
                         <div className="flex gap-2">
-                            <ChoiceChip label="Semua" active={component.filterStatusIndex === 0} onClick={() => component.setFilterStatusIndex(0)}/>
-                            <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => component.setFilterStatusIndex(1)}/>
-                            <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => component.setFilterStatusIndex(2)}/>
+                            <ChoiceChip label="Semua" active={filterStatusIndex === 0} onClick={() => {setFilterStatusIndex(0);}}/>
+                            <ChoiceChip label="Lunas" active={filterStatusIndex === 1} onClick={() => {setFilterStatusIndex(1);}}/>
+                            <ChoiceChip label="Belum Lunas" active={filterStatusIndex === 2} onClick={() => {setFilterStatusIndex(2);}}/>
                         </div>
                         <SearchField value={searchKeyword} setValue={setSearchKeyword} onChange={() => {}}/>
                     </div>
@@ -485,40 +612,38 @@ function Iuran() {
                         <table className="w-full">
                             <TableHead title={['Nama', 'Alamat', 'Status']}/>
                             <tbody>
-                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
-                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
-                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
-                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
-                                <UserListFeeItem name="Repat Dwi Gunanda" address="Perum CGM, Blok. A 23" status="Lunas"/>
+                                {usersList.map((data) => {
+                                    return <UserListFeeItem key={data.users.user_id} name={data.users.name!} address={data.users.address!} status={data.payments.payment_description!}/>
+                                })}
                             </tbody>
                         </table>
                     </div>
-                    <PaginationWidget currentPage={1} totalPage={256}/>
+                    <PaginationWidget currentPage={userListPagination} totalPage={Math.ceil(currentMonthData.length / 20)} onClickNext={() => {if(userListPagination >= Math.ceil(currentMonthData.length / 20)) return; setUserListPagination(userListPagination + 1); userListPaginationHandler(userListPagination + 1)}} onClickPrev={() => {if(userListPagination <= 1) return; setUserListPagination(userListPagination - 1); userListPaginationHandler(userListPagination - 1)}}/>
                 </Container>
             </div>
             <div className="col-span-1 md:col-span-2 flex flex-col gap-8">
                 <Container>
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Rekapan Iuran Bulanan</h1>
-                        <input type="month" name="month" id="month" className="bg-blue-500 text-white [&::-webkit-calendar-picker-indicator]:invert-[1] outline-none p-2 rounded-md [&::-webkit-datetime-edit]:hidden"/>
+                        <input type="month" name="month" id="month" onChange={dateFilterHandler} className="bg-blue-500 text-white [&::-webkit-calendar-picker-indicator]:invert-[1] outline-none p-2 rounded-md [&::-webkit-datetime-edit]:text-sm" defaultValue={`${new Date().getFullYear()}-${new Date().getMonth() + 1}`}/>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        <FeeListItem month="November 2024" title="Iuran Bulan November 2024"/>
-                        <FeeListItem month="Oktober 2024" title="Iuran Bulan Oktober 2024"/>
-                        <FeeListItem month="September 2024" title="Iuran Bulan September 2024"/>
+                        {feeList.map((fee: schema.feesType) => {
+                            return <FeeListItem key={fee.fee_id} month={convertDate.toString(fee.fee_date!)} title={`Iuran Bulan ${convertDate.toString(fee.fee_date!)}`}/>
+                        })}
                     </div>
-                    <PaginationWidget currentPage={1} totalPage={256}/>
+                    <PaginationWidget currentPage={feeListPagination} totalPage={Math.ceil(feesCount / 10)} onClickNext={() => {if(feeListPagination >= Math.ceil(feesCount / 10)) return; setFeeListPagination(feeListPagination + 1); feeListPaginationHandler(feeListPagination + 1)}} onClickPrev={() => {if(feeListPagination <= 1) return; setFeeListPagination(feeListPagination - 1); feeListPaginationHandler(feeListPagination - 1)}}/>
                 </Container>
                 <Container>
                     <div className="flex justify-between items-center">
                         <h1 className="text-lg font-semibold">Aktivitas Terbaru</h1>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        {/* <UserActivityList month="November 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Belum Lunas"/>
-                        <UserActivityList month="Oktober 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/>
-                        <UserActivityList month="September 2024" name="Repat Dwi Gunanda" phone="+62 812 - 3456 - 7890" status="Lunas"/> */}
+                        {paymentHistoryList.map((history: {payments: schema.paymentsType, users: schema.usersType}) => {
+                            return <UserActivityList key={history.payments.payment_id} month={history.payments.last_update!} name={history.users.name!} phone={history.users.phone!} status={history.payments.payment_description!}/>
+                        })}
                     </div>
-                    <PaginationWidget currentPage={1} totalPage={256}/>
+                    <PaginationWidget currentPage={paymentHistoryPagination} totalPage={Math.ceil(paymentHistoryCount / 5)} onClickNext={() => {if(paymentHistoryPagination >= Math.ceil(paymentHistoryCount / 5)) return; setPaymentHistoryPagination(paymentHistoryPagination + 1); paymentHistoryPaginationHandler(paymentHistoryPagination + 1)}} onClickPrev={() => {if(paymentHistoryPagination <= 1) return; setPaymentHistoryPagination(paymentHistoryPagination - 1); paymentHistoryPaginationHandler(paymentHistoryPagination - 1)}}/>
                 </Container>
             </div>
         </div>

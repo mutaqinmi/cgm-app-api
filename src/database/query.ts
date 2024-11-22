@@ -57,15 +57,29 @@ export const getAllFeesLimited = async () => {
 /**
  * get fees data by id joined with payments and users
  */
+export const getFeeByIdWithPagination = async (fee_id: number, pagination: number) => {
+    return await db.select().from(table.fees).leftJoin(table.payments, eq(table.fees.fee_id, table.payments.fee_id)).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).where(eq(table.fees.fee_id, fee_id)).limit(20).offset(20 * (pagination - 1));
+}
+
+/**
+ * get fees data by id joined with payments and users
+ */
 export const getFeeById = async (fee_id: number) => {
     return await db.select().from(table.fees).leftJoin(table.payments, eq(table.fees.fee_id, table.payments.fee_id)).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).where(eq(table.fees.fee_id, fee_id));
 }
 
 /**
- * get fees data by id joined with payments and users filtered by payment status
+ * get fees data by id joined with payments and users filtered by RT
  */
-export const getFeesByStatus = async (fee_id: number, filter: string) => {
-    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.payments.payment_description, filter)));
+export const getFeesByRT = async (fee_id: number, filter: string) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.users.rt, filter)));
+}
+
+/**
+ * get fees data by id joined with payments and users filtered by RT limited
+ */
+export const getFeesByRTWithPagination = async (fee_id: number, filter: string, pagination: number) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.users.rt, filter))).limit(20).offset(20 * (pagination - 1));
 }
 
 /**

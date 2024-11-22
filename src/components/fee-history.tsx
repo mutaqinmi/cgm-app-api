@@ -1,3 +1,5 @@
+import { CheckCircle } from "@phosphor-icons/react";
+
 export default function FeeHistory(props: {date: string; status: string; title:string; colors:string;}){
     return<div className="flex gap-4 items-center mt-4">
         <div className="p-3 bg-blue-200 rounded-lg">

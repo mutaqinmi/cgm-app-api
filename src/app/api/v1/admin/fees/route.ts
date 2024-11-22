@@ -66,24 +66,6 @@ export async function GET(req: req){
             })
         }
 
-        // get fees data with pagination
-        if(page){
-            // get fees data from database with pagination
-            const fees = await query.getFeesWithPagination(parseInt(page));
-
-            // get fees count from database
-            const feesCount = await query.getCountFees();
-
-            // return response
-            return res.json({
-                message: 'success',
-                data: fees,
-                count: feesCount,
-            }, {
-                status: 200
-            })
-        }
-
         // search fees
         if(fee_id && search){
             // search fees data from database
@@ -98,15 +80,32 @@ export async function GET(req: req){
             })
         }
 
-        // get fees data by status
-        if(fee_id && filter){
+        // get fees data by rt
+        if(fee_id && filter && page){
             // get fees data from database
-            const fees = await query.getFeesByStatus(parseInt(fee_id), filter);
+            const fees = await query.getFeesByRT(parseInt(fee_id), filter);
+            const users = await query.getFeesByRTWithPagination(parseInt(fee_id), filter, parseInt(page));
 
             // return response
             return res.json({
                 message: 'success',
                 data: fees,
+                users: users,
+            }, {
+                status: 200
+            })
+        }
+
+        if(fee_id && page){
+            // get fees data from database
+            const fees = await query.getFeeById(parseInt(fee_id));
+            const users = await query.getFeeByIdWithPagination(parseInt(fee_id), parseInt(page));
+
+            // return response
+            return res.json({
+                message: 'success',
+                data: fees,
+                users: users,
             }, {
                 status: 200
             })
@@ -121,6 +120,24 @@ export async function GET(req: req){
             return res.json({
                 message: 'success',
                 data: iuran,
+            }, {
+                status: 200
+            })
+        }
+
+        // get fees data with pagination
+        if(page){
+            // get fees data from database with pagination
+            const fees = await query.getFeesWithPagination(parseInt(page));
+
+            // get fees count from database
+            const feesCount = await query.getCountFees();
+
+            // return response
+            return res.json({
+                message: 'success',
+                data: fees,
+                count: feesCount,
             }, {
                 status: 200
             })

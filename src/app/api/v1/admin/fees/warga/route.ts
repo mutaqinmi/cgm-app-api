@@ -7,16 +7,6 @@ export async function GET(req: req){
     const payment_id = req.nextUrl.searchParams.get('payment_id');
 
     try {
-        // check if token exists
-        const verified_token = await verifyToken(req);
-        if(!verified_token){
-            return res.json({
-                message: 'token tidak valid',
-            }, {
-                status: 401
-            })
-        }
-
         // get payment data from database
         const payment = await query.getPaymentById(parseInt(payment_id!));
 
@@ -46,16 +36,6 @@ export async function PATCH(req: req){
     const body = await req.json();
 
     try {
-        // check if token exists
-        const verified_token = await verifyToken(req);
-        if(!verified_token){
-            return res.json({
-                message: 'token tidak valid',
-            }, {
-                status: 401
-            })
-        }
-
         // update payment data on database
         await query.updatePayment(parseInt(payment_id!), body.payment_status, body.payment_description);
 
