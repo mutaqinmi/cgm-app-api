@@ -49,7 +49,7 @@ export default function Page(){
             if(response.status === 200){
                 const { user } = response.data?.data as {token: string; user: string};
                 localStorage.setItem("user", user);
-                route.push("/cgm-admin");
+                route.push("/cgm-admin/dashboard");
             }
         }).catch((error: AxiosError) => {
             console.log(error.response?.data);

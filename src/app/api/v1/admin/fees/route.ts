@@ -21,6 +21,7 @@ export async function GET(req: req){
     const limit = req.nextUrl.searchParams.get('limit');
     const page = req.nextUrl.searchParams.get('page');
     const chart_data = req.nextUrl.searchParams.get('chart_data');
+    const status = req.nextUrl.searchParams.get('status');
 
     try {
         // get chart data
@@ -67,6 +68,20 @@ export async function GET(req: req){
         }
 
         // search fees
+        if(fee_id && filter && search){
+            // search fees data from database
+            const fees = await query.searchFeesByRT(parseInt(fee_id), filter, search);
+
+            // return response
+            return res.json({
+                message: 'success',
+                data: fees,
+            }, {
+                status: 200
+            })
+        }
+
+        // search fees
         if(fee_id && search){
             // search fees data from database
             const fees = await query.searchFees(parseInt(fee_id), search);
@@ -75,6 +90,32 @@ export async function GET(req: req){
             return res.json({
                 message: 'success',
                 data: fees,
+            }, {
+                status: 200
+            })
+        }
+
+        if(fee_id && filter && status && page){
+            // get fees data from database
+            const users = await query.getFeesByRTWithStatusWithPagination(parseInt(fee_id), filter, status, parseInt(page));
+
+            // return response
+            return res.json({
+                message: 'success',
+                data: users,
+            }, {
+                status: 200
+            })
+        }
+
+        if(fee_id && status && page){
+            // get fees data from database
+            const users = await query.getFeesByStatusWithPagination(parseInt(fee_id), status, parseInt(page));
+
+            // return response
+            return res.json({
+                message: 'success',
+                data: users,
             }, {
                 status: 200
             })

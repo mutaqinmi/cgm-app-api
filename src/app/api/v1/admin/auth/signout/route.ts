@@ -1,10 +1,10 @@
-import { NextRequest as req, NextResponse as res } from "next/server";
+import { NextResponse, NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
 
 export async function GET(req: req){
     try {
         // get admin id from headers
-        const admin_id = req.headers.get('admin-id');
+        const admin_id = req.cookies.get('admin_id')?.value;
 
         // remove token in database
         await query.removeAdminToken(parseInt(admin_id!));

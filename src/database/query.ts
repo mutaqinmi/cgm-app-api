@@ -83,10 +83,31 @@ export const getFeesByRTWithPagination = async (fee_id: number, filter: string, 
 }
 
 /**
+ * get fees data by id joined with payments and users filtered by RT with status
+ */
+export const getFeesByRTWithStatusWithPagination = async (fee_id: number, filter: string, status: string, pagination: number) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.users.rt, filter), eq(table.payments.payment_description, status))).limit(20).offset(20 * (pagination - 1));
+}
+
+/**
+ * get fees data by id joined with payments and users filtered by status
+ */
+export const getFeesByStatusWithPagination = async (fee_id: number, status: string, pagination: number) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.payments.payment_description, status))).limit(20).offset(20 * (pagination - 1));
+}
+
+/**
  * get fees data by search query joined with payments and users by name or address
  */
 export const searchFees = async (fee_id: number, keyword: string) => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), or(ilike(table.users.name, `%${keyword}%`), ilike(table.users.address, `%${keyword}%`))));
+}
+
+/**
+ * get fees data by search query joined with payments and users by name or address by RT
+ */
+export const searchFeesByRT = async (fee_id: number, filter: string, keyword: string) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.users.rt, filter), or(ilike(table.users.name, `%${keyword}%`), ilike(table.users.address, `%${keyword}%`))));
 }
 
 /**
