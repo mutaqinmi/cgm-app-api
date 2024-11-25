@@ -20,6 +20,7 @@ import SetFeePopup from '@/components/set-fee-popup';
 import AddUserPopup from '@/components/add-user-popup';
 import NavigationBar from '@/components/navigation-bar';
 import LoadingAnimation from '@/components/loading-animation';
+import { useRouter } from 'next/navigation';
 
 interface ComponentState {
     currentMonthData: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[],
@@ -87,6 +88,7 @@ const useComponent = create<ComponentState>((set) => {
 
 export default function Page() {
     const component = useComponent();
+    const route = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
     const getCurrentMonthFee = useCallback(async (fee_id: number) => {
@@ -289,7 +291,7 @@ export default function Page() {
                             <TableHead title={['Nama', 'No. Telepon', 'Alamat', 'RT']}/>
                             <tbody>
                                 {component.usersList.map((user: schema.usersType) => {
-                                    return <UserListItem key={user.user_id} name={user.name!} phone={user.phone!} address={user.address!} rt={user.rt!}/>
+                                    return <UserListItem key={user.user_id} name={user.name!} phone={user.phone!} address={user.address!} rt={user.rt!} onClick={() => route.push(`/cgm-admin/warga/detail?user_id=${user.user_id!}`)}/>
                                 })}
                             </tbody>
                         </table>
@@ -305,7 +307,7 @@ export default function Page() {
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
                         {component.feeList.map((fee: schema.feesType) => {
-                            return <FeeListItem key={fee.fee_id} month={dateConvert.toString(fee.fee_date!)} title={`Iuran Bulan ${dateConvert.toString(fee.fee_date!)}`}/>
+                            return <FeeListItem key={fee.fee_id} month={fee.fee_date!}/>
                         })}
                     </div>
                     <PaginationWidget currentPage={component.feeListPagination} totalPage={Math.ceil(component.feesCount / 10)} onClickNext={() => {if(component.feeListPagination >= Math.ceil(component.feesCount / 10)) return; component.setFeeListPagination(component.feeListPagination + 1); feeListPaginationHandler(component.feeListPagination + 1)}} onClickPrev={() => {if(component.feeListPagination <= 1) return; component.setFeeListPagination(component.feeListPagination - 1); feeListPaginationHandler(component.feeListPagination - 1)}}/>

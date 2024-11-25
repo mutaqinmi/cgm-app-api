@@ -1,4 +1,3 @@
-import { verifyToken } from "@/lib/auth";
 import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
 

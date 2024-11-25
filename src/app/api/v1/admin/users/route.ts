@@ -12,7 +12,6 @@ export async function GET(req: req){
     // get query params from request
     const user_id = req.nextUrl.searchParams.get('user_id');
     const search = req.nextUrl.searchParams.get('search');
-    const filtered = req.nextUrl.searchParams.get('filtered');
     const page = req.nextUrl.searchParams.get('page');
 
     try {
@@ -31,23 +30,6 @@ export async function GET(req: req){
                 message: 'success',
                 data: users,
                 count: usersCount,
-            }, {
-                status: 200
-            })
-        }
-
-        // get user data with undone filter
-        if(user_id && filtered){
-            // get user data with undone filter
-            const usersList = await query.getUserWithUndoneFilter(parseInt(user_id));
-
-            // extract password from users data
-            const users = usersList.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
-
-            // return response
-            return res.json({
-                message: 'success',
-                data: users,
             }, {
                 status: 200
             })
@@ -74,14 +56,17 @@ export async function GET(req: req){
         if(user_id){
             // get user data by user_id
             const userData = await query.getUserData(parseInt(user_id));
+            const undonePaymentsData = await query.getUserWithUndoneFilter(parseInt(user_id));
 
             // extract password from users data
             const user = userData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
+            const undonePayments = undonePaymentsData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
 
             // return response
             return res.json({
                 message: 'success',
                 data: user,
+                undonePayments,
             }, {
                 status: 200
             })

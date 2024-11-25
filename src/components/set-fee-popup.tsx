@@ -30,7 +30,7 @@ export default function SetFeePopup(props: {refresh?: () => void; popupHandler: 
                 </div>
                 <X onClick={() => props.popupHandler(false)}/>
             </div>
-            <Form action={""} onSubmit={setNewFeeHandler}>
+            <Form action={""} formMethod='POST' onSubmit={setNewFeeHandler}>
                 <div className="my-8 flex flex-col gap-2">
                     <span>Jumlah Iuran</span>
                     <div className="relative">

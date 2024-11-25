@@ -1,6 +1,7 @@
 import { CaretRight, XCircle } from "@phosphor-icons/react";
+import * as dateConvert from '@/lib/date-converter';
 
-export default function UnpaidTransaction(props: {month: string; title: string; status: string}) {
+export default function UnpaidTransaction(props: {month: string; status: string}) {
     return <div className="flex gap-4 justify-between items-center">
         <div className="flex gap-4">
             <div className="p-3 bg-red-200 rounded-lg">
@@ -8,10 +9,10 @@ export default function UnpaidTransaction(props: {month: string; title: string; 
             </div>
             <div className="flex flex-col">
                 <div className="flex gap-2 items-center">
-                    <span className="text-xs">{props.month}</span>
+                    <span className="text-xs">{dateConvert.toString(props.month)}</span>
                     <span className="rounded-full bg-red-200 px-2 py-1 text-red-500 text-xs">{props.status}</span>
                 </div>
-                <span className="text-md font-semibold">{props.title}</span>
+                <span className="text-md font-semibold">{`Iuran Bulan ${dateConvert.toString(props.month)}`}</span>
             </div>
         </div>
         <CaretRight size={14}/>

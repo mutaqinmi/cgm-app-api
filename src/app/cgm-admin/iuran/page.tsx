@@ -368,7 +368,7 @@ export default function Page() {
                         </div>
                         <div className="mt-8 flex flex-col gap-4">
                             {component.feeList.map((fee: schema.feesType) => {
-                                return <FeeListItem key={fee.fee_id} month={dateConvert.toString(fee.fee_date!)} title={`Iuran Bulan ${dateConvert.toString(fee.fee_date!)}`}/>
+                                return <FeeListItem key={fee.fee_id} month={fee.fee_date!}/>
                             })}
                         </div>
                         <PaginationWidget currentPage={component.feeListPagination} totalPage={Math.ceil(component.feesCount / 10)} onClickNext={() => {if(component.feeListPagination >= Math.ceil(component.feesCount / 10)) return; component.setFeeListPagination(component.feeListPagination + 1); feeListPaginationHandler(component.feeListPagination + 1)}} onClickPrev={() => {if(component.feeListPagination <= 1) return; component.setFeeListPagination(component.feeListPagination - 1); feeListPaginationHandler(component.feeListPagination - 1)}}/>
