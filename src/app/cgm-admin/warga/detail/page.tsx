@@ -177,7 +177,7 @@ export default function Page(){
                         <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => component.setFilterStatusIndex(1)}/>
                         <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => component.setFilterStatusIndex(2)}/>
                     </div>
-                    <div className="flex flex-col gap-2 mt-4">
+                    <div className="flex flex-col-reverse gap-2 mt-4">
                         {Object.keys(groupData).map((year: string, index: number) => {
                             return <div key={index} className="flex flex-col gap-2">
                                 <h1 className="font-semibold text-lg my-2 text-gray-500">{year}</h1>

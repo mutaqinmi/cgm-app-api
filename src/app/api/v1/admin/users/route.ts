@@ -57,10 +57,23 @@ export async function GET(req: req){
             // get user data by user_id
             const userData = await query.getUserData(parseInt(user_id));
             const undonePaymentsData = await query.getUserWithUndoneFilter(parseInt(user_id));
+            const filteredUserData = userData.filter((item) => {
+                if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                    return item;
+                }
 
+                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
+            });
+            const filteredUndonePaymentsData = undonePaymentsData.filter((item) => {
+                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
+            });
+
+            // // extract password from users data
+            // const user = userData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
+            // const undonePayments = undonePaymentsData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
             // extract password from users data
-            const user = userData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
-            const undonePayments = undonePaymentsData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
+            const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
+            const undonePayments = filteredUndonePaymentsData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
 
             // return response
             return res.json({
