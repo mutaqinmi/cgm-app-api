@@ -258,6 +258,9 @@ export async function POST(req: req){
     const body: RequestBody = await req.json();
     const multiple = req.nextUrl.searchParams.get('multiple');
 
+    const customMonth = req.nextUrl.searchParams.get('customMonth');
+    const customYear = req.nextUrl.searchParams.get('customYear');
+
     // amount default 55000
     const amount: number = 55000;
 
@@ -283,6 +286,32 @@ export async function POST(req: req){
                 await query.setMultiplePayment(fees.fee_id, body.user_id);
             })
             
+            // return response
+            return res.json({
+                message: 'success',
+            }, {
+                status: 201
+            })
+        }
+        
+        if(customMonth && customYear){
+            // check if iuran data already exists
+            const fees = await query.getFees(`${customYear}-${customMonth}`);
+            if(fees.length > 0){
+                return res.json({
+                    message: 'fees data already exists',
+                }, {
+                    status: 400
+                })
+            }
+
+            // set iuran data to database
+            const setFees = await query.setFee(`${customYear}-${customMonth}`, body.amount);
+
+            // apply change to all users
+            const users = await query.getAllUsers();
+            await query.setPayment(setFees[0].fee_id, users);
+
             // return response
             return res.json({
                 message: 'success',

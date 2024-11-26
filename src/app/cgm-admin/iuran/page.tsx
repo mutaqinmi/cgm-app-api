@@ -19,6 +19,7 @@ import FeeListItem from '@/components/fee-list-item';
 import UserActivityList from '@/components/user-activity-list';
 import NavigationBar from '@/components/navigation-bar';
 import LoadingAnimation from '@/components/loading-animation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface ComponentState {
     selectedContext: string;
@@ -86,6 +87,8 @@ const useComponent = create<ComponentState>((set) => {
 
 export default function Page() {
     const component = useComponent();
+    const searchParams = useSearchParams();
+    const route = useRouter();
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const getCurrentMonthFee = useCallback(async (fee_id: number, pagination: number) => {
@@ -305,10 +308,15 @@ export default function Page() {
     }
 
     useEffect(() => {
-        currentMonthFeeAPI();
+        const fee_id = searchParams.get('fee_id');
+        if(fee_id){
+            getCurrentMonthFee(parseInt(fee_id), component.userListPagination);
+        } else {
+            currentMonthFeeAPI();
+        }
         getAllFees(component.feeListPagination);
         getActivityHistory(component.paymentHistoryPagination);
-    }, [currentMonthFeeAPI, getAllFees, getActivityHistory]);
+    }, [searchParams, getCurrentMonthFee, currentMonthFeeAPI, getAllFees, getActivityHistory]);
     
     return isLoading ? <LoadingAnimation/> : <NavigationBar sidebarIndex={1}>
         {!component.currentMonthData.length ? <div className="w-full h-screen flex flex-col gap-8 justify-center items-center">
@@ -368,7 +376,7 @@ export default function Page() {
                         </div>
                         <div className="mt-8 flex flex-col gap-4">
                             {component.feeList.map((fee: schema.feesType) => {
-                                return <FeeListItem key={fee.fee_id} month={fee.fee_date!}/>
+                                return <FeeListItem key={fee.fee_id} month={fee.fee_date!} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${fee.fee_id}`)}/>
                             })}
                         </div>
                         <PaginationWidget currentPage={component.feeListPagination} totalPage={Math.ceil(component.feesCount / 10)} onClickNext={() => {if(component.feeListPagination >= Math.ceil(component.feesCount / 10)) return; component.setFeeListPagination(component.feeListPagination + 1); feeListPaginationHandler(component.feeListPagination + 1)}} onClickPrev={() => {if(component.feeListPagination <= 1) return; component.setFeeListPagination(component.feeListPagination - 1); feeListPaginationHandler(component.feeListPagination - 1)}}/>

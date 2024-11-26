@@ -1,5 +1,6 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
+import { count } from 'console';
 import { and, desc, eq, gte, ilike, inArray, lte, or, sql } from 'drizzle-orm';
 
 /**
@@ -237,6 +238,13 @@ export const getUserWithUndoneFilter = async (user_id: number) => {
 }
 
 /**
+ * get user data by id joined with payments and fees filtered with status
+ */
+export const getUserDataWithStatus = async (user_id: number, status: string) => {
+    return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.users.user_id, user_id), eq(table.payments.payment_description, status))).orderBy(desc(table.fees.fee_date));
+}
+
+/**
  * create new user
  */
 export const addNewUser = async (name: string, address: string, phone: string, rt: string) => {
@@ -245,6 +253,35 @@ export const addNewUser = async (name: string, address: string, phone: string, r
         address,
         phone,
         rt,
+    }).returning();
+}
+
+/**
+ * edit user
+ */
+export const updateUserData = async (user_id: number, name: string, address: string, phone: string, rt: string) => {
+    return await db.update(table.users).set({
+        name,
+        address,
+        phone,
+        rt,
+    }).where(eq(table.users.user_id, user_id));
+}
+
+/**
+ * delete user
+ */
+export const deleteUser = async (user_id: number) => {
+    return await db.delete(table.users).where(eq(table.users.user_id, user_id));
+}
+
+/**
+ * set single payment data by users
+ */
+export const setSinglePayment = async (fee_id: number, user_id: number) => {
+    return await db.insert(table.payments).values({
+        fee_id,
+        user_id,
     });
 }
 

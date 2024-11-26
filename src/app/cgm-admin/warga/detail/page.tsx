@@ -7,43 +7,56 @@ import NavigationBar from "@/components/navigation-bar";
 import UnpaidTransaction from "@/components/unpaid-transaction";
 import { DotsThreeVertical, MapPin, Phone, Plus, Trash, User } from "@phosphor-icons/react";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { create } from "zustand";
 import * as schema from '@/database/schema';
 import numberFormatter from "@/lib/formatter";
+import PaginationWidget from "@/components/pagination";
+import EditUserPopup from "@/components/edit-user-popup";
 
 interface ComponentState {
     userData: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[],
+    paymentsList: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[],
     undonePayments: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[],
     monthList: string[];
     showContextMenu: boolean;
     filterStatusIndex: number;
+    showEditUserPopup: boolean;
     setUserData: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void;
+    setPaymentsList: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void;
     setUndonePayments: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void;
     setMonthList: (value: string[]) => void;
     setShowContextMenu: (value: boolean) => void;
     setFilterStatusIndex: (value: number) => void;
+    setShowEditUserPopup: (value: boolean) => void;
 }
 
 const useComponent = create<ComponentState>((set) => {
     return {
         userData: [],
+        paymentsList: [],
         undonePayments: [],
+        undonePaymentsCount: 0,
+        undonePaymentsPagination: 1,
         monthList: [],
         showContextMenu: false,
         filterStatusIndex: 0,
+        showEditUserPopup: false,
         setUserData: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => set({ userData: value }),
+        setPaymentsList: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => set({ paymentsList: value }),
         setUndonePayments: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => set({ undonePayments: value }),
         setMonthList: (value: string[]) => set({ monthList: value }),
         setShowContextMenu: (value: boolean) => set({ showContextMenu: value }),
         setFilterStatusIndex: (value: number) => set({ filterStatusIndex: value }),
+        setShowEditUserPopup: (value: boolean) => set({ showEditUserPopup: value }),
     }
 })
 
 export default function Page(){
     const component = useComponent();
     const searchParams = useSearchParams();
+    const route = useRouter();
     const month_inc = useRef(1);
     const currentDate = useRef({
         month: new Date().getMonth() + 1,
@@ -54,15 +67,41 @@ export default function Page(){
         return await axios.get(`${process.env.API_URL}/admin/users?user_id=${user_id}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
-                    const { data, undonePayments } = res.data as { data: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[], undonePayments: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[] };
+                    const { data } = res.data as { data: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[] };
                     component.setUserData(data);
-                    component.setUndonePayments(undonePayments);
+                    component.setPaymentsList(data);
                 }
             })
             .catch((error: AxiosError) => {
                 console.log(error);
             })
     }, []);
+
+    const getUndonePaymentsFilteredData = useCallback(async (user_id: number) => {
+        return await axios.get(`${process.env.API_URL}/admin/users?user_id=${user_id}&filtered=true`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[] };
+                    component.setUndonePayments(data);
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, []);
+
+    const getStatusFilteredData = useCallback(async (user_id: number, status: string) => {
+        return await axios.get(`${process.env.API_URL}/admin/users?user_id=${user_id}&status=${status}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    const { data } = res.data as { data: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[] };
+                    component.setPaymentsList(data);
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, [])
 
     const setMultipleFees = useCallback(async (user_id: number, monthList: string[]) => {
         return await axios.post(`${process.env.API_URL}/admin/fees?multiple=true`, {
@@ -79,6 +118,18 @@ export default function Page(){
             console.log(error);
         })
     }, []);
+
+    const deleteUser = useCallback(async (user_id: number) => {
+        return await axios.delete(`${process.env.API_URL}/admin/users?user_id=${user_id}`)
+            .then((res: AxiosResponse) => {
+                if(res.status === 200){
+                    return route.push('/cgm-admin/warga');
+                }
+            })
+            .catch((error: AxiosError) => {
+                console.log(error);
+            })
+    }, [])
 
     const add_month = () => {
         let month = currentDate.current.month + month_inc.current;
@@ -113,8 +164,21 @@ export default function Page(){
         }, {} as { [key: string]: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[] });
     };
 
-    const groupData = groupByYear(component.userData);
+    const groupData = groupByYear(component.paymentsList);
     const setMultipleFeesHandler = (user_id: number, monthList: string[]) => setMultipleFees(user_id, monthList);
+    const StatusFilteredDataHandler = (user_id: number, status: string) => {
+        if(status === 'Semua'){
+            return getUserData(user_id);
+        }
+
+        return getStatusFilteredData(user_id, status);
+    };
+    const deleteUserHandler = (user_id: number) => {
+        const confirmDelete = confirm('Apakah anda yakin ingin menghapus warga ini?');
+        if(!confirmDelete) return;
+
+        deleteUser(user_id);
+    };
 
     const resetDate = () => {
         currentDate.current = {
@@ -130,6 +194,7 @@ export default function Page(){
         const user_id = searchParams.get('user_id');
         if(user_id){
             getUserData(parseInt(user_id));
+            getUndonePaymentsFilteredData(parseInt(user_id));
         }
     }
  
@@ -137,8 +202,9 @@ export default function Page(){
         const user_id = searchParams.get('user_id');
         if(user_id){
             getUserData(parseInt(user_id));
+            getUndonePaymentsFilteredData(parseInt(user_id));
         }
-    }, [searchParams, getUserData]);
+    }, [searchParams, getUserData, getUndonePaymentsFilteredData]);
         
     return <NavigationBar sidebarIndex={2}>
         <div className="mt-8 grid grid-cols-5 gap-8">
@@ -164,8 +230,8 @@ export default function Page(){
                         <div className="relative">
                             <DotsThreeVertical size={24} className="cursor-pointer" onClick={() => component.setShowContextMenu(!component.showContextMenu)}/>
                             {component.showContextMenu ? <div className="w-36 bg-white shadow-md shadow-gray-300 absolute -top-0 right-0 mt-8 flex flex-col">
-                                <button className="w-full p-2 hover:bg-gray-100">Edit Warga</button>
-                                <button className="w-full p-2 hover:bg-gray-100 text-red-500">Hapus Warga</button>
+                                <button className="w-full p-2 hover:bg-gray-100" onClick={() => {component.setShowEditUserPopup(true); component.setShowContextMenu(false)}}>Edit Warga</button>
+                                <button className="w-full p-2 hover:bg-gray-100 text-red-500" onClick={() => deleteUserHandler(component.userData[0].user_id)}>Hapus Warga</button>
                             </div> : null}
                         </div>
                     </div>
@@ -173,9 +239,9 @@ export default function Page(){
                 <Container>
                     <h1 className="text-lg font-semibold">Riwayat Iuran</h1>
                     <div className="flex gap-2 my-4">
-                        <ChoiceChip label="Semua" active={component.filterStatusIndex === 0} onClick={() => component.setFilterStatusIndex(0)}/>
-                        <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => component.setFilterStatusIndex(1)}/>
-                        <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => component.setFilterStatusIndex(2)}/>
+                        <ChoiceChip label="Semua" active={component.filterStatusIndex === 0} onClick={() => {component.setFilterStatusIndex(0); StatusFilteredDataHandler(component.userData[0].user_id, 'Semua')}}/>
+                        <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => {component.setFilterStatusIndex(1); StatusFilteredDataHandler(component.userData[0].user_id, 'done')}}/>
+                        <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => {component.setFilterStatusIndex(2); StatusFilteredDataHandler(component.userData[0].user_id, 'undone')}}/>
                     </div>
                     <div className="flex flex-col-reverse gap-2 mt-4">
                         {Object.keys(groupData).map((year: string, index: number) => {
@@ -187,6 +253,7 @@ export default function Page(){
                             </div>
                         })}
                     </div>
+                    <PaginationWidget currentPage={1} totalPage={256}/>
                 </Container>
             </div>
             <div className="col-span-2 flex flex-col gap-8">
@@ -219,5 +286,6 @@ export default function Page(){
                 </Container>
             </div>
         </div>
+        {component.showEditUserPopup ? <EditUserPopup popupHandler={component.setShowEditUserPopup} data={{user_id: component.userData[0].user_id, name: component.userData[0].name, phone: component.userData[0].phone, address: component.userData[0].address, rt: component.userData[0].rt}} refresh={refresh}/> : null}
     </NavigationBar>
 }

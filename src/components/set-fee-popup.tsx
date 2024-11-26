@@ -19,7 +19,7 @@ export default function SetFeePopup(props: {refresh?: () => void; popupHandler: 
             })
     }, []);
 
-    const setNewFeeHandler = (e: React.FormEvent<HTMLFormElement>) => setNewFee(e.currentTarget.amount.value);
+    const setNewFeeHandler = (e: React.FormEvent<HTMLFormElement>) => {e.preventDefault(); setNewFee(e.currentTarget.amount.value)};
 
     return <div className="w-screen h-screen bg-black bg-opacity-50 fixed top-0 z-50 flex justify-center items-center">
         <div className="w-4/5 md:w-80 p-4 bg-white rounded-lg">
