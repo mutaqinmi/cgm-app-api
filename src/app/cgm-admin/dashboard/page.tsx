@@ -21,6 +21,7 @@ import AddUserPopup from '@/components/add-user-popup';
 import NavigationBar from '@/components/navigation-bar';
 import LoadingAnimation from '@/components/loading-animation';
 import { useRouter } from 'next/navigation';
+import PaymentPopup from '@/components/payment-popup';
 
 interface ComponentState {
     currentMonthData: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[],
@@ -36,7 +37,9 @@ interface ComponentState {
     paymentHistoryCount: number,
     chartData: { month: string, done: number, undone: number }[]
     showSetFeePopup: boolean,
-    showAddUserPopup: boolean
+    showAddUserPopup: boolean,
+    showPaymentPopup: boolean,
+    selectedPaymentID: number,
     setCurrentMonthData: (data: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[]) => void,
     setUsersList: (data: schema.usersType[]) => void,
     setUserListPagination: (data: number) => void,
@@ -50,7 +53,9 @@ interface ComponentState {
     setPaymentHistoryCount: (data: number) => void,
     setChartData: (data: { month: string, done: number, undone: number }[]) => void,
     setShowSetFeePopup: (data: boolean) => void,
-    setShowAddUserPopup: (data: boolean) => void
+    setShowAddUserPopup: (data: boolean) => void,
+    setShowPaymentPopup: (data: boolean) => void,
+    setSelectedPaymentID: (data: number) => void
 }
 
 const useComponent = create<ComponentState>((set) => {
@@ -69,6 +74,8 @@ const useComponent = create<ComponentState>((set) => {
         chartData: [],
         showSetFeePopup: false,
         showAddUserPopup: false,
+        showPaymentPopup: false,
+        selectedPaymentID: 0,
         setCurrentMonthData: (data) => set(() => ({ currentMonthData: data })),
         setUsersList: (data) => set(() => ({ usersList: data })),
         setUserListPagination: (data) => set(() => ({ userListPagination: data })),
@@ -82,7 +89,9 @@ const useComponent = create<ComponentState>((set) => {
         setPaymentHistoryCount: (data) => set(() => ({ paymentHistoryCount: data })),
         setChartData: (data) => set(() => ({ chartData: data })),
         setShowSetFeePopup: (data) => set(() => ({ showSetFeePopup: data })),
-        setShowAddUserPopup: (data) => set(() => ({ showAddUserPopup: data }))
+        setShowAddUserPopup: (data) => set(() => ({ showAddUserPopup: data })),
+        setShowPaymentPopup: (data) => set(() => ({ showPaymentPopup: data })),
+        setSelectedPaymentID: (data) => set(() => ({ selectedPaymentID: data }))
     }
 })
 
@@ -318,7 +327,7 @@ export default function Page() {
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
                         {component.paymentHistoryList.map((history: {payments: schema.paymentsType, users: schema.usersType}) => {
-                            return <UserActivityList key={history.payments.payment_id} month={history.payments.last_update!} name={history.users.name!} phone={history.users.phone!} status={history.payments.payment_description!}/>
+                            return <UserActivityList key={history.payments.payment_id} month={history.payments.last_update!} name={history.users.name!} phone={history.users.phone!} status={history.payments.payment_description!} onClick={() => {component.setSelectedPaymentID(history.payments.payment_id); component.setShowPaymentPopup(true)}}/>
                         })}
                     </div>
                     <PaginationWidget currentPage={component.paymentHistoryPagination} totalPage={Math.ceil(component.paymentHistoryCount / 5)} onClickNext={() => {if(component.paymentHistoryPagination >= Math.ceil(component.paymentHistoryCount / 5)) return; component.setPaymentHistoryPagination(component.paymentHistoryPagination + 1); paymentHistoryPaginationHandler(component.paymentHistoryPagination + 1)}} onClickPrev={() => {if(component.paymentHistoryPagination <= 1) return; component.setPaymentHistoryPagination(component.paymentHistoryPagination - 1); paymentHistoryPaginationHandler(component.paymentHistoryPagination - 1)}}/>
@@ -327,5 +336,6 @@ export default function Page() {
         </div>
         {component.showSetFeePopup ? <SetFeePopup popupHandler={component.setShowSetFeePopup} refresh={refresh}/> : null}
         {component.showAddUserPopup ? <AddUserPopup popupHandler={component.setShowAddUserPopup} refresh={refresh}/> : null}
+        {component.showPaymentPopup ? <PaymentPopup popupHandler={component.setShowPaymentPopup} payment_id={component.selectedPaymentID} refresh={refresh}/> : null}
     </NavigationBar>
 }

@@ -20,6 +20,7 @@ import UserActivityList from '@/components/user-activity-list';
 import NavigationBar from '@/components/navigation-bar';
 import LoadingAnimation from '@/components/loading-animation';
 import { useRouter, useSearchParams } from 'next/navigation';
+import PaymentPopup from '@/components/payment-popup';
 
 interface ComponentState {
     selectedContext: string;
@@ -36,6 +37,8 @@ interface ComponentState {
     paymentHistoryList: {payments: schema.paymentsType, users: schema.usersType}[];
     paymentHistoryPagination: number;
     paymentHistoryCount: number;
+    showPaymentPopup: boolean,
+    selectedPaymentID: number,
     setSelectedContext: (selectedContext: string) => void;
     setShowContextMenu: (showContextMenu: boolean) => void;
     setFilterStatusIndex: (filterStatusIndex: number) => void;
@@ -50,6 +53,8 @@ interface ComponentState {
     setPaymentHistoryList: (paymentHistoryList: {payments: schema.paymentsType, users: schema.usersType}[]) => void;
     setPaymentHistoryPagination: (paymentHistoryPagination: number) => void;
     setPaymentHistoryCount: (paymentHistoryCount: number) => void;
+    setShowPaymentPopup: (data: boolean) => void,
+    setSelectedPaymentID: (data: number) => void
 }
 
 const useComponent = create<ComponentState>((set) => {
@@ -68,6 +73,8 @@ const useComponent = create<ComponentState>((set) => {
         paymentHistoryList: [],
         paymentHistoryPagination: 1,
         paymentHistoryCount: 0,
+        showPaymentPopup: false,
+        selectedPaymentID: 0,
         setSelectedContext: (selectedContext: string) => set({selectedContext}),
         setShowContextMenu: (showContextMenu: boolean) => set({showContextMenu}),
         setFilterStatusIndex: (filterStatusIndex: number) => set({filterStatusIndex}),
@@ -82,6 +89,8 @@ const useComponent = create<ComponentState>((set) => {
         setPaymentHistoryList: (paymentHistoryList: {payments: schema.paymentsType, users: schema.usersType}[]) => set({paymentHistoryList}),
         setPaymentHistoryPagination: (paymentHistoryPagination: number) => set({paymentHistoryPagination}),
         setPaymentHistoryCount: (paymentHistoryCount: number) => set({paymentHistoryCount}),
+        setShowPaymentPopup: (data) => set(() => ({ showPaymentPopup: data })),
+        setSelectedPaymentID: (data) => set(() => ({ selectedPaymentID: data }))
     }
 })
 
@@ -360,7 +369,7 @@ export default function Page() {
                                 <TableHead title={['Nama', 'Alamat', 'Status']}/>
                                 <tbody>
                                     {component.usersList.map((data) => {
-                                        return <UserListFeeItem key={data.users.user_id} name={data.users.name!} address={data.users.address!} status={data.payments.payment_description!}/>
+                                        return <UserListFeeItem key={data.users.user_id} name={data.users.name!} address={data.users.address!} status={data.payments.payment_description!} onClick={() => {component.setSelectedPaymentID(data.payments.payment_id); component.setShowPaymentPopup(true)}}/>
                                     })}
                                 </tbody>
                             </table>
@@ -387,7 +396,7 @@ export default function Page() {
                         </div>
                         <div className="mt-8 flex flex-col gap-4">
                             {component.paymentHistoryList.map((history: {payments: schema.paymentsType, users: schema.usersType}) => {
-                                return <UserActivityList key={history.payments.payment_id} month={history.payments.last_update!} name={history.users.name!} phone={history.users.phone!} status={history.payments.payment_description!}/>
+                                return <UserActivityList key={history.payments.payment_id} month={history.payments.last_update!} name={history.users.name!} phone={history.users.phone!} status={history.payments.payment_description!} onClick={() => {component.setSelectedPaymentID(history.payments.payment_id); component.setShowPaymentPopup(true)}}/>
                             })}
                         </div>
                         <PaginationWidget currentPage={component.paymentHistoryPagination} totalPage={Math.ceil(component.paymentHistoryCount / 5)} onClickNext={() => {if(component.paymentHistoryPagination >= Math.ceil(component.paymentHistoryCount / 5)) return; component.setPaymentHistoryPagination(component.paymentHistoryPagination + 1); paymentHistoryPaginationHandler(component.paymentHistoryPagination + 1)}} onClickPrev={() => {if(component.paymentHistoryPagination <= 1) return; component.setPaymentHistoryPagination(component.paymentHistoryPagination - 1); paymentHistoryPaginationHandler(component.paymentHistoryPagination - 1)}}/>
@@ -395,6 +404,7 @@ export default function Page() {
                 </div>
             </div>
             {component.showSetFeePopup ? <SetFeePopup popupHandler={component.setShowSetFeePopup} refresh={refresh}/> : null}
+            {component.showPaymentPopup ? <PaymentPopup popupHandler={component.setShowPaymentPopup} payment_id={component.selectedPaymentID} refresh={refresh}/> : null}
         </>}
     </NavigationBar>
 }

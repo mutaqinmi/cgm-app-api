@@ -1,8 +1,8 @@
 import { CaretRight, XCircle } from "@phosphor-icons/react";
 import * as dateConvert from '@/lib/date-converter';
 
-export default function UnpaidTransaction(props: {month: string; status: string}) {
-    return <div className="flex gap-4 justify-between items-center">
+export default function UnpaidTransaction(props: {onClick?: () => void; month: string; status: string}) {
+    return <div className="flex gap-4 justify-between items-center cursor-pointer" onClick={props.onClick}>
         <div className="flex gap-4">
             <div className="p-3 bg-red-200 rounded-lg">
                 <XCircle className="text-red-500" size={24}/>

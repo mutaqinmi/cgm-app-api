@@ -2,8 +2,8 @@ import {User, CaretRight} from "@phosphor-icons/react";
 import StatusChip from "./status-chip";
 import * as dateConvert from "@/lib/date-converter";
 
-export default function UserActivityList(props: {month: Date; name: string; phone: string; status: string;}) {
-    return <div className="flex gap-4 justify-between items-center cursor-pointer">
+export default function UserActivityList(props: {onClick?: () => void; month: Date; name: string; phone: string; status: string;}) {
+    return <div className="flex gap-4 justify-between items-center cursor-pointer" onClick={props.onClick}>
         <div className="flex gap-4 items-center">
             <div className="w-14 h-14 bg-blue-200 rounded-full flex justify-center items-center">
                 <User size={24} className="text-blue-500" />

@@ -4,6 +4,7 @@ import Form from 'next/form';
 import FilledButton from './filled-button';
 import { useCallback } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
+import OutlinedButton from './outlined-button';
 
 export default function SetFeePopup(props: {refresh?: () => void; popupHandler: (show: boolean) => void}){
     const setNewFee = useCallback(async (amount: number) => {
@@ -38,7 +39,10 @@ export default function SetFeePopup(props: {refresh?: () => void; popupHandler: 
                         <input type="text" name="amount" id="amount" inputMode="numeric" className="w-full py-2 pl-11 pr-3 outline-none border border-slate-500 rounded-lg font-semibold" placeholder="Masukkan Jumlah Iuran"/>
                     </div>
                 </div>
-                <FilledButton type="submit" label="Atur Iuran"/>
+                <div className='flex gap-2'>
+                    <OutlinedButton type='button' label='Batal' onClick={() => props.popupHandler(false)}/>
+                    <FilledButton type='submit' label='Atur Iuran'/>
+                </div>
             </Form>
         </div>
     </div>

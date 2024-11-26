@@ -14,22 +14,27 @@ import * as schema from '@/database/schema';
 import numberFormatter from "@/lib/formatter";
 import PaginationWidget from "@/components/pagination";
 import EditUserPopup from "@/components/edit-user-popup";
+import PaymentPopup from "@/components/payment-popup";
 
 interface ComponentState {
     userData: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[],
     paymentsList: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[],
     undonePayments: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[],
-    monthList: string[];
-    showContextMenu: boolean;
-    filterStatusIndex: number;
-    showEditUserPopup: boolean;
-    setUserData: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void;
-    setPaymentsList: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void;
-    setUndonePayments: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void;
-    setMonthList: (value: string[]) => void;
-    setShowContextMenu: (value: boolean) => void;
-    setFilterStatusIndex: (value: number) => void;
-    setShowEditUserPopup: (value: boolean) => void;
+    monthList: string[],
+    showContextMenu: boolean,
+    filterStatusIndex: number,
+    showEditUserPopup: boolean,
+    showPaymentPopup: boolean,
+    selectedPaymentID: number,
+    setUserData: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void,
+    setPaymentsList: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void,
+    setUndonePayments: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => void,
+    setMonthList: (value: string[]) => void,
+    setShowContextMenu: (value: boolean) => void,
+    setFilterStatusIndex: (value: number) => void,
+    setShowEditUserPopup: (value: boolean) => void,
+    setShowPaymentPopup: (data: boolean) => void,
+    setSelectedPaymentID: (data: number) => void
 }
 
 const useComponent = create<ComponentState>((set) => {
@@ -43,6 +48,8 @@ const useComponent = create<ComponentState>((set) => {
         showContextMenu: false,
         filterStatusIndex: 0,
         showEditUserPopup: false,
+        showPaymentPopup: false,
+        selectedPaymentID: 0,
         setUserData: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => set({ userData: value }),
         setPaymentsList: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => set({ paymentsList: value }),
         setUndonePayments: (value: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[]) => set({ undonePayments: value }),
@@ -50,6 +57,8 @@ const useComponent = create<ComponentState>((set) => {
         setShowContextMenu: (value: boolean) => set({ showContextMenu: value }),
         setFilterStatusIndex: (value: number) => set({ filterStatusIndex: value }),
         setShowEditUserPopup: (value: boolean) => set({ showEditUserPopup: value }),
+        setShowPaymentPopup: (data) => set(() => ({ showPaymentPopup: data })),
+        setSelectedPaymentID: (data) => set(() => ({ selectedPaymentID: data }))
     }
 })
 
@@ -248,7 +257,7 @@ export default function Page(){
                             return <div key={index} className="flex flex-col gap-2">
                                 <h1 className="font-semibold text-lg my-2 text-gray-500">{year}</h1>
                                 {groupData[year].map((item: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}, index: number) => {
-                                    return <FeeListItem key={index} month={item.fees.fee_date!}/>
+                                    return <FeeListItem key={index} month={item.fees.fee_date!} onClick={() => {component.setSelectedPaymentID(item.payments.payment_id); component.setShowPaymentPopup(true)}}/>
                                 })}
                             </div>
                         })}
@@ -264,7 +273,7 @@ export default function Page(){
                     </div>
                     {component.undonePayments.length ? <div className="mt-8 flex flex-col gap-4">
                         {component.undonePayments.map((item: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}, index: number) => {
-                            return <UnpaidTransaction key={index} month={item.fees.fee_date!} status="Belum Lunas"/>
+                            return <UnpaidTransaction key={index} month={item.fees.fee_date!} status="Belum Lunas" onClick={() => {component.setSelectedPaymentID(item.payments.payment_id); component.setShowPaymentPopup(true)}}/>
                         })}
                     </div> : null}
                 </Container>
@@ -287,5 +296,6 @@ export default function Page(){
             </div>
         </div>
         {component.showEditUserPopup ? <EditUserPopup popupHandler={component.setShowEditUserPopup} data={{user_id: component.userData[0].user_id, name: component.userData[0].name, phone: component.userData[0].phone, address: component.userData[0].address, rt: component.userData[0].rt}} refresh={refresh}/> : null}
+        {component.showPaymentPopup ? <PaymentPopup popupHandler={component.setShowPaymentPopup} payment_id={component.selectedPaymentID} refresh={refresh}/> : null}
     </NavigationBar>
 }

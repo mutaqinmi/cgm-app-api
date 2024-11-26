@@ -3,6 +3,7 @@ import Form from "next/form";
 import FilledButton from "./filled-button";
 import { useCallback } from "react";
 import axios, { AxiosError, AxiosResponse } from "axios";
+import OutlinedButton from "./outlined-button";
 
 export default function EditUserPopup(props: {refresh?: () => void; popupHandler: (value: boolean) => void; data: {user_id: number, name: string, phone: string, address: string, rt: string}}) {
     const updateUser = useCallback(async (user_id: number, name: string, phone: string, address: string, rt: string) => {
@@ -47,7 +48,10 @@ export default function EditUserPopup(props: {refresh?: () => void; popupHandler
                     <option value="3">RT 003</option>
                     <option value="4">RT 004</option>
                 </select>
-                <FilledButton type="submit" label="Edit Warga" className="col-span-3 mt-4"/>
+                <div className='flex gap-2 col-span-3 mt-4'>
+                    <OutlinedButton type='button' label='Batal' onClick={() => props.popupHandler(false)}/>
+                    <FilledButton type='submit' label='Edit Warga'/>
+                </div>
             </Form>
         </div>
     </div>
