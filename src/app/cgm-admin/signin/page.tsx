@@ -47,8 +47,9 @@ export default function Page(){
             }
         }).then((response: AxiosResponse) => {
             if(response.status === 200){
-                const { user } = response.data?.data as {token: string; user: string};
+                const { user, admin_id } = response.data?.data as { user: string; admin_id: number };
                 localStorage.setItem("user", user);
+                localStorage.setItem("admin_id", admin_id.toString());
                 route.push("/cgm-admin/dashboard");
             }
         }).catch((error: AxiosError) => {
@@ -64,7 +65,7 @@ export default function Page(){
     }
 
     return isLoading ? <LoadingAnimation/> : <div className="h-screen w-screen flex flex-col justify-center items-center">
-        <div className="md:p-4 w-4/5 md:w-80 md:shadow-md md:rounded-md">
+        <div className="md:p-4 w-4/5 md:w-80 md:rounded-md bg-white">
             <div>
                 <h1 className="text-3xl font-semibold">Masuk</h1>
                 <span className="text-sm">Masuk untuk melanjutkan.</span>

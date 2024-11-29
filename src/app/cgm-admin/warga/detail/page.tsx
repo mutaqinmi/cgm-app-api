@@ -238,7 +238,7 @@ export default function Page(){
                         </div>
                         <div className="relative">
                             <DotsThreeVertical size={24} className="cursor-pointer" onClick={() => component.setShowContextMenu(!component.showContextMenu)}/>
-                            {component.showContextMenu ? <div className="w-36 bg-white shadow-md shadow-gray-300 absolute -top-0 right-0 mt-8 flex flex-col">
+                            {component.showContextMenu ? <div className="w-36 bg-white absolute -top-0 right-0 mt-8 flex flex-col">
                                 <button className="w-full p-2 hover:bg-gray-100" onClick={() => {component.setShowEditUserPopup(true); component.setShowContextMenu(false)}}>Edit Warga</button>
                                 <button className="w-full p-2 hover:bg-gray-100 text-red-500" onClick={() => deleteUserHandler(component.userData[0].user_id)}>Hapus Warga</button>
                             </div> : null}

@@ -93,7 +93,7 @@ export default function Page() {
     }, [getAllUsers]);
 
     return isLoading ? <LoadingAnimation/> : <NavigationBar sidebarIndex={2}>
-        <div className="mt-4 w-full">
+        <div className="mt-8 w-full">
             <Container>
                 <div className="flex-col gap-4 md:gap-0 md:flex-row flex justify-between items-start md:items-center">
                     <h1 className="text-lg font-semibold">Daftar Warga</h1>

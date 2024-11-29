@@ -18,7 +18,7 @@ export default function TopBar(props: {navbarState: number; sidebarController: (
         <div className="flex flex-row-reverse justify-center items-center gap-4">
             <Bell size={32} onClick={() => setShowNotification(!showNotification)}/>
         </div>
-        {showNotification ? <div className="bg-white w-80 md:w-96 p-4 rounded-lg shadow-md shadow-gray-300 absolute right-8 -top-0 mt-20 flex flex-col gap-4">
+        {showNotification ? <div className="bg-white w-80 md:w-96 p-4 rounded-lg absolute right-8 -top-0 mt-20 flex flex-col gap-4">
             <NotificationItem date="Senin, 11 November 2024 06.34" description="Aktivitas login terdeteksi, Anda login pada perangkat A-113B. Jika bukan anda, segera amankan akun anda!"/>
             <NotificationItem date="Senin, 11 November 2024 06.34" description="Aktivitas login terdeteksi, Anda login pada perangkat A-113B. Jika bukan anda, segera amankan akun anda!"/>
             <NotificationItem date="Senin, 11 November 2024 06.34" description="Aktivitas login terdeteksi, Anda login pada perangkat A-113B. Jika bukan anda, segera amankan akun anda!"/>

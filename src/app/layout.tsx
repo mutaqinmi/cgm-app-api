@@ -15,7 +15,7 @@ export const metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html className={inter.className}>
-      <body>
+      <body className='bg-gray-100 bg-opacity-50'>
         {children}
       </body>
     </html>

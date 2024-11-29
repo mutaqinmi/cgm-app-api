@@ -54,6 +54,7 @@ export async function POST(req: req){
             message: 'success',
             data: {
                 user: payloads.name,
+                admin_id: payloads.admin_id,
                 token: token,
             }
         }, {

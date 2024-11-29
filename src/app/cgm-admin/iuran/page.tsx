@@ -338,7 +338,7 @@ export default function Page() {
                 </div>
                 <div className="relative">
                     <DropDown label={component.selectedContext} onClick={() => component.setShowContextMenu(!component.showContextMenu)}/>
-                    {component.showContextMenu ? <div className="w-full absolute mt-2 flex flex-col justify-center items-center shadow-md shadow-gray-300">
+                    {component.showContextMenu ? <div className="w-full absolute mt-2 flex flex-col justify-center items-center">
                         <DropDownItem label="Semua RT" onClick={() => {component.setSelectedContext('Semua RT'); component.setShowContextMenu(false); filterRTHandler(component.currentMonthData[0].fees.fee_id, 'Semua RT', component.userListPagination); component.setFilterStatusIndex(0);}}/>
                         <DropDownItem label="RT 001" onClick={() => {component.setSelectedContext('RT 001'); component.setShowContextMenu(false); filterRTHandler(component.currentMonthData[0].fees.fee_id, '1', component.userListPagination); component.setFilterStatusIndex(0);}}/>
                         <DropDownItem label="RT 002" onClick={() => {component.setSelectedContext('RT 002'); component.setShowContextMenu(false); filterRTHandler(component.currentMonthData[0].fees.fee_id, '2', component.userListPagination); component.setFilterStatusIndex(0);}}/>

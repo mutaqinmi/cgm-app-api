@@ -1,6 +1,5 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
-import { count } from 'console';
 import { and, desc, eq, gte, ilike, inArray, lte, or, sql } from 'drizzle-orm';
 
 /**
@@ -8,6 +7,13 @@ import { and, desc, eq, gte, ilike, inArray, lte, or, sql } from 'drizzle-orm';
  */
 export const getAdministrator = async (phone_number: string) => {
     return await db.select().from(table.administrators).where(eq(table.administrators.phone, phone_number));
+}
+
+/**
+ * get administrator data by admin id
+ */
+export const getAdministratorByID = async (admin_id: number) => {
+    return await db.select().from(table.administrators).where(eq(table.administrators.admin_id, admin_id));
 }
 
 /**
@@ -32,6 +38,20 @@ export const getAdminToken = async (token: string) => {
  */
 export const removeAdminToken = async (admin_id: number) => {
     return await db.delete(table.admin_tokens).where(eq(table.admin_tokens.admin_id, admin_id));
+}
+
+/**
+ * update administrator phone
+ */
+export const updateAdministratorPhone = async (admin_id: number, phone: string) => {
+    return await db.update(table.administrators).set({phone}).where(eq(table.administrators.admin_id, admin_id));
+}
+
+/**
+ * update administrator password
+ */
+export const updateAdministratorPassword = async (admin_id: number, password: string) => {
+    return await db.update(table.administrators).set({password}).where(eq(table.administrators.admin_id, admin_id));
 }
 
 /**
