@@ -115,7 +115,7 @@ function Iuran() {
                 console.log(error);
             })
             .finally(() => setIsLoading(false));
-    }, [component])
+    }, [])
 
     const getRTFilteredCurrentMonthFee = useCallback(async (fee_id: number, filter: string, pagination: number) => {
         if(filter === 'Semua RT') return getCurrentMonthFee(fee_id, pagination);
@@ -131,7 +131,7 @@ function Iuran() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component, getCurrentMonthFee])
+    }, [, getCurrentMonthFee])
 
     const getStatusFilteredCurrentMonthFee = useCallback(async (fee_id: number, status: string, pagination: number) => {
         return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}&status=${status}&page=${pagination}`)
@@ -144,7 +144,7 @@ function Iuran() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component])
+    }, [])
 
     const getFilteredCurrentMonthFee = useCallback(async (fee_id: number, filter: string, status: string, pagination: number) => {
         return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}&filter=${filter}&status=${status}&page=${pagination}`)
@@ -157,7 +157,7 @@ function Iuran() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component])
+    }, [])
 
     const currentMonthFeeAPI = useCallback(async () => {        
         const currentMonth = new Date().getMonth() + 1;
@@ -190,7 +190,7 @@ function Iuran() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component])
+    }, [])
 
     const getFeeByMonth = useCallback(async (month: string, year: string) => {        
         if(month === '' || year === '') return getAllFees(component.feeListPagination);
@@ -205,7 +205,7 @@ function Iuran() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component, getAllFees]);
+    }, [, getAllFees]);
 
     const getActivityHistory = useCallback(async (pagination: number) => {        
         return await axios.get(`${process.env.API_URL}/admin/fees/history?page=${pagination}`)
@@ -219,7 +219,7 @@ function Iuran() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component])
+    }, [])
 
     const searchUser = useCallback(async (fee_id: number, keyword: string) => {
         return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}&search=${keyword}`)
@@ -232,7 +232,7 @@ function Iuran() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component])
+    }, [])
 
     const searchUserWIthRT = useCallback(async (fee_id: number, filter: string, keyword: string) => {
         return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}&filter=${filter}&search=${keyword}`)
@@ -245,7 +245,7 @@ function Iuran() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component])
+    }, [])
 
     const totalDoneAmount = component.currentMonthData.reduce((accumulator, currentValue) => {
         if (currentValue.payments.payment_description === "done") {

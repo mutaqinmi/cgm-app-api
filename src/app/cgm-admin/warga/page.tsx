@@ -64,7 +64,7 @@ export default function Page() {
                 console.log(error);
             })
             .finally(() => setIsLoading(false));
-    }, [component])
+    }, [])
 
     const searchUser = useCallback(async (keyword: string) => {        
         if(keyword === '') return getAllUsers(component.userListPagination);
@@ -79,7 +79,7 @@ export default function Page() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component, getAllUsers])
+    }, [getAllUsers])
 
     const userListPaginationHandler = (pagination: number) => getAllUsers(pagination);
     const searchUserHandler = (keyword: string) => searchUser(keyword);

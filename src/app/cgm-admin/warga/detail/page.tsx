@@ -85,7 +85,7 @@ function DetailWarga(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component]);
+    }, []);
 
     const getUndonePaymentsFilteredData = useCallback(async (user_id: number) => {
         return await axios.get(`${process.env.API_URL}/admin/users?user_id=${user_id}&filtered=true`)
@@ -98,7 +98,7 @@ function DetailWarga(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component]);
+    }, []);
 
     const getStatusFilteredData = useCallback(async (user_id: number, status: string) => {
         return await axios.get(`${process.env.API_URL}/admin/users?user_id=${user_id}&status=${status}`)
@@ -111,7 +111,7 @@ function DetailWarga(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component]);
+    }, []);
 
     const setMultipleFees = useCallback(async (user_id: number, monthList: string[]) => {
         return await axios.post(`${process.env.API_URL}/admin/fees?multiple=true`, {
@@ -127,7 +127,7 @@ function DetailWarga(){
         .catch((error: AxiosError) => {
             console.log(error);
         })
-    }, [component]);
+    }, []);
 
     const deleteUser = useCallback(async (user_id: number) => {
         return await axios.delete(`${process.env.API_URL}/admin/users?user_id=${user_id}`)
@@ -139,7 +139,7 @@ function DetailWarga(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [component]);
+    }, []);
 
     const add_month = () => {
         let month = currentDate.current.month + month_inc.current;
