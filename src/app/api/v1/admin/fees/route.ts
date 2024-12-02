@@ -9,9 +9,6 @@ interface RequestBody {
 }
 
 export async function GET(req: req){
-    // get current month and year
-    const current_date = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
-
     // get query from request
     const month = req.nextUrl.searchParams.get('month');
     const year = req.nextUrl.searchParams.get('year');

@@ -3,8 +3,8 @@
  */
 
 export function toString(datetime: string): string {
-    let date = datetime.split('-')[1];
-    let year = datetime.split('-')[0];
+    const date = datetime.split('-')[1];
+    const year = datetime.split('-')[0];
     let dateString = "";
 
     if(date === "01") {
@@ -37,8 +37,8 @@ export function toString(datetime: string): string {
 }
 
 export function toDate(datetime: string): string {
-    let date = datetime.split('-')[1];
-    let year = datetime.split('-')[0];
+    const date = datetime.split('-')[1];
+    const year = datetime.split('-')[0];
     let dateString = "";
 
     if(date === "Januari") {

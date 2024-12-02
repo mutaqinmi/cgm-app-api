@@ -7,7 +7,7 @@ import SearchField from "@/components/search-field";
 import TableHead from "@/components/table-head";
 import UserListItem from "@/components/user-list-item";
 import VerticalDivider from "@/components/vertical-divider";
-import { Funnel, Plus } from "@phosphor-icons/react";
+import { Plus } from "@phosphor-icons/react";
 import { create } from "zustand";
 import * as schema from '@/database/schema';
 import { useCallback, useEffect, useState } from "react";
@@ -64,7 +64,7 @@ export default function Page() {
                 console.log(error);
             })
             .finally(() => setIsLoading(false));
-    }, [])
+    }, [component])
 
     const searchUser = useCallback(async (keyword: string) => {        
         if(keyword === '') return getAllUsers(component.userListPagination);
@@ -79,7 +79,7 @@ export default function Page() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [component, getAllUsers])
 
     const userListPaginationHandler = (pagination: number) => getAllUsers(pagination);
     const searchUserHandler = (keyword: string) => searchUser(keyword);
@@ -90,7 +90,7 @@ export default function Page() {
 
     useEffect(() => {
         getAllUsers(component.userListPagination);
-    }, [getAllUsers]);
+    }, [getAllUsers, component.userListPagination]);
 
     return isLoading ? <LoadingAnimation/> : <NavigationBar sidebarIndex={2}>
         <div className="mt-8 w-full">

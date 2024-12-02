@@ -6,7 +6,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { create } from 'zustand';
 import * as dateConvert from '@/lib/date-converter';
-import { HandCoins, Plus, Users, X } from '@phosphor-icons/react';
+import { HandCoins, Plus, Users } from '@phosphor-icons/react';
 import SearchField from '@/components/search-field';
 import VerticalDivider from '@/components/vertical-divider';
 import IconButton from '@/components/icon-button';
@@ -114,7 +114,7 @@ export default function Page() {
                 console.log(error);
             })
             .finally(() => setIsLoading(false))
-    }, [])
+    }, [component]);
 
     const currentMonthFeeAPI = useCallback(async () => {        
         const currentMonth = new Date().getMonth() + 1;
@@ -133,7 +133,7 @@ export default function Page() {
                 console.log(error);
             })
             .finally(() => setIsLoading(false))
-    }, []);
+    }, [getCurrentMonthFee]);
 
     const getAllUsers = useCallback(async (pagination: number) => {        
         return await axios.get(`${process.env.API_URL}/admin/users?page=${pagination}`)
@@ -147,7 +147,7 @@ export default function Page() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [component])
 
     const searchUser = useCallback(async (keyword: string) => {        
         if(keyword === '') return getAllUsers(component.userListPagination);
@@ -162,7 +162,7 @@ export default function Page() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [component])
 
     const getAllFees = useCallback(async (pagination: number) => {        
         return await axios.get(`${process.env.API_URL}/admin/fees?page=${pagination}`)
@@ -176,7 +176,7 @@ export default function Page() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [component])
 
     const getFeeByMonth = useCallback(async (month: string, year: string) => {        
         if(month === '' || year === '') return getAllFees(component.feeListPagination);
@@ -191,7 +191,7 @@ export default function Page() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, []);
+    }, [component]);
 
     const getActivityHistory = useCallback(async (pagination: number) => {        
         return await axios.get(`${process.env.API_URL}/admin/fees/history?page=${pagination}`)
@@ -205,7 +205,7 @@ export default function Page() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [component])
 
     const getChartData = useCallback(async () => {
         return await axios.get(`${process.env.API_URL}/admin/fees?chart_data=true`)
@@ -218,7 +218,7 @@ export default function Page() {
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [component])
 
     const totalDoneAmount = component.currentMonthData.reduce((accumulator, currentValue) => {
         if (currentValue.payments.payment_description === "done") {
@@ -261,7 +261,7 @@ export default function Page() {
         getAllFees(component.feeListPagination);
         getActivityHistory(component.paymentHistoryPagination);
         getChartData();
-    }, [setIsLoading, currentMonthFeeAPI, getAllUsers, getAllFees, getActivityHistory, getChartData]);
+    }, [setIsLoading, currentMonthFeeAPI, getAllUsers, getAllFees, getActivityHistory, getChartData, component.feeListPagination, component.paymentHistoryPagination, component.userListPagination]);
 
     return isLoading ? <LoadingAnimation/> : <NavigationBar sidebarIndex={0}>
         <div className="mt-8">

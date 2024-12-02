@@ -17,7 +17,7 @@ export default function EditUserPopup(props: {refresh?: () => void; popupHandler
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [props]);
 
     const updateUserHandler = (e: React.FormEvent<HTMLFormElement>) => {e.preventDefault(); updateUser(e.currentTarget.userID.value, e.currentTarget.username.value, e.currentTarget.phone.value, e.currentTarget.address.value, e.currentTarget.rt.value)};
 

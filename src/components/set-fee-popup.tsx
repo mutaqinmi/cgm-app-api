@@ -18,7 +18,7 @@ export default function SetFeePopup(props: {refresh?: () => void; popupHandler: 
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, []);
+    }, [props]);
 
     const setNewFeeHandler = (e: React.FormEvent<HTMLFormElement>) => {e.preventDefault(); setNewFee(e.currentTarget.amount.value)};
 

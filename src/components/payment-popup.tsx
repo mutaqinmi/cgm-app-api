@@ -8,7 +8,6 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import * as schema from '@/database/schema';
 import { create } from "zustand";
 import * as dateConvert from '@/lib/date-converter';
-import HorizontalDivider from "./horizontal-divider";
 
 interface ComponentState {
     paymentData: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[],
@@ -36,7 +35,7 @@ export default function PaymentPopup(props: {refresh?: () => void; popupHandler:
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [component])
 
     const updatePaymentInfo = useCallback(async (payment_id: number, payment_status: boolean, payment_description: string) => {
         return await axios.patch(`${process.env.API_URL}/admin/fees/warga?payment_id=${payment_id}`, {
@@ -52,7 +51,7 @@ export default function PaymentPopup(props: {refresh?: () => void; popupHandler:
         .catch((error: AxiosError) => {
             console.log(error);
         })
-    }, [])
+    }, [props])
 
     const updatePaymentInfoHandler = (payment_id: number, payment_status: boolean, payment_description: string) => updatePaymentInfo(payment_id, payment_status, payment_description);
 

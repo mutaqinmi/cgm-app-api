@@ -57,7 +57,7 @@ export default function Page(){
             const {message} = error.response?.data as {message: string};
             setError(message);
         }).finally(() => setIsLoading(false));
-    }, [])
+    }, [route])
 
     const signin = (event: FormEvent<HTMLFormElement>) : void => {
         event.preventDefault();

@@ -1,4 +1,4 @@
-import { ChartBar, Gear, HandCoins, SignOut, User, Users, X } from "@phosphor-icons/react";
+import { ChartBar, Gear, HandCoins, SignOut, Users, X } from "@phosphor-icons/react";
 import Logo from "./logo";
 import SideBarMenu from "./sidebar-menu";
 import HorizontalDivider from "./horizontal-divider";

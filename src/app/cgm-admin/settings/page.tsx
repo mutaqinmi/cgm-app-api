@@ -43,6 +43,13 @@ const useComponent = create<ComponentState>((set) => {
 export default function Tentang(){
     const component = useComponent();
 
+    const refresh = () => {
+        if(typeof window !== 'undefined'){
+            const admin_id = localStorage.getItem("admin_id");
+            getAdminData(parseInt(admin_id!));
+        }
+    }
+
     const getAdminData = useCallback(async (admin_id: number) => {
         return await axios.get(`${process.env.API_URL}/admin?admin_id=${admin_id}`)
             .then((res: AxiosResponse) => {
@@ -54,7 +61,7 @@ export default function Tentang(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, []);
+    }, [component]);
 
     const updateAdminPhone = useCallback(async (admin_id: number, phone: string) => {
         return await axios.patch(`${process.env.API_URL}/admin?edit=phone`, { admin_id, phone })
@@ -67,7 +74,7 @@ export default function Tentang(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, []);
+    }, [component, refresh]);
 
     const updateAdminPassword = useCallback(async (admin_id: number, old_password: string, new_password: string) => {
         return await axios.patch(`${process.env.API_URL}/admin?edit=password`, { admin_id, old_password, new_password })
@@ -81,7 +88,7 @@ export default function Tentang(){
                 const { message } = error.response?.data as { message: string };
                 alert(message);
             })
-    }, []);
+    }, [component, refresh]);
 
     const updatePhoneHandler = (e: React.FormEvent<HTMLFormElement>) => {e.preventDefault(); updateAdminPhone(e.currentTarget.admin_id.value, e.currentTarget.phone.value);}
     const updatePasswordHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -93,13 +100,6 @@ export default function Tentang(){
         }
 
         updateAdminPassword(e.currentTarget.admin_id.value, e.currentTarget.old_password.value, e.currentTarget.new_password.value);
-    }
-
-    const refresh = () => {
-        if(typeof window !== 'undefined'){
-            const admin_id = localStorage.getItem("admin_id");
-            getAdminData(parseInt(admin_id!));
-        }
     }
 
     useEffect(() => {

@@ -17,7 +17,7 @@ export default function AddUserPopup(props: {refresh?: () => void; popupHandler:
             .catch((error: AxiosError) => {
                 console.log(error);
             })
-    }, [])
+    }, [props]);
 
     const createNewUserHandler = (e: React.FormEvent<HTMLFormElement>) => {e.preventDefault(); createNewUser(e.currentTarget.username.value, e.currentTarget.phone.value, e.currentTarget.address.value, e.currentTarget.rt.value)};
 

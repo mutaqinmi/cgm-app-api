@@ -1,4 +1,4 @@
-import { NextResponse, NextRequest as req, NextResponse as res } from "next/server";
+import { NextRequest as req, NextResponse as res } from "next/server";
 import * as query from '@/database/query';
 
 export async function GET(req: req){
