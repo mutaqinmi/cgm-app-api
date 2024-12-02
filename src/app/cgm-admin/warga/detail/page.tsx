@@ -15,6 +15,7 @@ import numberFormatter from "@/lib/formatter";
 import PaginationWidget from "@/components/pagination";
 import EditUserPopup from "@/components/edit-user-popup";
 import PaymentPopup from "@/components/payment-popup";
+import LoadingAnimation from "@/components/loading-animation";
 
 interface ComponentState {
     userData: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}[],
@@ -62,7 +63,7 @@ const useComponent = create<ComponentState>((set) => {
     }
 })
 
-export default function Page(){
+function DetailWarga(){
     const component = useComponent();
     const searchParams = useSearchParams();
     const route = useRouter();
@@ -215,89 +216,93 @@ export default function Page(){
         }
     }, [searchParams, getUserData, getUndonePaymentsFilteredData]);
         
-    return <Suspense>
-        <NavigationBar sidebarIndex={2}>
-            <div className="mt-8 grid grid-cols-5 gap-8">
-                <div className="col-span-3 flex flex-col gap-8">
-                    <Container>
-                        <div className="flex gap-4 justify-between">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-20 h-20 bg-blue-200 rounded-full flex justify-center items-center">
-                                    <User size={32} className="text-blue-500" />
+    return <NavigationBar sidebarIndex={2}>
+        <div className="mt-8 grid grid-cols-5 gap-8">
+            <div className="col-span-3 flex flex-col gap-8">
+                <Container>
+                    <div className="flex gap-4 justify-between">
+                        <div className="flex gap-4 items-center">
+                            <div className="w-20 h-20 bg-blue-200 rounded-full flex justify-center items-center">
+                                <User size={32} className="text-blue-500" />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-2xl font-semibold">{component.userData[0]?.name}</span>
+                                <div className="flex gap-2 text-xs mt-1 items-center">
+                                    <Phone size={12}/> 
+                                    <span className="">{component.userData[0]?.phone}</span>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-2xl font-semibold">{component.userData[0]?.name}</span>
-                                    <div className="flex gap-2 text-xs mt-1 items-center">
-                                        <Phone size={12}/> 
-                                        <span className="">{component.userData[0]?.phone}</span>
-                                    </div>
-                                    <div className="flex gap-2 text-xs mt-1 items-center">
-                                        <MapPin size={12}/> 
-                                        <span>{component.userData[0]?.address}</span>
-                                    </div>
+                                <div className="flex gap-2 text-xs mt-1 items-center">
+                                    <MapPin size={12}/> 
+                                    <span>{component.userData[0]?.address}</span>
                                 </div>
                             </div>
-                            <div className="relative">
-                                <DotsThreeVertical size={24} className="cursor-pointer" onClick={() => component.setShowContextMenu(!component.showContextMenu)}/>
-                                {component.showContextMenu ? <div className="w-36 bg-white absolute -top-0 right-0 mt-8 flex flex-col">
-                                    <button className="w-full p-2 hover:bg-gray-100" onClick={() => {component.setShowEditUserPopup(true); component.setShowContextMenu(false)}}>Edit Warga</button>
-                                    <button className="w-full p-2 hover:bg-gray-100 text-red-500" onClick={() => deleteUserHandler(component.userData[0].user_id)}>Hapus Warga</button>
-                                </div> : null}
+                        </div>
+                        <div className="relative">
+                            <DotsThreeVertical size={24} className="cursor-pointer" onClick={() => component.setShowContextMenu(!component.showContextMenu)}/>
+                            {component.showContextMenu ? <div className="w-36 bg-white absolute -top-0 right-0 mt-8 flex flex-col">
+                                <button className="w-full p-2 hover:bg-gray-100" onClick={() => {component.setShowEditUserPopup(true); component.setShowContextMenu(false)}}>Edit Warga</button>
+                                <button className="w-full p-2 hover:bg-gray-100 text-red-500" onClick={() => deleteUserHandler(component.userData[0].user_id)}>Hapus Warga</button>
+                            </div> : null}
+                        </div>
+                    </div>
+                </Container>
+                <Container>
+                    <h1 className="text-lg font-semibold">Riwayat Iuran</h1>
+                    <div className="flex gap-2 my-4">
+                        <ChoiceChip label="Semua" active={component.filterStatusIndex === 0} onClick={() => {component.setFilterStatusIndex(0); StatusFilteredDataHandler(component.userData[0].user_id, 'Semua')}}/>
+                        <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => {component.setFilterStatusIndex(1); StatusFilteredDataHandler(component.userData[0].user_id, 'done')}}/>
+                        <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => {component.setFilterStatusIndex(2); StatusFilteredDataHandler(component.userData[0].user_id, 'undone')}}/>
+                    </div>
+                    <div className="flex flex-col-reverse gap-2 mt-4">
+                        {Object.keys(groupData).map((year: string, index: number) => {
+                            return <div key={index} className="flex flex-col gap-2">
+                                <h1 className="font-semibold text-lg my-2 text-gray-500">{year}</h1>
+                                {groupData[year].map((item: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}, index: number) => {
+                                    return <FeeListItem key={index} month={item.fees.fee_date!} onClick={() => {component.setSelectedPaymentID(item.payments.payment_id); component.setShowPaymentPopup(true)}}/>
+                                })}
                             </div>
-                        </div>
-                    </Container>
-                    <Container>
-                        <h1 className="text-lg font-semibold">Riwayat Iuran</h1>
-                        <div className="flex gap-2 my-4">
-                            <ChoiceChip label="Semua" active={component.filterStatusIndex === 0} onClick={() => {component.setFilterStatusIndex(0); StatusFilteredDataHandler(component.userData[0].user_id, 'Semua')}}/>
-                            <ChoiceChip label="Lunas" active={component.filterStatusIndex === 1} onClick={() => {component.setFilterStatusIndex(1); StatusFilteredDataHandler(component.userData[0].user_id, 'done')}}/>
-                            <ChoiceChip label="Belum Lunas" active={component.filterStatusIndex === 2} onClick={() => {component.setFilterStatusIndex(2); StatusFilteredDataHandler(component.userData[0].user_id, 'undone')}}/>
-                        </div>
-                        <div className="flex flex-col-reverse gap-2 mt-4">
-                            {Object.keys(groupData).map((year: string, index: number) => {
-                                return <div key={index} className="flex flex-col gap-2">
-                                    <h1 className="font-semibold text-lg my-2 text-gray-500">{year}</h1>
-                                    {groupData[year].map((item: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}, index: number) => {
-                                        return <FeeListItem key={index} month={item.fees.fee_date!} onClick={() => {component.setSelectedPaymentID(item.payments.payment_id); component.setShowPaymentPopup(true)}}/>
-                                    })}
-                                </div>
-                            })}
-                        </div>
-                        <PaginationWidget currentPage={1} totalPage={256}/>
-                    </Container>
-                </div>
-                <div className="col-span-2 flex flex-col gap-8">
-                    <Container>
-                        <h1 className="font-semibold text-lg">Iuran Belum Lunas</h1>
-                        <div className="w-full flex justify-center items-center mt-4 gap-1">
-                            {totalUndoneAmount !== 0 ? <span className="font-bold text-3xl">{numberFormatter(totalUndoneAmount.toString())}</span> : <span className="text-sm italic text-gray-500 my-4">Semua iuran sudah lunas.</span>}
-                        </div>
-                        {component.undonePayments.length ? <div className="mt-8 flex flex-col gap-4">
-                            {component.undonePayments.map((item: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}, index: number) => {
-                                return <UnpaidTransaction key={index} month={item.fees.fee_date!} status="Belum Lunas" onClick={() => {component.setSelectedPaymentID(item.payments.payment_id); component.setShowPaymentPopup(true)}}/>
-                            })}
-                        </div> : null}
-                    </Container>
-                    <Container>
-                        <div className="flex justify-between items-center">
-                            <h1 className="font-semibold text-lg">Iuran Jangka Panjang</h1>
-                            {component.monthList.length ? <Trash size={24} className="text-red-500" onClick={resetDate}/> : null}
-                        </div>
-                        <div className="w-full h-fit flex gap-2 flex-wrap mt-4">
-                            {component.monthList.map((item: string, index: number) => {
-                                return <LongFeeChip key={index} item={item}/>
-                            })}
-                            <button className="px-4 py-2 border border-blue-500 text-blue-500 rounded-full flex justify-center items-center gap-2" onClick={add_month}>
-                                <Plus/>
-                                <span>Tambah Bulan</span>
-                            </button>
-                        </div>
-                        {component.monthList.length ? <button className="bg-blue-500 p-3 text-white rounded-lg mt-8 w-full" onClick={() => setMultipleFeesHandler(component.userData[0].user_id, component.monthList)}>Tandai Lunas</button> : null}
-                    </Container>
-                </div>
+                        })}
+                    </div>
+                    <PaginationWidget currentPage={1} totalPage={256}/>
+                </Container>
             </div>
-            {component.showEditUserPopup ? <EditUserPopup popupHandler={component.setShowEditUserPopup} data={{user_id: component.userData[0].user_id, name: component.userData[0].name, phone: component.userData[0].phone, address: component.userData[0].address, rt: component.userData[0].rt}} refresh={refresh}/> : null}
-            {component.showPaymentPopup ? <PaymentPopup popupHandler={component.setShowPaymentPopup} payment_id={component.selectedPaymentID} refresh={refresh}/> : null}
-        </NavigationBar>
+            <div className="col-span-2 flex flex-col gap-8">
+                <Container>
+                    <h1 className="font-semibold text-lg">Iuran Belum Lunas</h1>
+                    <div className="w-full flex justify-center items-center mt-4 gap-1">
+                        {totalUndoneAmount !== 0 ? <span className="font-bold text-3xl">{numberFormatter(totalUndoneAmount.toString())}</span> : <span className="text-sm italic text-gray-500 my-4">Semua iuran sudah lunas.</span>}
+                    </div>
+                    {component.undonePayments.length ? <div className="mt-8 flex flex-col gap-4">
+                        {component.undonePayments.map((item: {fees: schema.feesType, payments: schema.paymentsType, user_id: number, name: string, address: string, phone: string, rt: string}, index: number) => {
+                            return <UnpaidTransaction key={index} month={item.fees.fee_date!} status="Belum Lunas" onClick={() => {component.setSelectedPaymentID(item.payments.payment_id); component.setShowPaymentPopup(true)}}/>
+                        })}
+                    </div> : null}
+                </Container>
+                <Container>
+                    <div className="flex justify-between items-center">
+                        <h1 className="font-semibold text-lg">Iuran Jangka Panjang</h1>
+                        {component.monthList.length ? <Trash size={24} className="text-red-500" onClick={resetDate}/> : null}
+                    </div>
+                    <div className="w-full h-fit flex gap-2 flex-wrap mt-4">
+                        {component.monthList.map((item: string, index: number) => {
+                            return <LongFeeChip key={index} item={item}/>
+                        })}
+                        <button className="px-4 py-2 border border-blue-500 text-blue-500 rounded-full flex justify-center items-center gap-2" onClick={add_month}>
+                            <Plus/>
+                            <span>Tambah Bulan</span>
+                        </button>
+                    </div>
+                    {component.monthList.length ? <button className="bg-blue-500 p-3 text-white rounded-lg mt-8 w-full" onClick={() => setMultipleFeesHandler(component.userData[0].user_id, component.monthList)}>Tandai Lunas</button> : null}
+                </Container>
+            </div>
+        </div>
+        {component.showEditUserPopup ? <EditUserPopup popupHandler={component.setShowEditUserPopup} data={{user_id: component.userData[0].user_id, name: component.userData[0].name, phone: component.userData[0].phone, address: component.userData[0].address, rt: component.userData[0].rt}} refresh={refresh}/> : null}
+        {component.showPaymentPopup ? <PaymentPopup popupHandler={component.setShowPaymentPopup} payment_id={component.selectedPaymentID} refresh={refresh}/> : null}
+    </NavigationBar>
+}
+
+export default function Page(){
+    return <Suspense fallback={<LoadingAnimation/>}>
+        <DetailWarga/>
     </Suspense>
 }
