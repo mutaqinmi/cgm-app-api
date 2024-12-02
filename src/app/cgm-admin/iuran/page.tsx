@@ -327,7 +327,7 @@ export default function Page() {
         getActivityHistory(component.paymentHistoryPagination);
     }, [searchParams, getCurrentMonthFee, currentMonthFeeAPI, getAllFees, getActivityHistory, component.userListPagination, component.feeListPagination, component.paymentHistoryPagination]);
     
-    return isLoading ? <LoadingAnimation/> : <Suspense>
+    return <Suspense fallback={<LoadingAnimation/>}>
         <NavigationBar sidebarIndex={1}>
             {!component.currentMonthData.length ? <div className="w-full h-screen flex flex-col gap-8 justify-center items-center">
                 <span>Iuran bulan {dateConvert.toString(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`)} belum anda atur. <span className="underline cursor-pointer" onClick={() => component.setShowSetFeePopup(true)}>Atur sekarang</span></span>
