@@ -6,11 +6,11 @@ export default function Chart(props: {chartData: {month: string, done: number, u
   const chartConfig = {
     done: {
       label: "Lunas",
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-2))",
     },
     undone: {
       label: "Belum Lunas",
-      color: "hsl(var(--chart-2))",
+      color: "hsl(var(--chart-1))",
     },
   } satisfies ChartConfig
 

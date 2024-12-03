@@ -61,14 +61,13 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
             .finally(() => setIsLoading(false));
     }, [])
 
     const searchUser = useCallback(async (keyword: string) => {        
-        if(keyword === '') return getAllUsers(component.userListPagination);
-
         return await axios.get(`${process.env.API_URL}/admin/users?search=${keyword}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -77,20 +76,21 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
     }, [getAllUsers])
 
     const userListPaginationHandler = (pagination: number) => getAllUsers(pagination);
     const searchUserHandler = (keyword: string) => searchUser(keyword);
 
-    const refresh = () => {
+    const refresh = useCallback(() => {
         getAllUsers(component.userListPagination);
-    }
+    }, [getAllUsers]);
 
     useEffect(() => {
-        getAllUsers(component.userListPagination);
-    }, [getAllUsers, component.userListPagination]);
+        refresh();
+    }, [refresh]);
 
     return isLoading ? <LoadingAnimation/> : <NavigationBar sidebarIndex={2}>
         <div className="mt-8 w-full">

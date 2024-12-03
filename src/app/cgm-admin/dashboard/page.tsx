@@ -19,12 +19,12 @@ import UserActivityList from '@/components/user-activity-list';
 import SetFeePopup from '@/components/set-fee-popup';
 import AddUserPopup from '@/components/add-user-popup';
 import NavigationBar from '@/components/navigation-bar';
-import LoadingAnimation from '@/components/loading-animation';
 import { useRouter } from 'next/navigation';
 import PaymentPopup from '@/components/payment-popup';
+import LoadingAnimation from '@/components/loading-animation';
 
 interface ComponentState {
-    currentMonthData: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[],
+    currentMonthData: {fees: schema.feesType, payments: schema.paymentsType, users: schema.usersType}[] | null,
     usersList: schema.usersType[],
     userListPagination: number,
     userCount: number,
@@ -35,7 +35,7 @@ interface ComponentState {
     paymentHistoryList: {payments: schema.paymentsType, users: schema.usersType}[],
     paymentHistoryPagination: number,
     paymentHistoryCount: number,
-    chartData: { month: string, done: number, undone: number }[]
+    chartData: { month: string, done: number, undone: number }[],
     showSetFeePopup: boolean,
     showAddUserPopup: boolean,
     showPaymentPopup: boolean,
@@ -60,7 +60,7 @@ interface ComponentState {
 
 const useComponent = create<ComponentState>((set) => {
     return {
-        currentMonthData: [],
+        currentMonthData: null,
         usersList: [],
         userListPagination: 1,
         userCount: 0,
@@ -98,11 +98,9 @@ const useComponent = create<ComponentState>((set) => {
 export default function Page() {
     const component = useComponent();
     const route = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const getCurrentMonthFee = useCallback(async (fee_id: number) => {
-        setIsLoading(true);
-
         return await axios.get(`${process.env.API_URL}/admin/fees?fee_id=${fee_id}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -111,31 +109,38 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
-            .finally(() => setIsLoading(false))
     }, []);
 
-    const currentMonthFeeAPI = useCallback(async () => {        
+    const currentMonthFeeAPI = useCallback(async () => {
+        setIsLoading(true);
+
         const currentMonth = new Date().getMonth() + 1;
         const currentYear = new Date().getFullYear();
-
-        setIsLoading(true);
 
         return await axios.get(`${process.env.API_URL}/admin/fees?month=${currentMonth}&year=${currentYear}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
                     const { data } = res.data as { data: schema.feesType[] };
-                    getCurrentMonthFee(data[0].fee_id);
+                    if(data.length > 0){
+                        getCurrentMonthFee(data[0].fee_id);
+                    }
+
+                    component.setCurrentMonthData([]);
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
             .finally(() => setIsLoading(false))
     }, [getCurrentMonthFee]);
 
-    const getAllUsers = useCallback(async (pagination: number) => {        
+    const getAllUsers = useCallback(async (pagination: number) => {     
+        setIsLoading(true);
+        
         return await axios.get(`${process.env.API_URL}/admin/users?page=${pagination}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -145,13 +150,13 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
+            .finally(() => setIsLoading(false))
     }, [])
 
     const searchUser = useCallback(async (keyword: string) => {        
-        if(keyword === '') return getAllUsers(component.userListPagination);
-
         return await axios.get(`${process.env.API_URL}/admin/users?search=${keyword}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -160,11 +165,14 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
     }, [])
 
-    const getAllFees = useCallback(async (pagination: number) => {        
+    const getAllFees = useCallback(async (pagination: number) => {  
+        setIsLoading(true);
+        
         return await axios.get(`${process.env.API_URL}/admin/fees?page=${pagination}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -174,8 +182,10 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
+            .finally(() => setIsLoading(false))
     }, [])
 
     const getFeeByMonth = useCallback(async (month: string, year: string) => {        
@@ -189,11 +199,14 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
     }, []);
 
-    const getActivityHistory = useCallback(async (pagination: number) => {        
+    const getActivityHistory = useCallback(async (pagination: number) => {
+        setIsLoading(true);
+
         return await axios.get(`${process.env.API_URL}/admin/fees/history?page=${pagination}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -203,11 +216,15 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
+            .finally(() => setIsLoading(false))
     }, [])
 
     const getChartData = useCallback(async () => {
+        setIsLoading(true);
+
         return await axios.get(`${process.env.API_URL}/admin/fees?chart_data=true`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -216,30 +233,32 @@ export default function Page() {
                 }
             })
             .catch((error: AxiosError) => {
-                console.log(error);
+                const { message } = error.response?.data as { message: string };
+                console.log(message);
             })
+            .finally(() => setIsLoading(false))
     }, [])
 
-    const totalDoneAmount = component.currentMonthData.reduce((accumulator, currentValue) => {
+    const totalDoneAmount = component.currentMonthData ? component.currentMonthData.reduce((accumulator, currentValue) => {
         if (currentValue.payments.payment_description === "done") {
             return accumulator + 1;
         }
         return accumulator;
-    }, 0);
+    }, 0) : 0;
 
-    const totalPendingAmount = component.currentMonthData.reduce((accumulator, currentValue) => {
+    const totalPendingAmount = component.currentMonthData ? component.currentMonthData.reduce((accumulator, currentValue) => {
         if (currentValue.payments.payment_description === "pending") {
             return accumulator + 1;
         }
         return accumulator;
-    }, 0);
+    }, 0) : 0;
 
-    const totalUndoneAmount = component.currentMonthData.reduce((accumulator, currentValue) => {
+    const totalUndoneAmount = component.currentMonthData ? component.currentMonthData.reduce((accumulator, currentValue) => {
         if (currentValue.payments.payment_description === "undone") {
             return accumulator + 1;
         }
         return accumulator;
-    }, 0);
+    }, 0) : 0;
 
     const userListPaginationHandler = (pagination: number) => getAllUsers(pagination);
     const searchUserHandler = (keyword: string) => searchUser(keyword);
@@ -247,32 +266,28 @@ export default function Page() {
     const dateFilterHandler = (e: React.ChangeEvent<HTMLInputElement>) => getFeeByMonth(e.currentTarget.value.split('-')[1], e.currentTarget.value.split('-')[0]);
     const paymentHistoryPaginationHandler = (pagination: number) => getActivityHistory(pagination);
 
-    const refresh = () => {
+    const refresh = useCallback(() => {
         currentMonthFeeAPI();
         getAllUsers(component.userListPagination);
         getAllFees(component.feeListPagination);
         getActivityHistory(component.paymentHistoryPagination);
         getChartData();
-    }
+    }, [currentMonthFeeAPI, getAllUsers, getAllFees, getActivityHistory, getChartData, component.feeListPagination, component.paymentHistoryPagination, component.userListPagination])
 
-    useEffect(() => {
-        currentMonthFeeAPI();
-        getAllUsers(component.userListPagination);
-        getAllFees(component.feeListPagination);
-        getActivityHistory(component.paymentHistoryPagination);
-        getChartData();
-    }, [setIsLoading, currentMonthFeeAPI, getAllUsers, getAllFees, getActivityHistory, getChartData, component.feeListPagination, component.paymentHistoryPagination, component.userListPagination]);
+    useEffect(() => refresh(), [refresh]);
 
     return isLoading ? <LoadingAnimation/> : <NavigationBar sidebarIndex={0}>
-        <div className="mt-8">
-            <h1 className="font-semibold text-lg">Iuran Bulan Ini</h1>
-        </div>
-        {component.currentMonthData.length ? <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-            <Card color="blue" title="Jumlah Warga" total={component.currentMonthData.length} nominal={component.currentMonthData.length * component.currentMonthData[0].fees.fee_amount!} icon={<Users/>}/>
-            <Card color="green" title="Sudah Lunas" total={totalDoneAmount} nominal={totalDoneAmount * component.currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
-            <Card color="yellow" title="Menunggu Konfirmasi" total={totalPendingAmount} nominal={totalPendingAmount * component.currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
-            <Card color="red" title="Belum Lunas" total={totalUndoneAmount} nominal={totalUndoneAmount * component.currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
-        </div> : <span className="w-full p-4 bg-red-200 text-red-500 border border-red-500 mt-4 rounded-lg block text-center">Iuran bulan {dateConvert.toString(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`)} belum anda atur. <span className="underline cursor-pointer" onClick={() => component.setShowSetFeePopup(true)}>Atur sekarang</span></span>}
+        {component.currentMonthData ? component.currentMonthData.length ? <>
+            <div className="mt-8">
+                <h1 className="font-semibold text-lg">Iuran Bulan Ini</h1>
+            </div>
+            <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+                <Card color="blue" title="Jumlah Warga" total={component.currentMonthData.length} nominal={component.currentMonthData.length * component.currentMonthData[0].fees.fee_amount!} icon={<Users/>}/>
+                <Card color="green" title="Sudah Lunas" total={totalDoneAmount} nominal={totalDoneAmount * component.currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
+                <Card color="yellow" title="Menunggu Konfirmasi" total={totalPendingAmount} nominal={totalPendingAmount * component.currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
+                <Card color="red" title="Belum Lunas" total={totalUndoneAmount} nominal={totalUndoneAmount * component.currentMonthData[0].fees.fee_amount!} icon={<HandCoins/>}/>
+            </div>
+        </> : <span className="w-full p-4 bg-red-200 text-red-500 border border-red-500 mt-4 rounded-lg block text-center">Iuran bulan {dateConvert.toString(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`)} belum anda atur. <span className="underline cursor-pointer" onClick={() => component.setShowSetFeePopup(true)}>Atur sekarang</span></span> : null}
         <div className="mt-8 w-full grid grid-cols-1 md:grid-cols-5 gap-8">
             <div className="col-span-1 md:col-span-3 flex flex-col gap-8">
                 <Container>
@@ -315,11 +330,11 @@ export default function Page() {
                         <input type="month" name="month" id="month" onChange={dateFilterHandler} className="bg-blue-500 text-white [&::-webkit-calendar-picker-indicator]:invert-[1] outline-none p-2 rounded-md [&::-webkit-datetime-edit]:text-sm" defaultValue={`${new Date().getFullYear()}-${new Date().getMonth() + 1}`}/>
                     </div>
                     <div className="mt-8 flex flex-col gap-4">
-                        {component.feeList.map((fee: schema.feesType) => {
+                        {component.feeList.length ? component.feeList.map((fee: schema.feesType) => {
                             return <FeeListItem key={fee.fee_id} month={fee.fee_date!} onClick={() => route.push(`/cgm-admin/iuran?fee_id=${fee.fee_id}`)}/>
-                        })}
+                        }) : <span className='text-sm italic text-gray-500 text-center'>Rekapan iuran tidak ditemukan.</span>}
                     </div>
-                    <PaginationWidget currentPage={component.feeListPagination} totalPage={Math.ceil(component.feesCount / 10)} onClickNext={() => {if(component.feeListPagination >= Math.ceil(component.feesCount / 10)) return; component.setFeeListPagination(component.feeListPagination + 1); feeListPaginationHandler(component.feeListPagination + 1)}} onClickPrev={() => {if(component.feeListPagination <= 1) return; component.setFeeListPagination(component.feeListPagination - 1); feeListPaginationHandler(component.feeListPagination - 1)}}/>
+                    {component.feeList.length ? <PaginationWidget currentPage={component.feeListPagination} totalPage={Math.ceil(component.feesCount / 10)} onClickNext={() => {if(component.feeListPagination >= Math.ceil(component.feesCount / 10)) return; component.setFeeListPagination(component.feeListPagination + 1); feeListPaginationHandler(component.feeListPagination + 1)}} onClickPrev={() => {if(component.feeListPagination <= 1) return; component.setFeeListPagination(component.feeListPagination - 1); feeListPaginationHandler(component.feeListPagination - 1)}}/> : null}
                 </Container>
                 <Container>
                     <div className="flex justify-between items-center">

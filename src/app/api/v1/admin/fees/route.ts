@@ -111,13 +111,14 @@ export async function GET(req: req){
 
         if(fee_id && status && page){
             // get fees data from database
-            const users = await query.getFeesByStatusWithPagination(parseInt(fee_id), status, parseInt(page));
+            // const users = await query.getFeesByStatusWithPagination(parseInt(fee_id), status, parseInt(page));
+            const users = await query.getFeesByStatus(parseInt(fee_id), status);
             const filteredUsers = users.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
             // return response
             return res.json({
                 message: 'success',
-                data: filteredUsers,
+                users: filteredUsers,
             }, {
                 status: 200
             })

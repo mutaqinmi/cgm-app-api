@@ -104,17 +104,31 @@ export const getFeesByRTWithPagination = async (fee_id: number, filter: string, 
 }
 
 /**
- * get fees data by id joined with payments and users filtered by RT with status
+ * get fees data by id joined with payments and users filtered by RT with status limited
  */
 export const getFeesByRTWithStatusWithPagination = async (fee_id: number, filter: string, status: string, pagination: number) => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.users.rt, filter), eq(table.payments.payment_description, status))).limit(20).offset(20 * (pagination - 1));
 }
 
 /**
- * get fees data by id joined with payments and users filtered by status
+ * get fees data by id joined with payments and users filtered by RT with status
+ */
+export const getFeesByRTWithStatus = async (fee_id: number, filter: string, status: string) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.users.rt, filter), eq(table.payments.payment_description, status)));
+}
+
+/**
+ * get fees data by id joined with payments and users filtered by status limited
  */
 export const getFeesByStatusWithPagination = async (fee_id: number, status: string, pagination: number) => {
     return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.payments.payment_description, status))).limit(20).offset(20 * (pagination - 1));
+}
+
+/**
+ * get fees data by id joined with payments and users filtered by status
+ */
+export const getFeesByStatus = async (fee_id: number, status: string) => {
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.fees.fee_id, fee_id), eq(table.payments.payment_description, status)));
 }
 
 /**
@@ -149,6 +163,7 @@ export const getCountFees = async () => {
  * set single fee data (per-month)
  */
 export const setFee = async (date: string, amount: number) => {
+    console.log(date, amount);
     return await db.insert(table.fees).values({
         fee_date: date,
         fee_amount: amount,

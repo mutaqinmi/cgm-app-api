@@ -8,7 +8,7 @@ import UnpaidTransaction from "@/components/unpaid-transaction";
 import { DotsThreeVertical, MapPin, Phone, Plus, Trash, User } from "@phosphor-icons/react";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect, useRef } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { create } from "zustand";
 import * as schema from '@/database/schema';
 import numberFormatter from "@/lib/formatter";
@@ -67,6 +67,7 @@ function DetailWarga(){
     const component = useComponent();
     const searchParams = useSearchParams();
     const route = useRouter();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const month_inc = useRef(1);
     const currentDate = useRef({
         month: new Date().getMonth() + 1,
@@ -74,6 +75,8 @@ function DetailWarga(){
     })
 
     const getUserData = useCallback(async (user_id: number) => {
+        setIsLoading(true);
+
         return await axios.get(`${process.env.API_URL}/admin/users?user_id=${user_id}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -85,9 +88,12 @@ function DetailWarga(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
+            .finally(() => setIsLoading(false));
     }, []);
 
     const getUndonePaymentsFilteredData = useCallback(async (user_id: number) => {
+        setIsLoading(true);
+
         return await axios.get(`${process.env.API_URL}/admin/users?user_id=${user_id}&filtered=true`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -98,9 +104,12 @@ function DetailWarga(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
+            .finally(() => setIsLoading(false));
     }, []);
 
     const getStatusFilteredData = useCallback(async (user_id: number, status: string) => {
+        setIsLoading(true);
+
         return await axios.get(`${process.env.API_URL}/admin/users?user_id=${user_id}&status=${status}`)
             .then((res: AxiosResponse) => {
                 if(res.status === 200){
@@ -111,9 +120,12 @@ function DetailWarga(){
             .catch((error: AxiosError) => {
                 console.log(error);
             })
+            .finally(() => setIsLoading(false));
     }, []);
 
     const setMultipleFees = useCallback(async (user_id: number, monthList: string[]) => {
+        setIsLoading(true);
+
         return await axios.post(`${process.env.API_URL}/admin/fees?multiple=true`, {
             user_id,
             date: monthList
@@ -127,6 +139,7 @@ function DetailWarga(){
         .catch((error: AxiosError) => {
             console.log(error);
         })
+        .finally(() => setIsLoading(false));
     }, []);
 
     const deleteUser = useCallback(async (user_id: number) => {
@@ -200,23 +213,19 @@ function DetailWarga(){
         component.setMonthList([]);
     };
 
-    const refresh = () => {
+    const refresh = useCallback(() => {
         const user_id = searchParams.get('user_id');
         if(user_id){
             getUserData(parseInt(user_id));
             getUndonePaymentsFilteredData(parseInt(user_id));
         }
-    }
+    }, [searchParams, getUserData, getUndonePaymentsFilteredData])
  
     useEffect(() => {
-        const user_id = searchParams.get('user_id');
-        if(user_id){
-            getUserData(parseInt(user_id));
-            getUndonePaymentsFilteredData(parseInt(user_id));
-        }
-    }, [searchParams, getUserData, getUndonePaymentsFilteredData]);
+        refresh();
+    }, [refresh]);
         
-    return <NavigationBar sidebarIndex={2}>
+    return isLoading ? <LoadingAnimation/> : component.userData ? <NavigationBar sidebarIndex={2}>
         <div className="mt-8 grid grid-cols-5 gap-8">
             <div className="col-span-3 flex flex-col gap-8">
                 <Container>
@@ -263,7 +272,6 @@ function DetailWarga(){
                             </div>
                         })}
                     </div>
-                    <PaginationWidget currentPage={1} totalPage={256}/>
                 </Container>
             </div>
             <div className="col-span-2 flex flex-col gap-8">
@@ -298,7 +306,7 @@ function DetailWarga(){
         </div>
         {component.showEditUserPopup ? <EditUserPopup popupHandler={component.setShowEditUserPopup} data={{user_id: component.userData[0].user_id, name: component.userData[0].name, phone: component.userData[0].phone, address: component.userData[0].address, rt: component.userData[0].rt}} refresh={refresh}/> : null}
         {component.showPaymentPopup ? <PaymentPopup popupHandler={component.setShowPaymentPopup} payment_id={component.selectedPaymentID} refresh={refresh}/> : null}
-    </NavigationBar>
+    </NavigationBar> : null;
 }
 
 export default function Page(){

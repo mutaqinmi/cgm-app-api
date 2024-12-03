@@ -65,7 +65,7 @@ export default function Page(){
     }
 
     return isLoading ? <LoadingAnimation/> : <div className="h-screen w-screen flex flex-col justify-center items-center">
-        <div className="md:p-4 w-4/5 md:w-80 md:rounded-md bg-white">
+        <div className="p-4 w-4/5 md:w-80 rounded-md bg-white">
             <div>
                 <h1 className="text-3xl font-semibold">Masuk</h1>
                 <span className="text-sm">Masuk untuk melanjutkan.</span>
