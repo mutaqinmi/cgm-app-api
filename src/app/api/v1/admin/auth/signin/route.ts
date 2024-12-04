@@ -13,7 +13,6 @@ export async function POST(req: req){
 
     // parse request body
     let phone_number: string = body.phone;
-    phone_number = phone_number.startsWith("8") ? phone_number.replace("8", "08") : phone_number;
     const admin_password: string = body.password;
     
     try {
@@ -60,7 +59,7 @@ export async function POST(req: req){
         }, {
             status: 200,
             headers: {
-                "Set-Cookie": `token=${token}; path=/; HttpOnly; SameSite=Strict; expires=${expiration.toUTCString()}`
+                "Set-Cookie": `token=${token}; path=/; HttpOnly; SameSite=None; Secure; expires=${expiration.toUTCString()};`
             }
         })
     } catch (error) {

@@ -288,7 +288,7 @@ export async function POST(req: req){
             return res.json({
                 message: 'success',
             }, {
-                status: 201
+                status: 200
             })
         }
         
@@ -314,7 +314,7 @@ export async function POST(req: req){
             return res.json({
                 message: 'success',
             }, {
-                status: 201
+                status: 200
             })
         }
 
@@ -339,7 +339,7 @@ export async function POST(req: req){
         return res.json({
             message: 'success',
         }, {
-            status: 201
+            status: 200
         })
     } catch (error) {
         // log error

@@ -15,7 +15,7 @@ export async function GET(req: req){
         }, {
             status: 200,
             headers: {
-                "Set-Cookie": `token=; path=/; HttpOnly; SameSite=Strict;`
+                "Set-Cookie": `token=; path=/; HttpOnly; SameSite=None; Secure;`
             }
         })
     } catch (error) {
