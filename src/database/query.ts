@@ -10,6 +10,13 @@ export const getAdministrator = async (phone_number: string) => {
 }
 
 /**
+ * get administrator phone data
+ */
+export const getAdministratorPhone = async () => {
+    return await db.select({phone: table.administrators.phone}).from(table.administrators);
+}
+
+/**
  * get administrator data by admin id
  */
 export const getAdministratorByID = async (admin_id: number) => {
