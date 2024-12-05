@@ -245,6 +245,37 @@ export const getAllUsers = async () => {
 }
 
 /**
+ * get user token
+ */
+export const getUserToken = async (token: string) => {
+    return await db.select().from(table.user_tokens).where(eq(table.user_tokens.token, token));
+}
+
+/**
+ * get user data by phone number
+ */
+export const getUser = async (phone_number: string) => {
+    return await db.select().from(table.users).where(eq(table.users.phone, phone_number));
+}
+
+/**
+ * set user token
+ */
+export const setUserToken = async (user_id: number, token: string) => {
+    return await db.insert(table.user_tokens).values({
+        user_id,
+        token,
+    })
+}
+
+/**
+ * remove user token
+ */
+export const removeUserToken = async (user_id: number) => {
+    return await db.delete(table.user_tokens).where(eq(table.user_tokens.user_id, user_id));
+}
+
+/**
  * get all users count
  */
 export const getAllUsersCount = async () => {
@@ -269,7 +300,21 @@ export const searchUser = async (keyword: string) => {
  * get user data by id joined with payments and fees
  */
 export const getUserData = async (user_id: number) => {
-    return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(eq(table.users.user_id, user_id)).orderBy(desc(table.fees.fee_date));
+    return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(eq(table.users.user_id, user_id));
+}
+
+/**
+ * get user data by id and fee id joined with payments and fees
+ */
+export const getUserDataWithFee = async (user_id: number, fee_id: number) => {
+    return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.users.user_id, user_id), eq(table.fees.fee_id, fee_id)));
+}
+
+/**
+ * get user data by id
+ */
+export const getUserById = async (user_id: number) => {
+    return await db.select().from(table.users).where(eq(table.users.user_id, user_id));
 }
 
 /**
@@ -308,6 +353,20 @@ export const updateUserData = async (user_id: number, name: string, address: str
         phone,
         rt,
     }).where(eq(table.users.user_id, user_id));
+}
+
+/**
+ * update user phone
+ */
+export const updateUserPhone = async (user_id: number, phone: string) => {
+    return await db.update(table.users).set({phone}).where(eq(table.users.user_id, user_id));
+}
+
+/**
+ * update user phone
+ */
+export const updateUserPassword = async (user_id: number, password: string) => {
+    return await db.update(table.users).set({password}).where(eq(table.users.user_id, user_id));
 }
 
 /**

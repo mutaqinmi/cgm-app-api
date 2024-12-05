@@ -4,10 +4,10 @@ import * as query from '@/database/query';
 export async function GET(req: req){
     try {
         // get admin id from headers
-        const admin_id = req.cookies.get('admin_id')?.value;
+        const user_id = req.cookies.get('user_id')?.value;
 
         // remove token in database
-        await query.removeAdminToken(parseInt(admin_id!));
+        await query.removeUserToken(parseInt(user_id!));
 
         // return response
         return res.json({
@@ -15,7 +15,7 @@ export async function GET(req: req){
         }, {
             status: 200,
             headers: {
-                "Set-Cookie": `admin_token=; path=/; HttpOnly; SameSite=None; Secure;`,
+                "Set-Cookie": `user_token=; path=/; HttpOnly; SameSite=None; Secure;`
             }
         })
     } catch (error) {

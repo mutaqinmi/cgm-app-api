@@ -1,4 +1,4 @@
-import { verifyAdminToken } from "@/lib/auth";
+import { verifyWargaToken } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 interface Body {
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest){
 
     try {
         // verify token
-        const verify = await verifyAdminToken(body.token);
+        const verify = await verifyWargaToken(body.token);
     
         // return response
         return NextResponse.json({

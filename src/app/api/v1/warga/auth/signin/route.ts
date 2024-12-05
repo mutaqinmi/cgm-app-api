@@ -13,23 +13,23 @@ export async function POST(req: req){
 
     // parse request body
     let phone_number: string = body.phone;
-    const admin_password: string = body.password;
+    const user_password: string = body.password;
     
     try {
-        // get administrator data from database
-        const administrator = await query.getAdministrator(phone_number);
+        // get user data from database
+        const user = await query.getUser(phone_number);
 
         // check if administrator exists
-        if(administrator.length === 0){
+        if(user.length === 0){
             return res.json({
-                message: "Administrator tidak ditemukan",
+                message: "Warga tidak ditemukan",
             }, {
                 status: 404
             })
         }
 
         // check if password is correct
-        if(administrator[0].password !== admin_password){
+        if(user[0].password !== user_password){
             return res.json({
                 message: "Password salah",
             }, {
@@ -38,11 +38,11 @@ export async function POST(req: req){
         }
 
         // generate token
-        const {password, ...payloads} = administrator[0];
+        const {password, ...payloads} = user[0];
         const token = generateToken(payloads);
 
         // set token in database
-        await query.setAdministratorToken(administrator[0].admin_id, token);
+        await query.setUserToken(user[0].user_id, token);
 
         // set cookie expiration
         const expiration = new Date();
@@ -53,13 +53,13 @@ export async function POST(req: req){
             message: 'success',
             data: {
                 user: payloads.name,
-                admin_id: payloads.admin_id,
+                user_id: payloads.user_id,
                 token: token,
             }
         }, {
             status: 200,
             headers: {
-                "Set-Cookie": `admin_token=${token}; path=/; HttpOnly; SameSite=None; Secure; expires=${expiration.toUTCString()};`
+                "Set-Cookie": `user_token=${token}; path=/; HttpOnly; SameSite=None; Secure; expires=${expiration.toUTCString()};`
             }
         })
     } catch (error) {
