@@ -1,6 +1,13 @@
 import { db } from '@/database/connection';
 import * as table from '@/database/schema';
-import { and, desc, eq, gte, ilike, inArray, lte, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, ilike, inArray, lte, or, sql } from 'drizzle-orm';
+
+/**
+ * get administrator data by phone number
+ */
+export const getAllAdministrator = async () => {
+    return await db.select().from(table.administrators);
+}
 
 /**
  * get administrator data by phone number
@@ -59,6 +66,36 @@ export const updateAdministratorPhone = async (admin_id: number, phone: string) 
  */
 export const updateAdministratorPassword = async (admin_id: number, password: string) => {
     return await db.update(table.administrators).set({password}).where(eq(table.administrators.admin_id, admin_id));
+}
+
+/**
+ * get administrator notifications
+ */
+export const getAdminNotifications = async (admin_id: number) => {
+    return await db.select().from(table.admin_notifications).where(eq(table.admin_notifications.admin_id, admin_id)).limit(5).orderBy(asc(table.admin_notifications.notification_date));
+}
+
+/**
+ * set administrator notifications
+ */
+export const setAdminNotification = async (admin_id: table.administratorsType[], notification_title: string, notification_content: string) => {
+    const data = admin_id.map((admin: table.administratorsType) => {
+        return {
+            admin_id: admin.admin_id,
+            notification_title,
+            notification_content,
+            notification_date: sql`NOW()`,
+        }
+    });
+
+    return await db.insert(table.admin_notifications).values(data);
+}
+
+/**
+ * mark as read administrator notifications
+ */
+export const markAsReadAdminNotification = async (admin_id: number) => {
+    return await db.update(table.admin_notifications).set({is_read: true}).where(eq(table.admin_notifications.admin_id, admin_id));
 }
 
 /**
@@ -433,4 +470,37 @@ export const setMultiplePayment = async (fee_id: number, user_id: number) => {
         payment_status: true,
         payment_description: "done",
     }).where(and(eq(table.payments.fee_id, fee_id), eq(table.payments.user_id, user_id)));
+}
+
+/**
+ * set payment notification for user
+ */
+export const getUserIdByPaymentId = async (payment_id: number) => {
+    return await db.select({user_id: table.payments.user_id}).from(table.payments).where(eq(table.payments.payment_id, payment_id));
+}
+
+/**
+ * set payment notification for user
+ */
+export const setUserPaymentNotification = async (user_id: number, notification_title: string, notification_content: string) => {
+    return await db.insert(table.user_notifications).values({
+        user_id,
+        notification_title,
+        notification_content,
+        notification_date: sql`NOW()`,
+    })
+}
+
+/**
+ * get user notifications
+ */
+export const getUserNotifications = async (user_id: number) => {
+    return await db.select().from(table.user_notifications).where(eq(table.user_notifications.user_id, user_id)).limit(5).orderBy(desc(table.user_notifications.notification_date));
+}
+
+/**
+ * mark as read user notifications
+ */
+export const markAsReadUserNotification = async (user_id: number) => {
+    return await db.update(table.user_notifications).set({is_read: true}).where(eq(table.user_notifications.user_id, user_id));
 }
