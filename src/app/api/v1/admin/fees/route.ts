@@ -48,6 +48,8 @@ export async function GET(req: req){
                             acc[date!].done += 1;
                         } else if (item.payments.payment_description === "undone") {
                             acc[date!].undone += 1;
+                        } else if (item.payments.payment_description === "pending") {
+                            acc[date!].undone += 1;
                         }
                     }
                     return acc;

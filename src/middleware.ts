@@ -64,8 +64,6 @@ export async function middleware(req: NextRequest){
                 })
             }
 
-            console.log(data);
-
             // set cookie expiration
             const expiration = new Date();
             expiration.setDate(expiration.getDate() + 7);

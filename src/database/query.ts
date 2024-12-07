@@ -299,8 +299,15 @@ export const searchUser = async (keyword: string) => {
 /**
  * get user data by id joined with payments and fees
  */
-export const getUserData = async (user_id: number) => {
-    return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(eq(table.users.user_id, user_id));
+export const getUserData = async (user_id: number, year: number) => {
+    return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.users.user_id, user_id), ilike(table.fees.fee_date, `${year}%`))).orderBy(desc(table.fees.fee_date));
+}
+
+/**
+ * get user data by id joined with payments and fees
+ */
+export const getUserDataWithDate = async (user_id: number, date: string) => {
+    return await db.select().from(table.users).leftJoin(table.payments, eq(table.users.user_id, table.payments.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).where(and(eq(table.users.user_id, user_id), eq(table.fees.fee_date, date))).orderBy(desc(table.fees.fee_date));
 }
 
 /**

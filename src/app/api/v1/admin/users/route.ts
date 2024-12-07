@@ -15,8 +15,31 @@ export async function GET(req: req){
     const page = req.nextUrl.searchParams.get('page');
     const filtered = req.nextUrl.searchParams.get('filtered');
     const status = req.nextUrl.searchParams.get('status');
+    const date = req.nextUrl.searchParams.get('date');
 
     try {
+        // get user data with date
+        if(user_id && date){
+            const data = await query.getUserDataWithDate(parseInt(user_id), date);
+            const filteredUserData = data.filter((item) => {
+                if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                    return item;
+                }
+
+                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+            });
+            
+            const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
+
+            // return response
+            return res.json({
+                message: "success",
+                data: user
+            }, {
+                status: 200
+            })
+        }
+
         // get user data by user_id
         if(user_id && filtered && filtered === 'true'){
             // get user data by user_id
@@ -61,7 +84,8 @@ export async function GET(req: req){
         // get user data by user_id
         if(user_id){
             // get user data by user_id
-            const userData = await query.getUserData(parseInt(user_id));
+            const currentYear = new Date().getFullYear();
+            const userData = await query.getUserData(parseInt(user_id), currentYear);
             const filteredUserData = userData.filter((item) => {
                 if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
                     return item;

@@ -11,28 +11,69 @@ interface RequestBody {
 export async function GET(req: NextRequest){
     const user_id = req.nextUrl.searchParams.get("user_id");
     const fee_id = req.nextUrl.searchParams.get("fee_id");
+    const date = req.nextUrl.searchParams.get("date");
 
     try {
         // get user data with fee_id
         if(user_id && fee_id){
             const data = await query.getUserDataWithFee(parseInt(user_id), parseInt(fee_id));
+            const filteredUserData = data.filter((item) => {
+                if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                    return item;
+                }
+
+                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+            });
+            
+            const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
 
             // return response
             return NextResponse.json({
                 message: "success",
-                data
+                data: user,
+            }, {
+                status: 200
+            })
+        }
+
+        if(user_id && date){
+            const data = await query.getUserDataWithDate(parseInt(user_id), date);
+            const filteredUserData = data.filter((item) => {
+                if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                    return item;
+                }
+
+                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+            });
+            
+            const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
+
+            // return response
+            return NextResponse.json({
+                message: "success",
+                data: user,
             }, {
                 status: 200
             })
         }
 
         // get admin data
-        const data = await query.getUserData(parseInt(user_id!));
+        const currentYear = new Date().getFullYear();
+        const data = await query.getUserData(parseInt(user_id!), currentYear);
+        const filteredUserData = data.filter((item) => {
+            if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                return item;
+            }
+
+            return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+        });
+        
+        const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
         
         // return response
         return NextResponse.json({
             message: "success",
-            data
+            data: user
         }, {
             status: 200
         })
