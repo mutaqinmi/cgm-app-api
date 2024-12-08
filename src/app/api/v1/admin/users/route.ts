@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest as req, NextResponse as res } from 'next/server';
 import * as query from '@/database/query';
 
@@ -22,11 +23,11 @@ export async function GET(req: req){
         if(user_id && date){
             const data = await query.getUserDataWithDate(parseInt(user_id), date);
             const filteredUserData = data.filter((item) => {
-                if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
                     return item;
                 }
 
-                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
             });
             
             const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -45,7 +46,7 @@ export async function GET(req: req){
             // get user data by user_id
             const undonePaymentsData = await query.getUserWithUndoneFilter(parseInt(user_id));
             const filteredUndonePaymentsData = undonePaymentsData.filter((item) => {
-                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
             });
 
             const undonePayments = filteredUndonePaymentsData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -63,11 +64,11 @@ export async function GET(req: req){
             // get user data by user_id
             const userData = await query.getUserDataWithStatus(parseInt(user_id), status);
             const filteredUserData = userData.filter((item) => {
-                if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
                     return item;
                 }
     
-                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
             });
             
             const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -87,11 +88,11 @@ export async function GET(req: req){
             const currentYear = new Date().getFullYear();
             const userData = await query.getUserData(parseInt(user_id), currentYear);
             const filteredUserData = userData.filter((item) => {
-                if(item.payments?.payment_status === true && item.fees?.fee_date! >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
                     return item;
                 }
 
-                return item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
             });
             
             const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));

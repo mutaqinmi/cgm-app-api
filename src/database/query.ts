@@ -239,14 +239,14 @@ export const setMultipleFees = async (date: string[], amount: number) => {
  * get payment history joined with payments and users with pagination
  */
 export const getPaymentsHistoryWithPagination = async (pagination: number) => {
-    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update)).limit(5).offset(5 * (pagination - 1));
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).orderBy(desc(table.payments.last_update)).limit(5).offset(5 * (pagination - 1));
 }
 
 /**
  * get single payment history joined with payments and users
  */
 export const getPaymentsHistory = async () => {
-    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).orderBy(desc(table.payments.last_update));
+    return await db.select().from(table.payments).leftJoin(table.users, eq(table.payments.user_id, table.users.user_id)).leftJoin(table.fees, eq(table.payments.fee_id, table.fees.fee_id)).orderBy(desc(table.payments.last_update));
 }
 
 export const getChartData = async (previousDate: string, currentDate: string) => {

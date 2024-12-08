@@ -1,4 +1,4 @@
-import { is, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { boolean, date, index, integer, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
 
 // user token table

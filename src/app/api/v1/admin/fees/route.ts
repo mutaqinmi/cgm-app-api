@@ -30,8 +30,9 @@ export async function GET(req: req){
 
             // get chart data from database
             const fees = await query.getChartData(new Date(newDate).toISOString().slice(0, 10), new Date(currentDate).toISOString().slice(0, 10));
-            const filteredFees = fees.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
+            const filteredFees = fees.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+    
             // group by date
             const groupByDate = (data: {payments: schema.paymentsType; fees: schema.feesType | null}[]) => {
                 return data.reduce((acc, item) => {
@@ -71,7 +72,7 @@ export async function GET(req: req){
         if(fee_id && filter && search){
             // search fees data from database
             const fees = await query.searchFeesByRT(parseInt(fee_id), filter, search);
-            const filteredFees = fees.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredFees = fees.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
             // return response
             return res.json({
@@ -86,7 +87,7 @@ export async function GET(req: req){
         if(fee_id && search){
             // search fees data from database
             const fees = await query.searchFees(parseInt(fee_id), search);
-            const filteredFees = fees.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredFees = fees.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
             // return response
             return res.json({
@@ -100,7 +101,7 @@ export async function GET(req: req){
         if(fee_id && filter && status && page){
             // get fees data from database
             const users = await query.getFeesByRTWithStatusWithPagination(parseInt(fee_id), filter, status, parseInt(page));
-            const filteredUsers = users.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredUsers = users.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
             // return response
             return res.json({
@@ -115,7 +116,7 @@ export async function GET(req: req){
             // get fees data from database
             // const users = await query.getFeesByStatusWithPagination(parseInt(fee_id), status, parseInt(page));
             const users = await query.getFeesByStatus(parseInt(fee_id), status);
-            const filteredUsers = users.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredUsers = users.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
             // return response
             return res.json({
@@ -131,8 +132,8 @@ export async function GET(req: req){
             // get fees data from database
             const fees = await query.getFeesByRT(parseInt(fee_id), filter);
             const users = await query.getFeesByRTWithPagination(parseInt(fee_id), filter, parseInt(page));
-            const filteredFees = fees.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
-            const filteredUsers = users.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredFees = fees.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredUsers = users.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
             // return response
             return res.json({
@@ -148,8 +149,8 @@ export async function GET(req: req){
             // get fees data from database
             const fees = await query.getFeeById(parseInt(fee_id));
             const users = await query.getFeeByIdWithPagination(parseInt(fee_id), parseInt(page));
-            const filteredFees = fees.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
-            const filteredUsers = users.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredFees = fees.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredUsers = users.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
             // return response
             return res.json({
@@ -165,7 +166,7 @@ export async function GET(req: req){
         if(fee_id){
             // get fees data from database
             const fees = await query.getFeeById(parseInt(fee_id));
-            const filteredFees = fees.filter((item) => item.fees?.fee_date! <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const filteredFees = fees.filter((item) => item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 
             // return response
             return res.json({

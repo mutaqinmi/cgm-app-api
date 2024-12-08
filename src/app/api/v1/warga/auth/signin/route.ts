@@ -12,7 +12,7 @@ export async function POST(req: req){
     const body: RequestBody = await req.json();
 
     // parse request body
-    let phone_number: string = body.phone;
+    const phone_number: string = body.phone;
     const user_password: string = body.password;
     
     try {
@@ -38,6 +38,7 @@ export async function POST(req: req){
         }
 
         // generate token
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const {password, ...payloads} = user[0];
         const token = generateToken(payloads);
 

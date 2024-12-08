@@ -3,6 +3,7 @@ import * as query from '@/database/query';
 
 interface RequestBody {
     admin_id: number,
+    user_id: number,
     payment_id: number,
     notification_title: string,
     notification_content: string,
@@ -38,8 +39,22 @@ export async function GET(req: req){
 export async function POST(req: req){
     // get notification body
     const body: RequestBody = await req.json();
+    
+    // get query params
+    const type = req.nextUrl.searchParams.get('type');
 
     try {
+        if(type === 'plain'){
+            await query.setUserPaymentNotification(body.user_id, body.notification_title, body.notification_content);
+
+            // return response
+            return res.json({
+                message: 'success',
+            }, {
+                status: 200
+            })
+        }
+
         // get user id from payment id
         const user = await query.getUserIdByPaymentId(body.payment_id);
 
