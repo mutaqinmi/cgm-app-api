@@ -207,7 +207,6 @@ export const getCountFees = async () => {
  * set single fee data (per-month)
  */
 export const setFee = async (date: string, amount: number) => {
-    console.log(date, amount);
     return await db.insert(table.fees).values({
         fee_date: date,
         fee_amount: amount,

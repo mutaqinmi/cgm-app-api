@@ -243,18 +243,28 @@ export async function DELETE(req: req){
     const user_id = req.nextUrl.searchParams.get('user_id');
 
     try {
-        if(user_id){
-            await query.deleteUser(parseInt(user_id));
+        const users = await query.getAllUsers();
+
+        if(users.length > 1){
+            if(user_id){
+                await query.deleteUser(parseInt(user_id));
+    
+                return res.json({
+                    message: 'success',
+                }, {
+                    status: 200
+                })
+            }
 
             return res.json({
-                message: 'success',
+                message: 'user_id required',
             }, {
-                status: 200
+                status: 400
             })
         }
-
+        
         return res.json({
-            message: 'user_id required',
+            message: 'user tidak dapat dihapus',
         }, {
             status: 400
         })
