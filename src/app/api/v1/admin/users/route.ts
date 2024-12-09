@@ -169,9 +169,6 @@ export async function GET(req: req){
     }
 }
 
-//! IMPORTANT!
-//TODO: add payment on new user
-
 export async function POST(req: req){
     const body: RequestBody = await req.json();
 
@@ -182,8 +179,10 @@ export async function POST(req: req){
         // add new user
         const newUser = await query.addNewUser(body.name, body.address, body.phone, body.rt);
 
-        // set current month payment to new user
-        await query.setSinglePayment(currentMonthFee[0].fee_id, newUser[0].user_id);
+        if(currentMonthFee.length){
+            // set current month payment to new user
+            await query.setSinglePayment(currentMonthFee[0].fee_id, newUser[0].user_id);
+        }
         
         // return response
         return res.json({
