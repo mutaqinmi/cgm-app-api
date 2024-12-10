@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest as req, NextResponse as res } from 'next/server';
 import * as query from '@/database/query';
+import * as schema from '@/database/schema';
 
 interface RequestBody {
     name: string,
     phone: string,
     address: string,
     rt: string,
+    users: schema.usersType[],
 }
 
 export async function GET(req: req){
@@ -172,7 +174,30 @@ export async function GET(req: req){
 export async function POST(req: req){
     const body: RequestBody = await req.json();
 
+    // get query params
+    const multiple = req.nextUrl.searchParams.get('multiple');
+
     try {
+        if(multiple && multiple === 'true'){
+            const users = await query.addMultipleNewUser(body.users);
+
+            // get current month fee
+            const currentMonthFee = await query.getFees(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            if(currentMonthFee.length){
+                // set current month payment to new user
+                users.map(async (user) => {
+                    await query.setSinglePayment(currentMonthFee[0].fee_id, user.user_id);
+                })
+            }
+
+            // return response
+            return res.json({
+                message: 'success',
+            }, {
+                status: 200
+            })
+        }
+
         // get current month fee
         const currentMonthFee = await query.getFees(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
 

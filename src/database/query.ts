@@ -387,6 +387,22 @@ export const addNewUser = async (name: string, address: string, phone: string, r
 }
 
 /**
+ * create multiple new user
+ */
+export const addMultipleNewUser = async (users: table.usersType[]) => {
+    const user = users.map((user: table.usersType) => {
+        return {
+            name: user.name,
+            address: user.address,
+            phone: user.phone,
+            rt: user.rt,
+        }
+    });
+
+    return await db.insert(table.users).values(user).returning();
+}
+
+/**
  * edit user
  */
 export const updateUserData = async (user_id: number, name: string, address: string, phone: string, rt: string) => {
