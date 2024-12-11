@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cipta Graha Mandiri App
+
+Cipta Graha Mandiri App or CGM App is a web application for Cipta Graha Mandiri residential. it used for check monthly fee for every resident and managed by administrator.
 
 ## Getting Started
 
-First, run the development server:
+### Requirements :
+
+> [!NOTE]
+> The current version needs manual software installation.
+
+- Node JS v22.11.0 or higher
+- NPM v10.9.0 or higher
+- PostgreSQL 17
+
+## Installation
+
+First, Clone [github repository](https://github.com/mutaqinmi/cgm-app-api.git) using Git
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/mutaqinmi/cgm-app-api.git && cd cgm-app-api
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Install the dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm i
+# or
+pnpm i
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+For setup database, create new database with database name **cgmapp** or what you like.
 
-## Learn More
+Open .env.example file and rename it to **.env** and then edit the variable with your preferences.
 
-To learn more about Next.js, take a look at the following resources:
+> [!TIP]
+> .env Example
+>
+> `API_URL=https://your-api-url.com/api/v1` // your api url
+>
+> `DATABASE_URL=postgres//username:password@hostname:port/dbname` // adjust it to your PostgreSQL configuration
+> `JWT_SECRET_KEY=example_key` // choose strong secret key for token generation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Migrate database, back to terminal or command line. Run this following command after installation setup at the first step.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Generate migration file
 
-## Deploy on Vercel
+```bash
+npm exec drizzle-kit generate
+# or
+pnpm exec drizzle-kit generate
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Migrate to database
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> [!CAUTION]
+> make sure your database configuration on .env file is correct
+
+```bash
+npm exec drizzle-kit migrate
+# or
+pnpm exec drizzle-kit migrate
+```
+
+If successfull, build the web app using following command
+
+```bash
+npm run build
+# or
+pnpm build
+```
+
+> [!IMPORTANT]
+> Before continue to next step, create new administrator first in database at administrators table.
+
+And finally, start your application
+
+```bash
+npm run start
+# or
+pnpm start
+```
