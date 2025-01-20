@@ -25,11 +25,11 @@ export async function GET(req: req){
         if(user_id && date){
             const data = await query.getUserDataWithDate(parseInt(user_id), date);
             const filteredUserData = data.filter((item) => {
-                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`){
                     return item;
                 }
 
-                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`;
             });
             
             const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -48,7 +48,7 @@ export async function GET(req: req){
             // get user data by user_id
             const undonePaymentsData = await query.getUserWithUndoneFilter(parseInt(user_id));
             const filteredUndonePaymentsData = undonePaymentsData.filter((item) => {
-                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`
             });
 
             const undonePayments = filteredUndonePaymentsData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -66,11 +66,11 @@ export async function GET(req: req){
             // get user data by user_id
             const userData = await query.getUserDataWithStatus(parseInt(user_id), status);
             const filteredUserData = userData.filter((item) => {
-                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`){
                     return item;
                 }
     
-                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`;
             });
             
             const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -90,11 +90,11 @@ export async function GET(req: req){
             const currentYear = new Date().getFullYear();
             const userData = await query.getUserData(parseInt(user_id), currentYear);
             const filteredUserData = userData.filter((item) => {
-                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`){
                     return item;
                 }
 
-                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`;
             });
             
             const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -182,7 +182,7 @@ export async function POST(req: req){
             const users = await query.addMultipleNewUser(body.users);
 
             // get current month fee
-            const currentMonthFee = await query.getFees(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+            const currentMonthFee = await query.getFees(`${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`);
             if(currentMonthFee.length){
                 // set current month payment to new user
                 users.map(async (user) => {
@@ -199,7 +199,7 @@ export async function POST(req: req){
         }
 
         // get current month fee
-        const currentMonthFee = await query.getFees(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
+        const currentMonthFee = await query.getFees(`${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`);
 
         // add new user
         const newUser = await query.addNewUser(body.name, body.address, body.phone, body.rt);

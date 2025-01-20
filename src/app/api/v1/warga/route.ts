@@ -19,11 +19,11 @@ export async function GET(req: NextRequest){
         if(user_id && fee_id){
             const data = await query.getUserDataWithFee(parseInt(user_id), parseInt(fee_id));
             const filteredUserData = data.filter((item) => {
-                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`){
                     return item;
                 }
 
-                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`;
             });
             
             const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -40,11 +40,11 @@ export async function GET(req: NextRequest){
         if(user_id && date){
             const data = await query.getUserDataWithDate(parseInt(user_id), date);
             const filteredUserData = data.filter((item) => {
-                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+                if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`){
                     return item;
                 }
 
-                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+                return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`;
             });
             
             const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
@@ -62,11 +62,11 @@ export async function GET(req: NextRequest){
         const currentYear = new Date().getFullYear();
         const data = await query.getUserData(parseInt(user_id!), currentYear);
         const filteredUserData = data.filter((item) => {
-            if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`){
+            if(item.payments?.payment_status === true && item.fees && item.fees.fee_date && item.fees.fee_date >= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`){
                 return item;
             }
 
-            return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+            return item.fees && item.fees.fee_date && item.fees.fee_date <= `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`;
         });
         
         const user = filteredUserData.map(({users: {password, ...users}, ...userData}) => ({...users, ...userData}));
